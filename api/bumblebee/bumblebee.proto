@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package overmindv.bumblebee;
+
+option go_package = "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee;bumblebee";
+
+import "google/protobuf/timestamp.proto";
+
+message TemplateItem {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateTemplateItemRequest {
+  string name = 1;
+  string description = 2;
+  string status = 3;
+}
+
+message CreateTemplateItemResponse {
+  TemplateItem item = 1;
+}
+
+message GetTemplateItemRequest {
+  string id = 1;
+}
+
+message GetTemplateItemResponse {
+  TemplateItem item = 1;
+}
+
+message ListTemplateItemsRequest {}
+
+message ListTemplateItemsResponse {
+  repeated TemplateItem items = 1;
+}
+
+message UpdateTemplateItemRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string status = 4;
+}
+
+message UpdateTemplateItemResponse {
+  TemplateItem item = 1;
+}
+
+message DeleteTemplateItemRequest {
+  string id = 1;
+}
+
+message DeleteTemplateItemResponse {
+  TemplateItem item = 1;
+}
+
+service BumblebeeService {
+  rpc CreateTemplateItem(CreateTemplateItemRequest) returns (CreateTemplateItemResponse);
+  rpc GetTemplateItem(GetTemplateItemRequest) returns (GetTemplateItemResponse);
+  rpc ListTemplateItems(ListTemplateItemsRequest) returns (ListTemplateItemsResponse);
+  rpc UpdateTemplateItem(UpdateTemplateItemRequest) returns (UpdateTemplateItemResponse);
+  rpc DeleteTemplateItem(DeleteTemplateItemRequest) returns (DeleteTemplateItemResponse);
+}
