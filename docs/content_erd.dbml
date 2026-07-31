@@ -1,0 +1,106 @@
+Enum content_type {
+  article
+  note
+  summary
+  theory
+}
+
+Enum content_status {
+  draft
+  published
+  archived
+}
+
+Enum content_format {
+  markdown
+  typst
+}
+
+Enum asset_kind {
+  image
+  attachment
+  pdf
+  archive
+}
+
+Table content_items {
+  id uuid [pk]
+  type content_type [not null]
+  status content_status [not null, default: 'draft']
+
+  title text [not null]
+  slug text [not null, unique]
+  description text [not null, default: '']
+
+  current_revision_id uuid
+  published_revision_id uuid
+
+  created_by uuid
+  updated_by uuid
+
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  published_at timestamptz
+  archived_at timestamptz
+}
+
+Table content_revisions {
+  id uuid [pk]
+  content_item_id uuid [not null]
+
+  revision int [not null]
+  format content_format [not null]
+  source text [not null]
+  source_hash text [not null]
+  message text [not null, default: '']
+
+  created_by uuid
+  created_at timestamptz [not null]
+
+  indexes {
+    (content_item_id, revision) [unique]
+  }
+}
+
+Table tags {
+  id uuid [pk]
+  name text [not null]
+  slug text [not null, unique]
+
+  created_at timestamptz [not null]
+}
+
+Table content_tags {
+  content_item_id uuid [not null]
+  tag_id uuid [not null]
+
+  created_at timestamptz [not null]
+
+  indexes {
+    (content_item_id, tag_id) [pk]
+  }
+}
+
+Table content_assets {
+  id uuid [pk]
+  content_item_id uuid [not null]
+  revision_id uuid
+
+  asset_id uuid [not null]
+  kind asset_kind [not null]
+  title text [not null, default: '']
+  position int [not null, default: 0]
+
+  created_at timestamptz [not null]
+}
+
+Ref: content_revisions.content_item_id > content_items.id
+
+Ref: content_items.current_revision_id > content_revisions.id
+Ref: content_items.published_revision_id > content_revisions.id
+
+Ref: content_tags.content_item_id > content_items.id
+Ref: content_tags.tag_id > tags.id
+
+Ref: content_assets.content_item_id > content_items.id
+Ref: content_assets.revision_id > content_revisions.id
