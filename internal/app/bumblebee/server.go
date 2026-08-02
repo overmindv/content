@@ -10,54 +10,72 @@ import (
 
 type Server struct {
 	bumblebeepb.UnimplementedBumblebeeServiceServer
-	itemService *service.TemplateItemService
+	itemService *service.ContentItemService
 }
 
-func NewServer(itemService *service.TemplateItemService) *Server {
+func NewServer(itemService *service.ContentItemService) *Server {
 	return &Server{itemService: itemService}
 }
 
-func (s *Server) CreateTemplateItem(ctx context.Context, req *bumblebeepb.CreateTemplateItemRequest) (*bumblebeepb.CreateTemplateItemResponse, error) {
-	item, err := s.itemService.Create(ctx, mapper.ToCreateInput(mapper.CreateTemplateItemFromProto(req)))
+func (s *Server) CreateContentItem(ctx context.Context, req *bumblebeepb.CreateContentItemRequest) (*bumblebeepb.CreateContentItemResponse, error) {
+	item, err := s.itemService.Create(ctx, mapper.ToCreateInput(mapper.CreateContentItemFromProto(req)))
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &bumblebeepb.CreateTemplateItemResponse{Item: mapper.ToProto(item)}, nil
+	return &bumblebeepb.CreateContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
-func (s *Server) GetTemplateItem(ctx context.Context, req *bumblebeepb.GetTemplateItemRequest) (*bumblebeepb.GetTemplateItemResponse, error) {
+func (s *Server) GetContentItem(ctx context.Context, req *bumblebeepb.GetContentItemRequest) (*bumblebeepb.GetContentItemResponse, error) {
 	item, err := s.itemService.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &bumblebeepb.GetTemplateItemResponse{Item: mapper.ToProto(item)}, nil
+	return &bumblebeepb.GetContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
-func (s *Server) ListTemplateItems(ctx context.Context, _ *bumblebeepb.ListTemplateItemsRequest) (*bumblebeepb.ListTemplateItemsResponse, error) {
+func (s *Server) ListContentItems(ctx context.Context, _ *bumblebeepb.ListContentItemsRequest) (*bumblebeepb.ListContentItemsResponse, error) {
 	items, err := s.itemService.List(ctx)
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &bumblebeepb.ListTemplateItemsResponse{Items: mapper.ToProtoList(items)}, nil
+	return &bumblebeepb.ListContentItemsResponse{Items: mapper.ToProtoList(items)}, nil
 }
 
-func (s *Server) UpdateTemplateItem(ctx context.Context, req *bumblebeepb.UpdateTemplateItemRequest) (*bumblebeepb.UpdateTemplateItemResponse, error) {
-	item, err := s.itemService.Update(ctx, mapper.ToUpdateInput(mapper.UpdateTemplateItemFromProto(req)))
+func (s *Server) UpdateContentItem(ctx context.Context, req *bumblebeepb.UpdateContentItemRequest) (*bumblebeepb.UpdateContentItemResponse, error) {
+	item, err := s.itemService.Update(ctx, mapper.ToUpdateInput(mapper.UpdateContentItemFromProto(req)))
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &bumblebeepb.UpdateTemplateItemResponse{Item: mapper.ToProto(item)}, nil
+	return &bumblebeepb.UpdateContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
-func (s *Server) DeleteTemplateItem(ctx context.Context, req *bumblebeepb.DeleteTemplateItemRequest) (*bumblebeepb.DeleteTemplateItemResponse, error) {
+func (s *Server) DeleteContentItem(ctx context.Context, req *bumblebeepb.DeleteContentItemRequest) (*bumblebeepb.DeleteContentItemResponse, error) {
 	item, err := s.itemService.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &bumblebeepb.DeleteTemplateItemResponse{Item: mapper.ToProto(item)}, nil
+	return &bumblebeepb.DeleteContentItemResponse{Item: mapper.ToProto(item)}, nil
+}
+
+func (s *Server) CreateContentRevision(ctx context.Context, req *bumblebeepb.CreateContentRevisionRequest) (*bumblebeepb.CreateContentRevisionResponse, error) {
+	revision, err := s.itemService.CreateRevision(ctx, mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req)))
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &bumblebeepb.CreateContentRevisionResponse{Revision: mapper.ToProtoRevision(revision)}, nil
+}
+
+func (s *Server) ListContentRevisions(ctx context.Context, req *bumblebeepb.ListContentRevisionsRequest) (*bumblebeepb.ListContentRevisionsResponse, error) {
+	revisions, err := s.itemService.ListRevisions(ctx, req.GetContentItemId())
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &bumblebeepb.ListContentRevisionsResponse{Revisions: mapper.ToProtoRevisions(revisions)}, nil
 }

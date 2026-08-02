@@ -82,7 +82,7 @@ func Load() Config {
 		Kafka: KafkaConfig{
 			Enabled:  envBool("KAFKA_ENABLED", true),
 			Brokers:  envCSV("KAFKA_BROKERS", []string{"localhost:9092"}),
-			Topic:    env("KAFKA_TOPIC", "bumblebee.template-item-events"),
+			Topic:    env("KAFKA_TOPIC", "bumblebee.content-item-events"),
 			ClientID: env("KAFKA_CLIENT_ID", ServiceName),
 		},
 		Metrics: MetricsConfig{

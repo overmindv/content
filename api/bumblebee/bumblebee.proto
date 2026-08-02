@@ -6,62 +6,143 @@ option go_package = "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee;b
 
 import "google/protobuf/timestamp.proto";
 
-message TemplateItem {
+message ContentItem {
   string id = 1;
-  string name = 2;
-  string description = 3;
-  string status = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
-}
-
-message CreateTemplateItemRequest {
-  string name = 1;
-  string description = 2;
+  string type = 2;
   string status = 3;
+  string title = 4;
+  string slug = 5;
+  string description = 6;
+  string current_revision_id = 7;
+  string published_revision_id = 8;
+  string created_by = 9;
+  string updated_by = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp published_at = 13;
+  google.protobuf.Timestamp archived_at = 14;
+  ContentRevision current_revision = 15;
+  repeated Tag tags = 16;
+  repeated ContentAsset assets = 17;
 }
 
-message CreateTemplateItemResponse {
-  TemplateItem item = 1;
-}
-
-message GetTemplateItemRequest {
+message ContentRevision {
   string id = 1;
+  string content_item_id = 2;
+  int32 revision = 3;
+  string format = 4;
+  string source = 5;
+  string source_hash = 6;
+  string message = 7;
+  string created_by = 8;
+  google.protobuf.Timestamp created_at = 9;
 }
 
-message GetTemplateItemResponse {
-  TemplateItem item = 1;
-}
-
-message ListTemplateItemsRequest {}
-
-message ListTemplateItemsResponse {
-  repeated TemplateItem items = 1;
-}
-
-message UpdateTemplateItemRequest {
+message Tag {
   string id = 1;
   string name = 2;
-  string description = 3;
-  string status = 4;
+  string slug = 3;
+  google.protobuf.Timestamp created_at = 4;
 }
 
-message UpdateTemplateItemResponse {
-  TemplateItem item = 1;
+message ContentAsset {
+  string id = 1;
+  string content_item_id = 2;
+  string revision_id = 3;
+  string asset_id = 4;
+  string kind = 5;
+  string title = 6;
+  int32 position = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
-message DeleteTemplateItemRequest {
+message CreateContentAsset {
+  string asset_id = 1;
+  string kind = 2;
+  string title = 3;
+  int32 position = 4;
+}
+
+message CreateContentItemRequest {
+  string type = 1;
+  string status = 2;
+  string title = 3;
+  string slug = 4;
+  string description = 5;
+  string format = 6;
+  string source = 7;
+  string message = 8;
+  string created_by = 9;
+  repeated string tags = 10;
+  repeated CreateContentAsset assets = 11;
+}
+
+message CreateContentItemResponse {
+  ContentItem item = 1;
+}
+
+message GetContentItemRequest {
   string id = 1;
 }
 
-message DeleteTemplateItemResponse {
-  TemplateItem item = 1;
+message GetContentItemResponse {
+  ContentItem item = 1;
+}
+
+message ListContentItemsRequest {}
+
+message ListContentItemsResponse {
+  repeated ContentItem items = 1;
+}
+
+message UpdateContentItemRequest {
+  string id = 1;
+  string type = 2;
+  string status = 3;
+  string title = 4;
+  string slug = 5;
+  string description = 6;
+  string updated_by = 7;
+}
+
+message UpdateContentItemResponse {
+  ContentItem item = 1;
+}
+
+message DeleteContentItemRequest {
+  string id = 1;
+}
+
+message DeleteContentItemResponse {
+  ContentItem item = 1;
+}
+
+message CreateContentRevisionRequest {
+  string content_item_id = 1;
+  string format = 2;
+  string source = 3;
+  string message = 4;
+  string created_by = 5;
+}
+
+message CreateContentRevisionResponse {
+  ContentRevision revision = 1;
+}
+
+message ListContentRevisionsRequest {
+  string content_item_id = 1;
+}
+
+message ListContentRevisionsResponse {
+  repeated ContentRevision revisions = 1;
 }
 
 service BumblebeeService {
-  rpc CreateTemplateItem(CreateTemplateItemRequest) returns (CreateTemplateItemResponse);
-  rpc GetTemplateItem(GetTemplateItemRequest) returns (GetTemplateItemResponse);
-  rpc ListTemplateItems(ListTemplateItemsRequest) returns (ListTemplateItemsResponse);
-  rpc UpdateTemplateItem(UpdateTemplateItemRequest) returns (UpdateTemplateItemResponse);
-  rpc DeleteTemplateItem(DeleteTemplateItemRequest) returns (DeleteTemplateItemResponse);
+  rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
+  rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
+  rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);
+  rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);
+  rpc DeleteContentItem(DeleteContentItemRequest) returns (DeleteContentItemResponse);
+  rpc CreateContentRevision(CreateContentRevisionRequest) returns (CreateContentRevisionResponse);
+  rpc ListContentRevisions(ListContentRevisionsRequest) returns (ListContentRevisionsResponse);
 }

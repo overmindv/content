@@ -40,7 +40,7 @@ db-seed: $(GOOSE) ## Apply seed migrations
 
 mocks: $(MOCKGEN) ## Regenerate mocks from service contracts
 	mkdir -p internal/mock
-	$(MOCKGEN) -source=internal/pkg/service/contracts.go -destination=internal/mock/template_item_dependencies.go -package=mock
+	$(MOCKGEN) -source=internal/pkg/service/contracts.go -destination=internal/mock/content_item_dependencies.go -package=mock
 
 generate: proto mocks ## Regenerate proto and mocks
 
