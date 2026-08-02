@@ -24,10 +24,16 @@ type Publisher struct {
 	writer  *kafkago.Writer
 }
 
-type templateItemEvent struct {
-	Event      string              `json:"event"`
-	OccurredAt time.Time           `json:"occurred_at"`
-	Item       domain.TemplateItem `json:"item"`
+type contentItemEvent struct {
+	Event      string             `json:"event"`
+	OccurredAt time.Time          `json:"occurred_at"`
+	Item       domain.ContentItem `json:"item"`
+}
+
+type contentRevisionEvent struct {
+	Event      string                 `json:"event"`
+	OccurredAt time.Time              `json:"occurred_at"`
+	Revision   domain.ContentRevision `json:"revision"`
 }
 
 func NewPublisher(cfg Config, logger *slog.Logger) *Publisher {
@@ -52,16 +58,20 @@ func NewPublisher(cfg Config, logger *slog.Logger) *Publisher {
 	}
 }
 
-func (p *Publisher) PublishCreated(ctx context.Context, item domain.TemplateItem) {
-	p.publish(ctx, "template_item.created", item)
+func (p *Publisher) PublishCreated(ctx context.Context, item domain.ContentItem) {
+	p.publishContentItem(ctx, "content_item.created", item)
 }
 
-func (p *Publisher) PublishUpdated(ctx context.Context, item domain.TemplateItem) {
-	p.publish(ctx, "template_item.updated", item)
+func (p *Publisher) PublishUpdated(ctx context.Context, item domain.ContentItem) {
+	p.publishContentItem(ctx, "content_item.updated", item)
 }
 
-func (p *Publisher) PublishDeleted(ctx context.Context, item domain.TemplateItem) {
-	p.publish(ctx, "template_item.deleted", item)
+func (p *Publisher) PublishDeleted(ctx context.Context, item domain.ContentItem) {
+	p.publishContentItem(ctx, "content_item.deleted", item)
+}
+
+func (p *Publisher) PublishRevisionCreated(ctx context.Context, revision domain.ContentRevision) {
+	p.publishContentRevision(ctx, "content_revision.created", revision)
 }
 
 func (p *Publisher) Close() error {
@@ -72,12 +82,12 @@ func (p *Publisher) Close() error {
 	return p.writer.Close()
 }
 
-func (p *Publisher) publish(ctx context.Context, eventName string, item domain.TemplateItem) {
+func (p *Publisher) publishContentItem(ctx context.Context, eventName string, item domain.ContentItem) {
 	if !p.enabled || p.writer == nil {
 		return
 	}
 
-	payload, err := json.Marshal(templateItemEvent{
+	payload, err := json.Marshal(contentItemEvent{
 		Event:      eventName,
 		OccurredAt: time.Now().UTC(),
 		Item:       item,
@@ -89,6 +99,30 @@ func (p *Publisher) publish(ctx context.Context, eventName string, item domain.T
 
 	err = p.writer.WriteMessages(ctx, kafkago.Message{
 		Key:   []byte(item.ID),
+		Value: payload,
+	})
+	if err != nil {
+		p.logger.Warn("failed to publish kafka event", "error", err, "event", eventName, "topic", p.topic)
+	}
+}
+
+func (p *Publisher) publishContentRevision(ctx context.Context, eventName string, revision domain.ContentRevision) {
+	if !p.enabled || p.writer == nil {
+		return
+	}
+
+	payload, err := json.Marshal(contentRevisionEvent{
+		Event:      eventName,
+		OccurredAt: time.Now().UTC(),
+		Revision:   revision,
+	})
+	if err != nil {
+		p.logger.Warn("failed to marshal kafka event", "error", err, "event", eventName)
+		return
+	}
+
+	err = p.writer.WriteMessages(ctx, kafkago.Message{
+		Key:   []byte(revision.ContentItemID),
 		Value: payload,
 	})
 	if err != nil {

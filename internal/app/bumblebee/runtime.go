@@ -24,7 +24,7 @@ type Runtime struct {
 	logger      *slog.Logger
 	db          *sql.DB
 	publisher   *kafka.Publisher
-	itemService *service.TemplateItemService
+	itemService *service.ContentItemService
 }
 
 func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
@@ -41,7 +41,7 @@ func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
 	registryMetrics := metrics.New(cfg.Metrics.Namespace, nil)
 	registryMetrics.SetDependency("postgres", true)
 	registryMetrics.SetDependency("kafka", cfg.Kafka.Enabled)
-	store := postgres.NewTemplateItemStore(db)
+	store := postgres.NewContentItemStore(db)
 	publisher := kafka.NewPublisher(kafka.Config{
 		Enabled:  cfg.Kafka.Enabled,
 		Brokers:  cfg.Kafka.Brokers,
@@ -54,7 +54,7 @@ func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
 		logger:      logger,
 		db:          db,
 		publisher:   publisher,
-		itemService: service.NewTemplateItemService(store, publisher, registryMetrics),
+		itemService: service.NewContentItemService(store, publisher, registryMetrics),
 	}, nil
 }
 
