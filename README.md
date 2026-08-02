@@ -1,25 +1,25 @@
 # bumblebee
 
-`bumblebee` — базовый Go-сервис контента Overmindv. Сейчас он поднят из сервисного шаблона и содержит временный CRUD `TemplateItem`, который позже будет заменён реальными сущностями content-domain.
+`bumblebee` — базовый Go-сервис контента Overmindv. Сейчас он содержит MVP-модель для самостоятельных контентных документов: статьи, конспекты, теорию и summary в Markdown/Typst.
 
-## На данный момент это заглушкка!
+## На данный момент это базовая модель
 
-сервис сделан на основе шаблона
+Сервис сделан на основе шаблона.
 
-я еще не сделал реальные сущности и интеграцию с другими сервисами, буду доделывать
+Интеграции с другими сервисами пока не добавлены: `bumblebee` не знает про вузы, курсы, темы, пользователей, роли, задания, обсуждения и review workflow.
 
-архитектура будет меняться.
+Архитектура домена может меняться по мере уточнения требований.
 
 ## Что уже есть
 
 - `cmd/bumblebee/main.go` как единая точка входа.
-- `api/bumblebee/bumblebee.proto` с базовым CRUD-контрактом.
+- `api/bumblebee/bumblebee.proto` с базовым CRUD-контрактом для content items.
 - `internal/pkg/api/bumblebee/` для generated `pb.go` файлов.
 - `internal/app/bumblebee/` для transport-layer и runtime.
 - `internal/pkg/service/` для бизнес-логики.
 - `internal/pkg/store/postgres/` для работы с PostgreSQL.
 - `internal/pkg/kafka/` для публикации событий.
-- `migrations/schema` и `migrations/seeds` через goose.
+- `migrations/schema` и `migrations/seeds` через goose для `content_items`, `content_revisions`, `tags`, `content_tags`, `content_assets`.
 - `tests/component/` для компонентных тестов с реальной БД.
 - `.github/workflows/ci.yaml`, `.golangci.yml`, `Dockerfile`, `docker-compose.yaml`, `Makefile`.
 
@@ -79,7 +79,7 @@ curl http://localhost:8080/healthz
 curl http://localhost:8080/readyz
 ```
 
-Миграции нужны для CRUD-методов `TemplateItem`, но не для health/readiness.
+Миграции нужны для CRUD-методов `ContentItem`, но не для health/readiness.
 
 ## Команды
 
