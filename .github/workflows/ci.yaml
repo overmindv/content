@@ -13,9 +13,6 @@ env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: overmindv
   IMAGE_NAME: bumblebee
-  CI_POSTGRES_DB: bumblebee
-  CI_POSTGRES_USER: postgres
-  CI_POSTGRES_DSN: postgres://postgres@localhost:5432/bumblebee?sslmode=disable
 
 jobs:
   proto:
@@ -85,19 +82,19 @@ jobs:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_DB: ${{ env.CI_POSTGRES_DB }}
-          POSTGRES_USER: ${{ env.CI_POSTGRES_USER }}
+          POSTGRES_DB: bumblebee
+          POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U ${{ env.CI_POSTGRES_USER }} -d ${{ env.CI_POSTGRES_DB }}"
+          --health-cmd "pg_isready -U postgres -d bumblebee"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DB_DSN: ${{ env.CI_POSTGRES_DSN }}
-      COMPONENT_TEST_DSN: ${{ env.CI_POSTGRES_DSN }}
+      DB_DSN: postgres://postgres@localhost:5432/bumblebee?sslmode=disable
+      COMPONENT_TEST_DSN: postgres://postgres@localhost:5432/bumblebee?sslmode=disable
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
