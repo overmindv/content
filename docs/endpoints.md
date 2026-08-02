@@ -19,17 +19,19 @@ curl http://localhost:8080/metrics
 
 Сервис: `overmindv.bumblebee.BumblebeeService`
 
-- `CreateTemplateItem`
-- `GetTemplateItem`
-- `ListTemplateItems`
-- `UpdateTemplateItem`
-- `DeleteTemplateItem`
+- `CreateContentItem`
+- `GetContentItem`
+- `ListContentItems`
+- `UpdateContentItem`
+- `DeleteContentItem`
+- `CreateContentRevision`
+- `ListContentRevisions`
 
 Примеры:
 
 ```bash
-grpcurl -plaintext -d '{"name":"starter","description":"created from grpcurl","status":"draft"}' \
-  localhost:9090 overmindv.bumblebee.BumblebeeService/CreateTemplateItem
+grpcurl -plaintext -d '{"type":"article","status":"draft","title":"Starter article","slug":"starter-article","format":"markdown","source":"# Starter article","tags":["go","content"]}' \
+  localhost:9090 overmindv.bumblebee.BumblebeeService/CreateContentItem
 
 grpcurl -plaintext localhost:9090 list
 ```
