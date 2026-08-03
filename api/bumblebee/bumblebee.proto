@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package overmindv.bumblebee;
 
-option go_package = "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee;bumblebee";
-
 import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee;bumblebee";
 
 message ContentItem {
   string id = 1;
