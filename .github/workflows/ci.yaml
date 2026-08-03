@@ -31,8 +31,8 @@ jobs:
           docker run --rm \
             -v "$PWD:/workspace" \
             -w /workspace \
-            golang:1.26.1-alpine \
-            sh -c "apk add --no-cache protobuf protobuf-dev make && make generate"
+            golang:1.26.1-bookworm \
+            bash -lc "apt-get update && apt-get install -y --no-install-recommends protobuf-compiler make && rm -rf /var/lib/apt/lists/* && make generate"
       - name: Verify generated files are committed
         run: git diff --exit-code internal/pkg/api internal/mock
 
