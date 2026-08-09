@@ -35,7 +35,9 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	itemID := uuid.NewString()
 	revisionID := uuid.NewString()
@@ -169,7 +171,9 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	items := make([]domain.ContentItem, 0)
 	for rows.Next() {
@@ -261,7 +265,9 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	if err != nil {
 		return domain.ContentRevision{}, err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	const lockItem = `
 		SELECT id
@@ -353,7 +359,9 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	revisions := make([]domain.ContentRevision, 0)
 	for rows.Next() {
@@ -525,7 +533,9 @@ func (s *ContentItemStore) listTags(ctx context.Context, queryer queryer, conten
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	tags := make([]domain.Tag, 0)
 	for rows.Next() {
@@ -552,7 +562,9 @@ func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, cont
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	assets := make([]domain.ContentAsset, 0)
 	for rows.Next() {

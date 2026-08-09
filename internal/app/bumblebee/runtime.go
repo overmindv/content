@@ -74,7 +74,9 @@ func (r *Runtime) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer grpcListener.Close()
+	defer func() {
+		_ = grpcListener.Close()
+	}()
 
 	errCh := make(chan error, 2)
 	var once sync.Once
