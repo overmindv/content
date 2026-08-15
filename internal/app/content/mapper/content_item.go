@@ -3,13 +3,13 @@ package mapper
 import (
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/dto"
-	bumblebee "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee"
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
+	"github.com/overmindv/content/internal/dto"
+	content "github.com/overmindv/content/internal/pkg/api/content"
+	"github.com/overmindv/content/internal/pkg/domain"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func CreateContentItemFromProto(req *bumblebee.CreateContentItemRequest) dto.CreateContentItem {
+func CreateContentItemFromProto(req *content.CreateContentItemRequest) dto.CreateContentItem {
 	assets := make([]dto.CreateContentAsset, 0, len(req.GetAssets()))
 	for _, asset := range req.GetAssets() {
 		assets = append(assets, dto.CreateContentAsset{
@@ -35,7 +35,7 @@ func CreateContentItemFromProto(req *bumblebee.CreateContentItemRequest) dto.Cre
 	}
 }
 
-func UpdateContentItemFromProto(req *bumblebee.UpdateContentItemRequest) dto.UpdateContentItem {
+func UpdateContentItemFromProto(req *content.UpdateContentItemRequest) dto.UpdateContentItem {
 	return dto.UpdateContentItem{
 		ID:          req.GetId(),
 		Type:        req.GetType(),
@@ -47,7 +47,7 @@ func UpdateContentItemFromProto(req *bumblebee.UpdateContentItemRequest) dto.Upd
 	}
 }
 
-func CreateContentRevisionFromProto(req *bumblebee.CreateContentRevisionRequest) dto.CreateContentRevision {
+func CreateContentRevisionFromProto(req *content.CreateContentRevisionRequest) dto.CreateContentRevision {
 	return dto.CreateContentRevision{
 		ContentItemID: req.GetContentItemId(),
 		Format:        req.GetFormat(),
@@ -105,8 +105,8 @@ func ToCreateRevisionInput(payload dto.CreateContentRevision) domain.CreateConte
 	}
 }
 
-func ToProto(item domain.ContentItem) *bumblebee.ContentItem {
-	result := &bumblebee.ContentItem{
+func ToProto(item domain.ContentItem) *content.ContentItem {
+	result := &content.ContentItem{
 		Id:                  item.ID,
 		Type:                string(item.Type),
 		Status:              string(item.Status),
@@ -131,8 +131,8 @@ func ToProto(item domain.ContentItem) *bumblebee.ContentItem {
 	return result
 }
 
-func ToProtoList(items []domain.ContentItem) []*bumblebee.ContentItem {
-	result := make([]*bumblebee.ContentItem, 0, len(items))
+func ToProtoList(items []domain.ContentItem) []*content.ContentItem {
+	result := make([]*content.ContentItem, 0, len(items))
 	for _, item := range items {
 		result = append(result, ToProto(item))
 	}
@@ -140,8 +140,8 @@ func ToProtoList(items []domain.ContentItem) []*bumblebee.ContentItem {
 	return result
 }
 
-func ToProtoRevision(revision domain.ContentRevision) *bumblebee.ContentRevision {
-	return &bumblebee.ContentRevision{
+func ToProtoRevision(revision domain.ContentRevision) *content.ContentRevision {
+	return &content.ContentRevision{
 		Id:            revision.ID,
 		ContentItemId: revision.ContentItemID,
 		Revision:      int32(revision.Revision),
@@ -154,8 +154,8 @@ func ToProtoRevision(revision domain.ContentRevision) *bumblebee.ContentRevision
 	}
 }
 
-func ToProtoRevisions(revisions []domain.ContentRevision) []*bumblebee.ContentRevision {
-	result := make([]*bumblebee.ContentRevision, 0, len(revisions))
+func ToProtoRevisions(revisions []domain.ContentRevision) []*content.ContentRevision {
+	result := make([]*content.ContentRevision, 0, len(revisions))
 	for _, revision := range revisions {
 		result = append(result, ToProtoRevision(revision))
 	}
@@ -163,10 +163,10 @@ func ToProtoRevisions(revisions []domain.ContentRevision) []*bumblebee.ContentRe
 	return result
 }
 
-func ToProtoTags(tags []domain.Tag) []*bumblebee.Tag {
-	result := make([]*bumblebee.Tag, 0, len(tags))
+func ToProtoTags(tags []domain.Tag) []*content.Tag {
+	result := make([]*content.Tag, 0, len(tags))
 	for _, tag := range tags {
-		result = append(result, &bumblebee.Tag{
+		result = append(result, &content.Tag{
 			Id:        tag.ID,
 			Name:      tag.Name,
 			Slug:      tag.Slug,
@@ -177,10 +177,10 @@ func ToProtoTags(tags []domain.Tag) []*bumblebee.Tag {
 	return result
 }
 
-func ToProtoAssets(assets []domain.ContentAsset) []*bumblebee.ContentAsset {
-	result := make([]*bumblebee.ContentAsset, 0, len(assets))
+func ToProtoAssets(assets []domain.ContentAsset) []*content.ContentAsset {
+	result := make([]*content.ContentAsset, 0, len(assets))
 	for _, asset := range assets {
-		result = append(result, &bumblebee.ContentAsset{
+		result = append(result, &content.ContentAsset{
 			Id:            asset.ID,
 			ContentItemId: asset.ContentItemID,
 			RevisionId:    asset.RevisionID,

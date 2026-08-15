@@ -1,4 +1,4 @@
-package bumblebee
+package content
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/config"
+	"github.com/overmindv/content/internal/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

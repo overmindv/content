@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package overmindv.bumblebee;
+package overmindv.content;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee;bumblebee";
+option go_package = "github.com/overmindv/content/internal/pkg/api/content;content";
 
 message ContentItem {
   string id = 1;
@@ -137,7 +137,7 @@ message ListContentRevisionsResponse {
   repeated ContentRevision revisions = 1;
 }
 
-service BumblebeeService {
+service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
   rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);

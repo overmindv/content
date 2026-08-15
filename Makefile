@@ -3,10 +3,10 @@ PROTOC_GEN_GO := $(LOCAL_BIN)/protoc-gen-go
 PROTOC_GEN_GO_GRPC := $(LOCAL_BIN)/protoc-gen-go-grpc
 MOCKGEN := $(LOCAL_BIN)/mockgen
 GOOSE := $(LOCAL_BIN)/goose
-SERVICE_NAME := bumblebee
-DB_DSN ?= postgres://postgres:change-me@localhost:5432/bumblebee?sslmode=disable
+SERVICE_NAME := content
+DB_DSN ?= postgres://postgres:change-me@localhost:5432/content?sslmode=disable
 COMPONENT_TEST_DSN ?= $(DB_DSN)
-MIGRATION_NAME ?= bumblebee_change
+MIGRATION_NAME ?= content_change
 PROTO_INCLUDE ?= /usr/include
 
 .PHONY: help test ctest build db-status db-up db-down db-create db-seed mocks generate proto run env-up env-down tidy
@@ -48,13 +48,13 @@ proto: $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_GRPC) ## Regenerate protobuf files
 	PATH="$(LOCAL_BIN):$$PATH" protoc -I . \
 		-I "$(PROTO_INCLUDE)" \
 		--go_out=. \
-		--go_opt=module=github.com/overmindv/bumblebee \
+		--go_opt=module=github.com/overmindv/content \
 		--go-grpc_out=. \
-		--go-grpc_opt=module=github.com/overmindv/bumblebee \
-		api/bumblebee/bumblebee.proto
+		--go-grpc_opt=module=github.com/overmindv/content \
+		api/content/content.proto
 
 run: ## Run the service locally
-	go run ./cmd/bumblebee
+	go run ./cmd/content
 
 env-up: ## Start local PostgreSQL and Kafka
 	docker compose up -d postgres kafka

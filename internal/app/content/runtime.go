@@ -1,4 +1,4 @@
-package bumblebee
+package content
 
 import (
 	"context"
@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/overmindv/bumblebee/internal/config"
-	bumblebeepb "github.com/overmindv/bumblebee/internal/pkg/api/bumblebee"
-	"github.com/overmindv/bumblebee/internal/pkg/kafka"
-	"github.com/overmindv/bumblebee/internal/pkg/metrics"
-	"github.com/overmindv/bumblebee/internal/pkg/service"
-	"github.com/overmindv/bumblebee/internal/pkg/store/postgres"
+	"github.com/overmindv/content/internal/config"
+	contentpb "github.com/overmindv/content/internal/pkg/api/content"
+	"github.com/overmindv/content/internal/pkg/kafka"
+	"github.com/overmindv/content/internal/pkg/metrics"
+	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/store/postgres"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -67,7 +67,7 @@ func (r *Runtime) Run(ctx context.Context) error {
 	}
 
 	grpcServer := grpc.NewServer()
-	bumblebeepb.RegisterBumblebeeServiceServer(grpcServer, NewServer(r.itemService))
+	contentpb.RegisterContentServiceServer(grpcServer, NewServer(r.itemService))
 	reflection.Register(grpcServer)
 
 	grpcListener, err := net.Listen("tcp", r.cfg.GRPC.Addr)

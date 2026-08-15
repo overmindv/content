@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
-	"github.com/overmindv/bumblebee/internal/pkg/metrics"
-	"github.com/overmindv/bumblebee/internal/pkg/validator"
+	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/metrics"
+	"github.com/overmindv/content/internal/pkg/validator"
 )
 
 type ContentItemService struct {

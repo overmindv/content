@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/domain"
 )
 
 var ErrNotFound = errors.New("content item not found")

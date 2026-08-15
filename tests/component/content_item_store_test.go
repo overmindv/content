@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
-	"github.com/overmindv/bumblebee/internal/pkg/store/postgres"
-	"github.com/overmindv/bumblebee/tests/builders"
+	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/store/postgres"
+	"github.com/overmindv/content/tests/builders"
 )
 
 func TestContentItemStoreCRUD(t *testing.T) {

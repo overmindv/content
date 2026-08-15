@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/domain"
 )
 
 type Error struct {

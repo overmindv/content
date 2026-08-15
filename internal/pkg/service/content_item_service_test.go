@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
-	"github.com/overmindv/bumblebee/internal/pkg/metrics"
+	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -83,7 +83,7 @@ func (p *publisherStub) PublishRevisionCreated(context.Context, domain.ContentRe
 func TestCreateAppliesDefaultsAndPublishesEvent(t *testing.T) {
 	store := &storeStub{}
 	publisher := &publisherStub{}
-	serviceMetrics := metrics.New("bumblebee_test", prometheus.NewRegistry())
+	serviceMetrics := metrics.New("content_test", prometheus.NewRegistry())
 	svc := NewContentItemService(store, publisher, serviceMetrics)
 
 	item, err := svc.Create(context.Background(), domain.CreateContentItemInput{

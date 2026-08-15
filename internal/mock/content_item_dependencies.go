@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	domain "github.com/overmindv/bumblebee/internal/pkg/domain"
+	domain "github.com/overmindv/content/internal/pkg/domain"
 	gomock "go.uber.org/mock/gomock"
 )
 

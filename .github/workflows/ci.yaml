@@ -1,4 +1,4 @@
-name: bumblebee-ci
+name: Content CI
 
 on:
   pull_request:
@@ -9,13 +9,18 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: overmindv
-  IMAGE_NAME: bumblebee
+  IMAGE_NAME: content
 
 jobs:
   proto:
+    name: Proto
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,89 +31,99 @@ jobs:
         run: buf lint
       - name: Check proto formatting
         run: buf format --diff --exit-code
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
       - name: Regenerate proto and mocks
-        run: |
-          docker run --rm \
-            -v "$PWD:/workspace" \
-            -w /workspace \
-            golang:1.26.1-bookworm \
-            sh -c "apt-get update && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev make && rm -rf /var/lib/apt/lists/* && make generate"
+        run: make generate
       - name: Verify generated files are committed
         run: git diff --exit-code internal/pkg/api internal/mock
 
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
       - uses: golangci/golangci-lint-action@v8
         with:
           version: v2.1
           install-mode: goinstall
 
   test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
       - name: Run unit tests
         run: make test
 
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
       - name: Build service
         run: make build
 
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: [proto, lint, test, build]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build --pull --tag "$REGISTRY/$IMAGE_OWNER/$IMAGE_NAME:ci" .
-
-  component-test-postgres:
+  component-test:
+    name: Component tests
     runs-on: ubuntu-latest
     continue-on-error: true
     services:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_DB: bumblebee
+          POSTGRES_DB: content
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d bumblebee"
+          --health-cmd "pg_isready -U postgres -d content"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DB_DSN: postgres://postgres@localhost:5432/bumblebee?sslmode=disable
-      COMPONENT_TEST_DSN: postgres://postgres@localhost:5432/bumblebee?sslmode=disable
+      DB_DSN: postgres://postgres@localhost:5432/content?sslmode=disable
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
       - name: Apply schema migrations
         run: make db-up
       - name: Run component tests
         run: make ctest
 
-  publish-image:
+  build-image:
+    name: Build image
     runs-on: ubuntu-latest
-    needs: [docker-build]
+    needs: [ proto, lint, test, build, component-test ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build --pull --tag "$REGISTRY/$IMAGE_OWNER/$IMAGE_NAME:ci" .
+
+  publish-image:
+    name: Publish Image
+    runs-on: ubuntu-latest
+    needs: [proto, lint, test, build, component-test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
