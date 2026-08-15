@@ -6,16 +6,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	bumblebeeapp "github.com/overmindv/bumblebee/internal/app/bumblebee"
-	"github.com/overmindv/bumblebee/internal/config"
-	"github.com/overmindv/bumblebee/internal/pkg/logger"
+	app "github.com/overmindv/content/internal/app/content"
+	"github.com/overmindv/content/internal/config"
+	"github.com/overmindv/content/internal/pkg/logger"
 )
 
 func main() {
 	cfg := config.Load()
 	log := logger.New(cfg.Service.Environment)
 
-	runtime, err := bumblebeeapp.NewRuntime(cfg, log)
+	runtime, err := app.NewRuntime(cfg, log)
 	if err != nil {
 		log.Error("failed to initialize runtime", "error", err)
 		os.Exit(1)

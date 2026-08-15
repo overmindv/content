@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/domain"
 	kafkago "github.com/segmentio/kafka-go"
 )
 

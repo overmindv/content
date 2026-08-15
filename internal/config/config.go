@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ServiceName = "bumblebee"
-	EnvPrefix   = "BUMBLEBEE"
+	ServiceName = "content"
+	EnvPrefix   = "CONTENT"
 )
 
 type Config struct {
@@ -74,7 +74,7 @@ func Load() Config {
 			Addr: env("GRPC_ADDR", ":9090"),
 		},
 		Database: DatabaseConfig{
-			DSN:             env("DB_DSN", "postgres://postgres:change-me@localhost:5432/bumblebee?sslmode=disable"),
+			DSN:             env("DB_DSN", "postgres://postgres:change-me@localhost:5432/content?sslmode=disable"),
 			MaxOpenConns:    envInt("DB_MAX_OPEN_CONNS", 20),
 			MaxIdleConns:    envInt("DB_MAX_IDLE_CONNS", 10),
 			ConnMaxLifetime: envDuration("DB_CONN_MAX_LIFETIME", 30*time.Minute),
@@ -82,11 +82,11 @@ func Load() Config {
 		Kafka: KafkaConfig{
 			Enabled:  envBool("KAFKA_ENABLED", true),
 			Brokers:  envCSV("KAFKA_BROKERS", []string{"localhost:9092"}),
-			Topic:    env("KAFKA_TOPIC", "bumblebee.content-item-events"),
+			Topic:    env("KAFKA_TOPIC", "content.content-item-events"),
 			ClientID: env("KAFKA_CLIENT_ID", ServiceName),
 		},
 		Metrics: MetricsConfig{
-			Namespace: env("METRICS_NAMESPACE", "bumblebee"),
+			Namespace: env("METRICS_NAMESPACE", "content"),
 		},
 	}
 }

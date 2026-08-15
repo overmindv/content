@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/overmindv/bumblebee/internal/pkg/domain"
-	"github.com/overmindv/bumblebee/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/service"
 )
 
 type ContentItemStore struct {

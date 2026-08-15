@@ -1,4 +1,4 @@
-module github.com/overmindv/bumblebee
+module github.com/overmindv/content
 
 go 1.26.1
 

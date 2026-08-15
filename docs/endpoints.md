@@ -17,7 +17,7 @@ curl http://localhost:8080/metrics
 
 ## gRPC
 
-Сервис: `overmindv.bumblebee.BumblebeeService`
+Сервис: `overmindv.content.ContentService`
 
 - `CreateContentItem`
 - `GetContentItem`
@@ -31,7 +31,7 @@ curl http://localhost:8080/metrics
 
 ```bash
 grpcurl -plaintext -d '{"type":"article","status":"draft","title":"Starter article","slug":"starter-article","format":"markdown","source":"# Starter article","tags":["go","content"]}' \
-  localhost:9090 overmindv.bumblebee.BumblebeeService/CreateContentItem
+  localhost:9090 overmindv.content.ContentService/CreateContentItem
 
 grpcurl -plaintext localhost:9090 list
 ```

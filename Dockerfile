@@ -6,13 +6,13 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /out/bumblebee ./cmd/bumblebee
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/content ./cmd/content
 
 FROM alpine:3.22
 
 WORKDIR /app
-COPY --from=build /out/bumblebee /usr/local/bin/bumblebee
+COPY --from=build /out/content /usr/local/bin/content
 
 EXPOSE 8080 9090
 
-ENTRYPOINT ["bumblebee"]
+ENTRYPOINT ["content"]

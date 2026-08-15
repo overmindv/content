@@ -1,21 +1,21 @@
-# bumblebee
+# content
 
-`bumblebee` — базовый Go-сервис контента Overmindv. Сейчас он содержит MVP-модель для самостоятельных контентных документов: статьи, конспекты, теорию и summary в Markdown/Typst.
+`content` — базовый Go-сервис контента Overmindv. Сейчас он содержит MVP-модель для самостоятельных контентных документов: статьи, конспекты, теорию и summary в Markdown/Typst.
 
 ## На данный момент это базовая модель
 
 Сервис сделан на основе шаблона.
 
-Интеграции с другими сервисами пока не добавлены: `bumblebee` не знает про вузы, курсы, темы, пользователей, роли, задания, обсуждения и review workflow.
+Интеграции с другими сервисами пока не добавлены: `content` не знает про вузы, курсы, темы, пользователей, роли, задания, обсуждения и review workflow.
 
 Архитектура домена может меняться по мере уточнения требований.
 
 ## Что уже есть
 
-- `cmd/bumblebee/main.go` как единая точка входа.
-- `api/bumblebee/bumblebee.proto` с базовым CRUD-контрактом для content items.
-- `internal/pkg/api/bumblebee/` для generated `pb.go` файлов.
-- `internal/app/bumblebee/` для transport-layer и runtime.
+- `cmd/content/main.go` как единая точка входа.
+- `api/content/content.proto` с базовым CRUD-контрактом для content items.
+- `internal/pkg/api/content/` для generated `pb.go` файлов.
+- `internal/app/content/` для transport-layer и runtime.
 - `internal/pkg/service/` для бизнес-логики.
 - `internal/pkg/store/postgres/` для работы с PostgreSQL.
 - `internal/pkg/kafka/` для публикации событий.
@@ -27,18 +27,18 @@
 
 ```text
 .
-├── api/bumblebee/              # proto-контракт текущего сервиса
-├── cmd/bumblebee/              # main
+├── api/content/              # proto-контракт текущего сервиса
+├── cmd/content/              # main
 ├── docs/                              # документация и примеры вызовов
 ├── internal/
-│   ├── app/bumblebee/          # gRPC handlers, HTTP probes, runtime
-│   ├── app/bumblebee/mapper/   # proto -> dto/domain
+│   ├── app/content/          # gRPC handlers, HTTP probes, runtime
+│   ├── app/content/mapper/   # proto -> dto/domain
 │   ├── config/                        # конфиг по env
 │   ├── dto/                           # transport DTO
 │   ├── mock/                          # generated mocks
 │   ├── pb/pg/<other-service>/         # proto / generated clients других сервисов
 │   └── pkg/
-│       ├── api/bumblebee/          # generated protobuf
+│       ├── api/content/          # generated protobuf
 │       ├── domain/                        # доменные структуры
 │       ├── kafka/                         # publisher и event envelope
 │       ├── logger/                        # инициализация логгера
@@ -106,5 +106,5 @@ make run
 - `GET /readyz`
 - `GET /metrics`
 
-Подробные примеры лежат в [docs/endpoints.md](github.com/overmindv/bumblebee/docs/endpoints.md).
+Подробные примеры лежат в [docs/endpoints.md](github.com/overmindv/content/docs/endpoints.md).
 

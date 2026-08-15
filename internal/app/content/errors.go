@@ -1,10 +1,10 @@
-package bumblebee
+package content
 
 import (
 	"errors"
 
-	"github.com/overmindv/bumblebee/internal/pkg/service"
-	"github.com/overmindv/bumblebee/internal/pkg/validator"
+	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/validator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
