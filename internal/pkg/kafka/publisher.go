@@ -7,21 +7,23 @@ import (
 	"time"
 
 	"github.com/overmindv/content/internal/pkg/domain"
-	kafkago "github.com/segmentio/kafka-go"
 )
 
+// Producer — минимальный контракт публикации записей, реализуемый *parker.Producer.
+type Producer interface {
+	Publish(ctx context.Context, topic, key string, value []byte) error
+}
+
 type Config struct {
-	Enabled  bool
-	Brokers  []string
-	Topic    string
-	ClientID string
+	Enabled bool
+	Topic   string
 }
 
 type Publisher struct {
-	enabled bool
-	logger  *slog.Logger
-	topic   string
-	writer  *kafkago.Writer
+	enabled  bool
+	logger   *slog.Logger
+	topic    string
+	producer Producer
 }
 
 type contentItemEvent struct {
@@ -36,25 +38,16 @@ type contentRevisionEvent struct {
 	Revision   domain.ContentRevision `json:"revision"`
 }
 
-func NewPublisher(cfg Config, logger *slog.Logger) *Publisher {
+func NewPublisher(cfg Config, producer Producer, logger *slog.Logger) *Publisher {
 	if !cfg.Enabled {
 		return &Publisher{logger: logger}
 	}
 
 	return &Publisher{
-		enabled: true,
-		logger:  logger,
-		topic:   cfg.Topic,
-		writer: &kafkago.Writer{
-			Addr:         kafkago.TCP(cfg.Brokers...),
-			Topic:        cfg.Topic,
-			RequiredAcks: kafkago.RequireOne,
-			Async:        true,
-			Balancer:     &kafkago.LeastBytes{},
-			Transport: &kafkago.Transport{
-				ClientID: cfg.ClientID,
-			},
-		},
+		enabled:  true,
+		logger:   logger,
+		topic:    cfg.Topic,
+		producer: producer,
 	}
 }
 
@@ -74,16 +67,8 @@ func (p *Publisher) PublishRevisionCreated(ctx context.Context, revision domain.
 	p.publishContentRevision(ctx, "content_revision.created", revision)
 }
 
-func (p *Publisher) Close() error {
-	if p.writer == nil {
-		return nil
-	}
-
-	return p.writer.Close()
-}
-
 func (p *Publisher) publishContentItem(ctx context.Context, eventName string, item domain.ContentItem) {
-	if !p.enabled || p.writer == nil {
+	if !p.enabled || p.producer == nil {
 		return
 	}
 
@@ -97,17 +82,14 @@ func (p *Publisher) publishContentItem(ctx context.Context, eventName string, it
 		return
 	}
 
-	err = p.writer.WriteMessages(ctx, kafkago.Message{
-		Key:   []byte(item.ID),
-		Value: payload,
-	})
+	err = p.producer.Publish(ctx, p.topic, item.ID, payload)
 	if err != nil {
 		p.logger.Warn("failed to publish kafka event", "error", err, "event", eventName, "topic", p.topic)
 	}
 }
 
 func (p *Publisher) publishContentRevision(ctx context.Context, eventName string, revision domain.ContentRevision) {
-	if !p.enabled || p.writer == nil {
+	if !p.enabled || p.producer == nil {
 		return
 	}
 
@@ -121,10 +103,7 @@ func (p *Publisher) publishContentRevision(ctx context.Context, eventName string
 		return
 	}
 
-	err = p.writer.WriteMessages(ctx, kafkago.Message{
-		Key:   []byte(revision.ContentItemID),
-		Value: payload,
-	})
+	err = p.producer.Publish(ctx, p.topic, revision.ContentItemID, payload)
 	if err != nil {
 		p.logger.Warn("failed to publish kafka event", "error", err, "event", eventName, "topic", p.topic)
 	}
