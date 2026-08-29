@@ -3,40 +3,41 @@ package postgres
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/hex"
 	"errors"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 )
 
 type ContentItemStore struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 type scanner interface {
 	Scan(dest ...any) error
 }
 
-func NewContentItemStore(db *sql.DB) *ContentItemStore {
+func NewContentItemStore(db *pgxpool.Pool) *ContentItemStore {
 	return &ContentItemStore{db: db}
 }
 
 func (s *ContentItemStore) PingContext(ctx context.Context) error {
-	return s.db.PingContext(ctx)
+	return s.db.Ping(ctx)
 }
 
 func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
 	defer func() {
-		_ = tx.Rollback()
+		_ = tx.Rollback(ctx)
 	}()
 
 	itemID := uuid.NewString()
@@ -56,7 +57,7 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
 	`
 
-	_, err = tx.ExecContext(
+	_, err = tx.Exec(
 		ctx,
 		insertItem,
 		itemID,
@@ -85,7 +86,7 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 		VALUES ($1, $2, 1, $3, $4, $5, $6, $7)
 	`
 
-	_, err = tx.ExecContext(
+	_, err = tx.Exec(
 		ctx,
 		insertRevision,
 		revisionID,
@@ -116,11 +117,11 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 		WHERE id = $1
 	`
 
-	if _, err = tx.ExecContext(ctx, updateCurrentRevision, itemID, revisionID); err != nil {
+	if _, err = tx.Exec(ctx, updateCurrentRevision, itemID, revisionID); err != nil {
 		return domain.ContentItem{}, err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -167,13 +168,11 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 		ORDER BY i.created_at DESC
 	`
 
-	rows, err := s.db.QueryContext(ctx, query)
+	rows, err := s.db.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer rows.Close()
 
 	items := make([]domain.ContentItem, 0)
 	for rows.Next() {
@@ -221,7 +220,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	`
 
 	var id string
-	err := s.db.QueryRowContext(
+	err := s.db.QueryRow(
 		ctx,
 		query,
 		input.ID,
@@ -232,7 +231,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 		input.Description,
 		nullableString(input.UpdatedBy),
 	).Scan(&id)
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ContentItem{}, service.ErrNotFound
 	}
 	if err != nil {
@@ -253,7 +252,7 @@ func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.Conten
 		WHERE id = $1
 	`
 
-	if _, err = s.db.ExecContext(ctx, query, id); err != nil {
+	if _, err = s.db.Exec(ctx, query, id); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -261,12 +260,12 @@ func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.Conten
 }
 
 func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error) {
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ContentRevision{}, err
 	}
 	defer func() {
-		_ = tx.Rollback()
+		_ = tx.Rollback(ctx)
 	}()
 
 	const lockItem = `
@@ -277,8 +276,8 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	`
 
 	var itemID string
-	err = tx.QueryRowContext(ctx, lockItem, input.ContentItemID).Scan(&itemID)
-	if errors.Is(err, sql.ErrNoRows) {
+	err = tx.QueryRow(ctx, lockItem, input.ContentItemID).Scan(&itemID)
+	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ContentRevision{}, service.ErrNotFound
 	}
 	if err != nil {
@@ -292,7 +291,7 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	`
 
 	var revisionNumber int
-	if err = tx.QueryRowContext(ctx, nextRevision, itemID).Scan(&revisionNumber); err != nil {
+	if err = tx.QueryRow(ctx, nextRevision, itemID).Scan(&revisionNumber); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
@@ -312,7 +311,7 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		RETURNING id, content_item_id, revision, format, source, source_hash, message, created_by, created_at
 	`
 
-	revision, err := scanContentRevision(tx.QueryRowContext(
+	revision, err := scanContentRevision(tx.QueryRow(
 		ctx,
 		insertRevision,
 		revisionID,
@@ -336,11 +335,11 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		WHERE id = $1
 	`
 
-	if _, err = tx.ExecContext(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy)); err != nil {
+	if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy)); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
@@ -355,13 +354,11 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 		ORDER BY revision DESC
 	`
 
-	rows, err := s.db.QueryContext(ctx, query, contentItemID)
+	rows, err := s.db.Query(ctx, query, contentItemID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer rows.Close()
 
 	revisions := make([]domain.ContentRevision, 0)
 	for rows.Next() {
@@ -387,7 +384,7 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 			WHERE id = $1
 		)
 	`
-	if err = s.db.QueryRowContext(ctx, existsQuery, contentItemID).Scan(&exists); err != nil {
+	if err = s.db.QueryRow(ctx, existsQuery, contentItemID).Scan(&exists); err != nil {
 		return nil, err
 	}
 	if !exists {
@@ -428,8 +425,8 @@ func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id string) 
 		WHERE i.id = $1
 	`
 
-	item, err := scanContentItem(queryer.QueryRowContext(ctx, query, id))
-	if errors.Is(err, sql.ErrNoRows) {
+	item, err := scanContentItem(queryer.QueryRow(ctx, query, id))
+	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ContentItem{}, service.ErrNotFound
 	}
 	if err != nil {
@@ -442,7 +439,7 @@ func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id string) 
 	return item, nil
 }
 
-func (s *ContentItemStore) attachTags(ctx context.Context, tx *sql.Tx, contentItemID string, tags []string) error {
+func (s *ContentItemStore) attachTags(ctx context.Context, tx pgx.Tx, contentItemID string, tags []string) error {
 	const upsertTag = `
 		INSERT INTO tags (id, name, slug)
 		VALUES ($1, $2, $3)
@@ -459,10 +456,10 @@ func (s *ContentItemStore) attachTags(ctx context.Context, tx *sql.Tx, contentIt
 	for _, tag := range tags {
 		slug := tagSlug(tag)
 		tagID := uuid.NewString()
-		if err := tx.QueryRowContext(ctx, upsertTag, tagID, tag, slug).Scan(&tagID); err != nil {
+		if err := tx.QueryRow(ctx, upsertTag, tagID, tag, slug).Scan(&tagID); err != nil {
 			return err
 		}
-		if _, err := tx.ExecContext(ctx, attachTag, contentItemID, tagID); err != nil {
+		if _, err := tx.Exec(ctx, attachTag, contentItemID, tagID); err != nil {
 			return err
 		}
 	}
@@ -470,7 +467,7 @@ func (s *ContentItemStore) attachTags(ctx context.Context, tx *sql.Tx, contentIt
 	return nil
 }
 
-func (s *ContentItemStore) attachAssets(ctx context.Context, tx *sql.Tx, contentItemID string, revisionID string, assets []domain.CreateContentAssetInput) error {
+func (s *ContentItemStore) attachAssets(ctx context.Context, tx pgx.Tx, contentItemID string, revisionID string, assets []domain.CreateContentAssetInput) error {
 	const insertAsset = `
 		INSERT INTO content_assets (
 			id,
@@ -485,7 +482,7 @@ func (s *ContentItemStore) attachAssets(ctx context.Context, tx *sql.Tx, content
 	`
 
 	for _, asset := range assets {
-		_, err := tx.ExecContext(
+		_, err := tx.Exec(
 			ctx,
 			insertAsset,
 			uuid.NewString(),
@@ -529,13 +526,11 @@ func (s *ContentItemStore) listTags(ctx context.Context, queryer queryer, conten
 		ORDER BY t.name
 	`
 
-	rows, err := queryer.QueryContext(ctx, query, contentItemID)
+	rows, err := queryer.Query(ctx, query, contentItemID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer rows.Close()
 
 	tags := make([]domain.Tag, 0)
 	for rows.Next() {
@@ -558,13 +553,11 @@ func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, cont
 		ORDER BY position, id
 	`
 
-	rows, err := queryer.QueryContext(ctx, query, contentItemID)
+	rows, err := queryer.Query(ctx, query, contentItemID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer rows.Close()
 
 	assets := make([]domain.ContentAsset, 0)
 	for rows.Next() {
@@ -580,30 +573,30 @@ func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, cont
 }
 
 type queryer interface {
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
 func scanContentItem(row scanner) (domain.ContentItem, error) {
 	var item domain.ContentItem
 	var contentType string
 	var status string
-	var currentRevisionID sql.NullString
-	var publishedRevisionID sql.NullString
-	var createdBy sql.NullString
-	var updatedBy sql.NullString
-	var publishedAt sql.NullTime
-	var archivedAt sql.NullTime
+	var currentRevisionID *string
+	var publishedRevisionID *string
+	var createdBy *string
+	var updatedBy *string
+	var publishedAt *time.Time
+	var archivedAt *time.Time
 	var revision domain.ContentRevision
-	var revisionID sql.NullString
-	var revisionContentItemID sql.NullString
-	var revisionNumber sql.NullInt64
-	var revisionFormat sql.NullString
-	var revisionSource sql.NullString
-	var revisionSourceHash sql.NullString
-	var revisionMessage sql.NullString
-	var revisionCreatedBy sql.NullString
-	var revisionCreatedAt sql.NullTime
+	var revisionID *string
+	var revisionContentItemID *string
+	var revisionNumber *int64
+	var revisionFormat *string
+	var revisionSource *string
+	var revisionSourceHash *string
+	var revisionMessage *string
+	var revisionCreatedBy *string
+	var revisionCreatedAt *time.Time
 
 	err := row.Scan(
 		&item.ID,
@@ -636,23 +629,27 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 
 	item.Type = domain.ContentType(contentType)
 	item.Status = domain.ContentStatus(status)
-	item.CurrentRevisionID = stringFromNull(currentRevisionID)
-	item.PublishedRevisionID = stringFromNull(publishedRevisionID)
-	item.CreatedBy = stringFromNull(createdBy)
-	item.UpdatedBy = stringFromNull(updatedBy)
-	item.PublishedAt = timeFromNull(publishedAt)
-	item.ArchivedAt = timeFromNull(archivedAt)
+	item.CurrentRevisionID = stringFromPtr(currentRevisionID)
+	item.PublishedRevisionID = stringFromPtr(publishedRevisionID)
+	item.CreatedBy = stringFromPtr(createdBy)
+	item.UpdatedBy = stringFromPtr(updatedBy)
+	item.PublishedAt = publishedAt
+	item.ArchivedAt = archivedAt
 
-	if revisionID.Valid {
-		revision.ID = revisionID.String
-		revision.ContentItemID = revisionContentItemID.String
-		revision.Revision = int(revisionNumber.Int64)
-		revision.Format = domain.ContentFormat(revisionFormat.String)
-		revision.Source = revisionSource.String
-		revision.SourceHash = revisionSourceHash.String
-		revision.Message = revisionMessage.String
-		revision.CreatedBy = stringFromNull(revisionCreatedBy)
-		revision.CreatedAt = revisionCreatedAt.Time
+	if revisionID != nil {
+		revision.ID = *revisionID
+		revision.ContentItemID = *revisionContentItemID
+		if revisionNumber != nil {
+			revision.Revision = int(*revisionNumber)
+		}
+		revision.Format = domain.ContentFormat(stringFromPtr(revisionFormat))
+		revision.Source = stringFromPtr(revisionSource)
+		revision.SourceHash = stringFromPtr(revisionSourceHash)
+		revision.Message = stringFromPtr(revisionMessage)
+		revision.CreatedBy = stringFromPtr(revisionCreatedBy)
+		if revisionCreatedAt != nil {
+			revision.CreatedAt = *revisionCreatedAt
+		}
 		item.CurrentRevision = &revision
 	}
 
@@ -662,7 +659,7 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 func scanContentRevision(row scanner) (domain.ContentRevision, error) {
 	var revision domain.ContentRevision
 	var format string
-	var createdBy sql.NullString
+	var createdBy *string
 
 	err := row.Scan(
 		&revision.ID,
@@ -680,14 +677,14 @@ func scanContentRevision(row scanner) (domain.ContentRevision, error) {
 	}
 
 	revision.Format = domain.ContentFormat(format)
-	revision.CreatedBy = stringFromNull(createdBy)
+	revision.CreatedBy = stringFromPtr(createdBy)
 
 	return revision, nil
 }
 
 func scanContentAsset(row scanner) (domain.ContentAsset, error) {
 	var asset domain.ContentAsset
-	var revisionID sql.NullString
+	var revisionID *string
 	var kind string
 
 	err := row.Scan(
@@ -704,7 +701,7 @@ func scanContentAsset(row scanner) (domain.ContentAsset, error) {
 		return domain.ContentAsset{}, err
 	}
 
-	asset.RevisionID = stringFromNull(revisionID)
+	asset.RevisionID = stringFromPtr(revisionID)
 	asset.Kind = domain.AssetKind(kind)
 
 	return asset, nil
@@ -723,20 +720,12 @@ func nullableString(value string) any {
 	return value
 }
 
-func stringFromNull(value sql.NullString) string {
-	if !value.Valid {
+func stringFromPtr(value *string) string {
+	if value == nil {
 		return ""
 	}
 
-	return value.String
-}
-
-func timeFromNull(value sql.NullTime) *time.Time {
-	if !value.Valid {
-		return nil
-	}
-
-	return &value.Time
+	return *value
 }
 
 func tagSlug(tag string) string {

@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/overmindv/content/internal/pkg/domain"
-	"github.com/overmindv/content/internal/pkg/metrics"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 type storeStub struct {
@@ -83,8 +81,7 @@ func (p *publisherStub) PublishRevisionCreated(context.Context, domain.ContentRe
 func TestCreateAppliesDefaultsAndPublishesEvent(t *testing.T) {
 	store := &storeStub{}
 	publisher := &publisherStub{}
-	serviceMetrics := metrics.New("content_test", prometheus.NewRegistry())
-	svc := NewContentItemService(store, publisher, serviceMetrics)
+	svc := NewContentItemService(store, publisher)
 
 	item, err := svc.Create(context.Background(), domain.CreateContentItemInput{
 		Type:        domain.ContentTypeArticle,

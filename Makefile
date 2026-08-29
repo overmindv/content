@@ -23,14 +23,14 @@ ctest: ## Run component tests against a running PostgreSQL
 build: ## Build the service binary
 	go build ./...
 
-db-status: $(GOOSE) ## Show goose schema migration status
-	$(GOOSE) -dir migrations/schema postgres "$(DB_DSN)" status
+db-status: ## Show schema migration status (via parker)
+	go run ./cmd/content migrate --dir migrations/schema --dsn "$(DB_DSN)" status
 
-db-up: $(GOOSE) ## Apply schema migrations
-	$(GOOSE) -dir migrations/schema postgres "$(DB_DSN)" up
+db-up: ## Apply schema migrations (via parker)
+	go run ./cmd/content migrate --dir migrations/schema --dsn "$(DB_DSN)" up
 
-db-down: $(GOOSE) ## Roll back the last schema migration
-	$(GOOSE) -dir migrations/schema postgres "$(DB_DSN)" down
+db-down: ## Roll back the last schema migration (via parker)
+	go run ./cmd/content migrate --dir migrations/schema --dsn "$(DB_DSN)" down
 
 db-create: $(GOOSE) ## Create a new schema migration file: make db-create MIGRATION_NAME=add_table
 	$(GOOSE) -dir migrations/schema create "$(MIGRATION_NAME)" sql

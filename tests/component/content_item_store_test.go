@@ -6,8 +6,8 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/store/postgres"
 	"github.com/overmindv/content/tests/builders"
@@ -19,18 +19,13 @@ func TestContentItemStoreCRUD(t *testing.T) {
 		t.Fatal("COMPONENT_TEST_DSN is required")
 	}
 
-	db, err := postgres.Open(postgres.Config{
-		DSN:             dsn,
-		MaxOpenConns:    5,
-		MaxIdleConns:    5,
-		ConnMaxLifetime: time.Minute,
-	})
+	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
-		t.Errorf("Open() error = %v", err)
+		t.Errorf("pgxpool.New() error = %v", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 
-	store := postgres.NewContentItemStore(db)
+	store := postgres.NewContentItemStore(pool)
 	ctx := context.Background()
 
 	created, err := store.Create(ctx, builders.ContentItem())
