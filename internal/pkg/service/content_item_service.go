@@ -9,14 +9,12 @@ import (
 )
 
 type ContentItemService struct {
-	store     ContentItemStore
-	publisher ContentItemEventPublisher
+	store ContentItemStore
 }
 
-func NewContentItemService(store ContentItemStore, publisher ContentItemEventPublisher) *ContentItemService {
+func NewContentItemService(store ContentItemStore) *ContentItemService {
 	return &ContentItemService{
-		store:     store,
-		publisher: publisher,
+		store: store,
 	}
 }
 
@@ -31,9 +29,6 @@ func (s *ContentItemService) Create(ctx context.Context, input domain.CreateCont
 	}
 
 	item, err = s.store.Create(ctx, normalized)
-	if err == nil {
-		s.publisher.PublishCreated(ctx, item)
-	}
 
 	return item, err
 }
@@ -57,9 +52,6 @@ func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateCont
 	}
 
 	item, err = s.store.Update(ctx, normalized)
-	if err == nil {
-		s.publisher.PublishUpdated(ctx, item)
-	}
 
 	return item, err
 }
@@ -70,9 +62,6 @@ func (s *ContentItemService) Delete(ctx context.Context, id string) (item domain
 	}
 
 	item, err = s.store.Delete(ctx, strings.TrimSpace(id))
-	if err == nil {
-		s.publisher.PublishDeleted(ctx, item)
-	}
 
 	return item, err
 }
@@ -84,9 +73,6 @@ func (s *ContentItemService) CreateRevision(ctx context.Context, input domain.Cr
 	}
 
 	revision, err = s.store.CreateRevision(ctx, normalized)
-	if err == nil {
-		s.publisher.PublishRevisionCreated(ctx, revision)
-	}
 
 	return revision, err
 }
