@@ -64,24 +64,9 @@ func (s *storeStub) ListRevisions(context.Context, string) ([]domain.ContentRevi
 	return nil, nil
 }
 
-type publisherStub struct {
-	created domain.ContentItem
-}
-
-func (p *publisherStub) PublishCreated(_ context.Context, item domain.ContentItem) {
-	p.created = item
-}
-
-func (p *publisherStub) PublishUpdated(context.Context, domain.ContentItem) {}
-
-func (p *publisherStub) PublishDeleted(context.Context, domain.ContentItem) {}
-
-func (p *publisherStub) PublishRevisionCreated(context.Context, domain.ContentRevision) {}
-
-func TestCreateAppliesDefaultsAndPublishesEvent(t *testing.T) {
+func TestCreateAppliesDefaults(t *testing.T) {
 	store := &storeStub{}
-	publisher := &publisherStub{}
-	svc := NewContentItemService(store, publisher)
+	svc := NewContentItemService(store)
 
 	item, err := svc.Create(context.Background(), domain.CreateContentItemInput{
 		Type:        domain.ContentTypeArticle,
@@ -109,9 +94,5 @@ func TestCreateAppliesDefaultsAndPublishesEvent(t *testing.T) {
 
 	if len(store.lastCreate.Tags) != 1 || store.lastCreate.Tags[0] != "go" {
 		t.Errorf("expected normalized unique tag go, got %#v", store.lastCreate.Tags)
-	}
-
-	if publisher.created.ID != item.ID {
-		t.Errorf("expected created event for item %q, got %q", item.ID, publisher.created.ID)
 	}
 }
