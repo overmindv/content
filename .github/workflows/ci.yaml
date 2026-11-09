@@ -36,7 +36,15 @@ jobs:
           go-version-file: go.mod
           cache: true
       - name: Install protoc
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
+        env:
+          PROTOC_VERSION: "34.1"
+        run: |
+          curl --fail --location --retry 3 \
+            "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip" \
+            --output "$RUNNER_TEMP/protoc.zip"
+          unzip -q "$RUNNER_TEMP/protoc.zip" -d "$RUNNER_TEMP/protoc"
+          echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
+          echo "PROTO_INCLUDE=$RUNNER_TEMP/protoc/include" >> "$GITHUB_ENV"
       - name: Regenerate proto and mocks
         run: make generate
       - name: Verify generated files are committed

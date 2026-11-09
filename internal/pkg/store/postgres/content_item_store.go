@@ -4,27 +4,77 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 )
 
+// Имена событий контента, публикуемых в outbox (совместимы с прежним publisher).
+const (
+	eventContentItemCreated     = "content_item.created"
+	eventContentItemUpdated     = "content_item.updated"
+	eventContentItemDeleted     = "content_item.deleted"
+	eventContentRevisionCreated = "content_revision.created"
+)
+
+// contentItemEvent — конверт события контент-айтема для outbox (совместим с прежним publisher).
+type contentItemEvent struct {
+	Event      string             `json:"event"`
+	OccurredAt time.Time          `json:"occurred_at"`
+	Item       domain.ContentItem `json:"item"`
+}
+
+// contentRevisionEvent — конверт события ревизии контента для outbox.
+type contentRevisionEvent struct {
+	Event      string                 `json:"event"`
+	OccurredAt time.Time              `json:"occurred_at"`
+	Revision   domain.ContentRevision `json:"revision"`
+}
+
 type ContentItemStore struct {
-	db *pgxpool.Pool
+	db            *pgxpool.Pool
+	outboxTopic   string
+	outboxEnabled bool
+}
+
+// StoreOption настраивает хранилище (например, атомарный outbox событий).
+type StoreOption func(*ContentItemStore)
+
+// WithOutbox включает постановку событий контента в transaction outbox (таблица outbox,
+// DDL parker.OutboxSchema) в той же транзакции, что и бизнес-изменение: событие никогда
+// не публикуется отдельно от коммита владеющей транзакции.
+func WithOutbox(enabled bool, topic string) StoreOption {
+	return func(s *ContentItemStore) {
+		s.outboxEnabled = enabled
+		s.outboxTopic = topic
+	}
+}
+
+func NewContentItemStore(db *pgxpool.Pool, opts ...StoreOption) *ContentItemStore {
+	store := &ContentItemStore{db: db}
+	for _, opt := range opts {
+		opt(store)
+	}
+
+	return store
 }
 
 type scanner interface {
 	Scan(dest ...any) error
 }
 
-func NewContentItemStore(db *pgxpool.Pool) *ContentItemStore {
-	return &ContentItemStore{db: db}
+// execer — общий интерфейс Exec для pgx.Tx и пула (используется outbox-хелперами).
+type execer interface {
+	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
 }
 
 func (s *ContentItemStore) PingContext(ctx context.Context) error {
@@ -121,11 +171,57 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 		return domain.ContentItem{}, err
 	}
 
+	// Событие пишется в outbox атомарно с созданием контент-айтема.
+	item, err := s.get(ctx, tx, itemID)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = s.enqueueContentItem(ctx, tx, eventContentItemCreated, item); err != nil {
+		return domain.ContentItem{}, err
+	}
+
 	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentItem{}, err
 	}
 
-	return s.Get(ctx, itemID)
+	return item, nil
+}
+
+// enqueueContentItem пишет событие контент-айтема в outbox в текущей транзакции.
+// Ошибка записи отменяет бизнес-изменение (атомарность publisher-гарантии).
+func (s *ContentItemStore) enqueueContentItem(ctx context.Context, execer execer, eventName string, item domain.ContentItem) error {
+	if !s.outboxEnabled || s.outboxTopic == "" {
+		return nil
+	}
+	payload, err := json.Marshal(contentItemEvent{Event: eventName, OccurredAt: time.Now().UTC(), Item: item})
+	if err != nil {
+		return fmt.Errorf("marshal content item event: %w", err)
+	}
+	if _, err = execer.Exec(ctx, `
+		INSERT INTO outbox (topic, message_key, message_value)
+		VALUES ($1, $2, $3)`, s.outboxTopic, item.ID, payload); err != nil {
+		return fmt.Errorf("insert content item event into outbox: %w", err)
+	}
+
+	return nil
+}
+
+// enqueueContentRevision пишет событие ревизии контента в outbox в текущей транзакции.
+func (s *ContentItemStore) enqueueContentRevision(ctx context.Context, execer execer, revision domain.ContentRevision) error {
+	if !s.outboxEnabled || s.outboxTopic == "" {
+		return nil
+	}
+	payload, err := json.Marshal(contentRevisionEvent{Event: eventContentRevisionCreated, OccurredAt: time.Now().UTC(), Revision: revision})
+	if err != nil {
+		return fmt.Errorf("marshal content revision event: %w", err)
+	}
+	if _, err = execer.Exec(ctx, `
+		INSERT INTO outbox (topic, message_key, message_value)
+		VALUES ($1, $2, $3)`, s.outboxTopic, revision.ContentItemID, payload); err != nil {
+		return fmt.Errorf("insert content revision event into outbox: %w", err)
+	}
+
+	return nil
 }
 
 func (s *ContentItemStore) Get(ctx context.Context, id string) (domain.ContentItem, error) {
@@ -191,6 +287,14 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 }
 
 func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error) {
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
 	const query = `
 		UPDATE content_items
 		SET type = $2,
@@ -220,7 +324,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	`
 
 	var id string
-	err := s.db.QueryRow(
+	err = tx.QueryRow(
 		ctx,
 		query,
 		input.ID,
@@ -238,7 +342,19 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 		return domain.ContentItem{}, err
 	}
 
-	return s.Get(ctx, id)
+	// Событие пишется в outbox атомарно с обновлением айтема.
+	item, err := s.get(ctx, tx, id)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return domain.ContentItem{}, err
+	}
+
+	return item, nil
 }
 
 func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.ContentItem, error) {
@@ -247,12 +363,32 @@ func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.Conten
 		return domain.ContentItem{}, err
 	}
 
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
 	const query = `
 		DELETE FROM content_items
 		WHERE id = $1
 	`
 
-	if _, err = s.db.Exec(ctx, query, id); err != nil {
+	tag, err := tx.Exec(ctx, query, id)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if tag.RowsAffected() != 1 {
+		return domain.ContentItem{}, service.ErrNotFound
+	}
+
+	// Событие пишется в outbox атомарно с удалением айтема.
+	if err = s.enqueueContentItem(ctx, tx, eventContentItemDeleted, item); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -339,6 +475,10 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		return domain.ContentRevision{}, err
 	}
 
+	// Событие пишется в outbox атомарно с созданием ревизии.
+	if err = s.enqueueContentRevision(ctx, tx, revision); err != nil {
+		return domain.ContentRevision{}, err
+	}
 	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentRevision{}, err
 	}

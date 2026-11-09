@@ -7,7 +7,6 @@ import (
 
 	"github.com/overmindv/content/internal/config"
 	contentpb "github.com/overmindv/content/internal/pkg/api/content"
-	"github.com/overmindv/content/internal/pkg/kafka"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/store/postgres"
 	"github.com/overmindv/parker"
@@ -16,8 +15,9 @@ import (
 )
 
 // Build выполняет wiring бизнес-зависимостей content на каркас parker:
-// открывает базу, настраивает Kafka-producer и gRPC-сервер (как Runnable),
-// регистрирует health-чеки. HTTP/middleware/метрики/миграции берёт на себя parker.
+// открывает базу, настраивает Kafka-producer, transaction outbox и gRPC-сервер
+// (как Runnable), регистрирует health-чеки. HTTP/middleware/метрики/миграции
+// берёт на себя parker.
 func Build(app *parker.App) error {
 	cfg := config.Load()
 
@@ -26,7 +26,9 @@ func Build(app *parker.App) error {
 		return err
 	}
 
-	store := postgres.NewContentItemStore(pool)
+	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
+	store := postgres.NewContentItemStore(pool,
+		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic))
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer
@@ -36,14 +38,12 @@ func Build(app *parker.App) error {
 			return err
 		}
 		app.AddHealthCheck("kafka", parker.HealthCheckFunc(producer.Ping))
+		// Outbox-диспетчер доставляет события контента в Kafka at-least-once.
+		dispatcher := parker.NewOutboxDispatcher(parker.NewPgOutbox(pool), producer, cfg.Kafka.PollInterval, app.Logger())
+		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	publisher := kafka.NewPublisher(kafka.Config{
-		Enabled: cfg.Kafka.Enabled,
-		Topic:   cfg.Kafka.Topic,
-	}, producer, app.Logger())
-
-	itemService := service.NewContentItemService(store, publisher)
+	itemService := service.NewContentItemService(store)
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {

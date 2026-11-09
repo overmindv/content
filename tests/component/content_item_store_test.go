@@ -14,6 +14,7 @@ import (
 )
 
 func TestContentItemStoreCRUD(t *testing.T) {
+	ctx := context.Background()
 	dsn := os.Getenv("COMPONENT_TEST_DSN")
 	if dsn == "" {
 		t.Fatal("COMPONENT_TEST_DSN is required")
@@ -25,8 +26,9 @@ func TestContentItemStoreCRUD(t *testing.T) {
 	}
 	defer pool.Close()
 
-	store := postgres.NewContentItemStore(pool)
-	ctx := context.Background()
+	// События контента пишутся в outbox атомарно с бизнес-изменением (блок Б аудита).
+	store := postgres.NewContentItemStore(pool,
+		postgres.WithOutbox(true, "content-test-topic"))
 
 	created, err := store.Create(ctx, builders.ContentItem())
 	if err != nil {
@@ -41,6 +43,11 @@ func TestContentItemStoreCRUD(t *testing.T) {
 	}
 	if len(created.Tags) != 2 {
 		t.Errorf("expected 2 tags, got %d", len(created.Tags))
+	}
+
+	// Создание айтема атомарно положило событие в outbox.
+	if n := pendingOutboxRows(t, ctx, pool, created.ID); n < 1 {
+		t.Fatalf("expected at least 1 outbox row for created item, got %d", n)
 	}
 
 	fetched, err := store.Get(ctx, created.ID)
@@ -110,4 +117,21 @@ func TestContentItemStoreCRUD(t *testing.T) {
 	if deleted.ID != created.ID {
 		t.Errorf("expected deleted id %q, got %q", created.ID, deleted.ID)
 	}
+
+	// Последовательность create/update/delete/revision поставила в outbox 4 события.
+	if n := pendingOutboxRows(t, ctx, pool, created.ID); n < 4 {
+		t.Errorf("expected at least 4 outbox rows for item, got %d", n)
+	}
+}
+
+// pendingOutboxRows считает ожидающие outbox-события контент-айтема.
+func pendingOutboxRows(t *testing.T, ctx context.Context, pool *pgxpool.Pool, key string) int {
+	t.Helper()
+	var n int
+	if err := pool.QueryRow(ctx,
+		`SELECT count(*) FROM outbox WHERE message_key = $1 AND status = 'pending'`, key).Scan(&n); err != nil {
+		t.Fatalf("query outbox: %v", err)
+	}
+
+	return n
 }
