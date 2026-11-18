@@ -2,6 +2,7 @@ package content
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net"
 
@@ -38,6 +39,20 @@ func Build(app *parker.App) error {
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
 	store := postgres.NewContentItemStore(pool,
 		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic))
+
+	if cfg.ReviewCandidatesURL != "" || cfg.ReviewCandidatesToken != "" {
+		if cfg.ReviewCandidatesToken == cfg.GRPC.ServiceToken && cfg.ReviewCandidatesToken != "" {
+			return errors.New("review candidates and content gRPC must use different service tokens")
+		}
+		source, err := external.NewReviewCandidateClient(cfg.ReviewCandidatesURL, cfg.ReviewCandidatesToken)
+		if err != nil {
+			return err
+		}
+		worker := service.NewReviewCheckWorker(store, source)
+		app.AddRunnable("review-candidates", func(ctx context.Context) error {
+			return worker.Run(ctx, app.Logger())
+		})
+	}
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer

@@ -94,12 +94,28 @@ func (s *ContentItemStore) SubmitReviewDecision(ctx context.Context, input domai
 			WITH voted AS (
 			    UPDATE content_change_review_assignments SET decision = $4, reason = $5, decided_at = NOW()
 			    WHERE proposal_id = $1 AND revision_id = $2 AND reviewer_id = $3 AND revoked_at IS NULL AND decision IS NULL
-			    RETURNING reviewer_id, decision, reason, decided_at
+			      AND EXISTS (
+			          SELECT 1 FROM content_change_proposal_revisions
+			          WHERE proposal_id = $1 AND id = $2 AND review_verified_until > statement_timestamp()
+			      )
+			    RETURNING reviewer_id, slot, decision, reason, decided_at
+			), scheduled AS (
+			    UPDATE content_change_proposal_revisions SET review_due_at = LEAST(review_due_at, statement_timestamp())
+			    WHERE proposal_id = $1 AND id = $2 AND EXISTS (
+			        SELECT 1 FROM voted
+			        JOIN content_change_review_assignments AS other ON other.proposal_id = $1 AND other.revision_id = $2
+			        WHERE voted.slot IN (1, 2) AND other.slot IN (1, 2) AND other.reviewer_id <> voted.reviewer_id
+			          AND other.revoked_at IS NULL AND other.decision <> voted.decision
+			    )
 			)
-			SELECT * FROM voted
+			SELECT reviewer_id, decision, reason, decided_at FROM voted
 			UNION ALL
 			SELECT reviewer_id, decision, reason, decided_at FROM content_change_review_assignments
 			WHERE proposal_id = $1 AND revision_id = $2 AND reviewer_id = $3 AND revoked_at IS NULL AND decision IS NOT NULL
+			  AND EXISTS (
+			      SELECT 1 FROM content_change_proposal_revisions
+			      WHERE proposal_id = $1 AND id = $2 AND review_verified_until > statement_timestamp()
+			  )
 		`
 		var decision domain.ReviewDecision
 		err := tx.QueryRow(ctx, save, input.ProposalID, input.RevisionID, input.ActorID, input.Decision, input.Reason).
@@ -120,6 +136,7 @@ func (s *ContentItemStore) SubmitReviewDecision(ctx context.Context, input domai
 func (s *ContentItemStore) GetReviewRevisionStatus(ctx context.Context, ref domain.ReviewRevisionRef) (domain.ReviewRevisionStatus, error) {
 	query := `
 		SELECT r.id, (p.status = 'open' AND r.id = p.head_revision_id), r.review_topic_id,
+		       COALESCE(r.review_verified_until > statement_timestamp(), false),
 		       vote.reviewer_id, vote.slot, vote.decision, vote.reason, vote.decided_at
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
@@ -142,15 +159,17 @@ func (s *ContentItemStore) GetReviewRevisionStatus(ctx context.Context, ref doma
 	for rows.Next() {
 		var revisionID, topicID, reviewer, kind, reason *string
 		var current *bool
+		var verified bool
 		var slot *int16
 		var createdAt *time.Time
-		if err = rows.Scan(&revisionID, &current, &topicID, &reviewer, &slot, &kind, &reason, &createdAt); err != nil {
+		if err = rows.Scan(&revisionID, &current, &topicID, &verified, &reviewer, &slot, &kind, &reason, &createdAt); err != nil {
 			return domain.ReviewRevisionStatus{}, err
 		}
 		if revisionID == nil {
 			return domain.ReviewRevisionStatus{}, service.ErrProposalRevisionNotFound
 		}
 		status.RevisionID, status.Current, status.TopicID = *revisionID, *current, stringFromPtr(topicID)
+		status.EligibilityStale = status.Current && !verified
 		if slot != nil && *slot != 0 {
 			status.Assignments = append(status.Assignments, domain.ReviewAssignment{
 				ReviewerID: *reviewer, Slot: *slot, Decision: domain.ReviewDecisionKind(stringFromPtr(kind)),

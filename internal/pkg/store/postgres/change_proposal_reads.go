@@ -15,8 +15,10 @@ import (
 const proposalReader = `(p.author_id = $2 OR i.created_by = $2 OR (
 	p.status = 'open' AND EXISTS (
 		SELECT 1 FROM content_change_review_assignments AS a
+		JOIN content_change_proposal_revisions AS v ON v.proposal_id = a.proposal_id AND v.id = a.revision_id
 		WHERE a.proposal_id = p.id AND a.revision_id = p.head_revision_id
 		  AND a.reviewer_id = $2 AND a.revoked_at IS NULL
+		  AND v.review_verified_until > statement_timestamp()
 	)
 ))`
 

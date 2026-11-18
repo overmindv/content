@@ -105,6 +105,9 @@ func (s *ContentItemStore) AppendChangeProposalRevision(ctx context.Context, inp
 	if _, err = tx.Exec(ctx, `UPDATE content_change_proposals SET head_revision_id = $2 WHERE id = $1`, input.ProposalID, nextID); err != nil {
 		return domain.ChangeProposal{}, err
 	}
+	if err = cancelReviewCheck(ctx, tx, input.ProposalID, headID); err != nil {
+		return domain.ChangeProposal{}, err
+	}
 	return finishProposalWrite(ctx, tx, input.ProposalID, input.AuthorID)
 }
 
@@ -116,8 +119,14 @@ func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID 
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	const closeProposal = `
-		UPDATE content_change_proposals SET status = 'closed', closed_at = NOW()
-		WHERE id = $1 AND author_id = $2 AND status = 'open'
+		WITH closed AS (
+		    UPDATE content_change_proposals SET status = 'closed', closed_at = NOW()
+		    WHERE id = $1 AND author_id = $2 AND status = 'open'
+		    RETURNING id, head_revision_id
+		)
+		UPDATE content_change_proposal_revisions AS r
+		SET review_due_at = NULL, review_check_token = NULL
+		FROM closed WHERE r.proposal_id = closed.id AND r.id = closed.head_revision_id
 	`
 	if _, err = tx.Exec(ctx, closeProposal, id, actorID); err != nil {
 		return domain.ChangeProposal{}, err
@@ -127,10 +136,18 @@ func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID 
 
 func insertProposalRevision(ctx context.Context, tx pgx.Tx, proposalID, id, parentID string, ordinal int32, source, message string) error {
 	const insertRevision = `
-		INSERT INTO content_change_proposal_revisions (proposal_id, id, parent_revision_id, ordinal, source, message)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO content_change_proposal_revisions (proposal_id, id, parent_revision_id, ordinal, source, message, review_due_at)
+		VALUES ($1, $2, $3, $4, $5, $6, NOW())
 	`
 	_, err := tx.Exec(ctx, insertRevision, proposalID, id, nullableString(parentID), ordinal, source, message)
+	return err
+}
+
+func cancelReviewCheck(ctx context.Context, tx pgx.Tx, proposalID, revisionID string) error {
+	_, err := tx.Exec(ctx, `
+		UPDATE content_change_proposal_revisions SET review_due_at = NULL, review_check_token = NULL
+		WHERE proposal_id = $1 AND id = $2
+	`, proposalID, revisionID)
 	return err
 }
 
