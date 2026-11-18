@@ -23,6 +23,9 @@ import (
 // берёт на себя parker.
 func Build(app *parker.App) error {
 	cfg := config.Load()
+	if err := validateModerationConfig(cfg); err != nil {
+		return err
+	}
 	var topics service.TopicChecker
 	if cfg.EntitiesURL != "" {
 		client, err := external.NewTopicClient(cfg.EntitiesURL)
@@ -109,13 +112,29 @@ func validActivityTopic(topic string) bool {
 		}) < 0
 }
 
+func validateModerationConfig(cfg config.Config) error {
+	token := cfg.GRPC.ModerationToken
+	if token == "" {
+		return nil
+	}
+	if len(token) < 32 || len(token) > 256 || token == cfg.GRPC.ServiceToken ||
+		token == cfg.MediaToken || token == cfg.ReviewCandidatesToken ||
+		strings.IndexFunc(token, func(r rune) bool { return r <= 32 || r >= 127 }) >= 0 {
+		return errors.New("CONTENT_GRPC_MODERATION_TOKEN must be a separate printable service token")
+	}
+	if !cfg.Kafka.Enabled || !cfg.Kafka.ActivityEnabled {
+		return errors.New("content moderation requires Kafka material activity")
+	}
+	return nil
+}
+
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
 	listener, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return err
 	}
 
-	grpcServer := newGRPCServer(handler, cfg.ServiceToken)
+	grpcServer := newGRPCServer(handler, cfg.ServiceToken, cfg.ModerationToken)
 
 	go func() {
 		<-ctx.Done()
@@ -126,10 +145,10 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(handler *Server, serviceToken string) *grpc.Server {
+func newGRPCServer(handler *Server, serviceToken, moderationToken string) *grpc.Server {
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(512*1024),
-		grpc.UnaryInterceptor(requireServiceActor(serviceToken)),
+		grpc.UnaryInterceptor(requireServiceActor(serviceToken, moderationToken)),
 	)
 	contentpb.RegisterContentServiceServer(server, handler)
 	reflection.Register(server)

@@ -17,6 +17,7 @@ import (
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/validator"
+	"github.com/overmindv/content/pkg/api/activity"
 )
 
 // Имена событий контента, публикуемых в outbox (совместимы с прежним publisher).
@@ -267,7 +268,7 @@ const visibleContentItems = `
 		FROM content_items i
 		LEFT JOIN content_revisions r ON r.content_item_id = i.id
 		    AND r.id = CASE WHEN i.created_by = $1 THEN i.current_revision_id ELSE i.published_revision_id END
-		WHERE (i.created_by = $1 OR (i.status = 'published' AND r.id IS NOT NULL))
+		WHERE (i.created_by = $1 OR (i.status = 'published' AND NOT i.moderation_hidden AND r.id IS NOT NULL))
 	`
 
 func (s *ContentItemStore) List(ctx context.Context, actorID string) ([]domain.ContentItem, error) {
@@ -370,6 +371,9 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 		return domain.ContentItem{}, err
 	}
 	if target == domain.ContentStatusPublished {
+		if current.hidden {
+			return domain.ContentItem{}, service.ErrInvalidState
+		}
 		if current.publishedRevisionID != "" && current.publishedRevisionID != current.revisionID {
 			return domain.ContentItem{}, service.ErrReviewRequired
 		}
@@ -407,7 +411,11 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 		return domain.ContentItem{}, err
 	}
 	if item.PublishedRevisionID != "" {
-		if _, err = s.recordMaterialState(ctx, tx, item, target == domain.ContentStatusArchived); err != nil {
+		kind := activity.MaterialPublished
+		if target == domain.ContentStatusArchived {
+			kind = activity.MaterialArchived
+		}
+		if _, err = s.recordMaterialState(ctx, tx, item, kind, ""); err != nil {
 			return domain.ContentItem{}, err
 		}
 	}
@@ -486,7 +494,7 @@ func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (doma
 		return domain.ContentItem{}, err
 	}
 	if item.Status == domain.ContentStatusPublished && item.PublishedRevisionID != "" {
-		if _, err = s.recordMaterialState(ctx, tx, item, true); err != nil {
+		if _, err = s.recordMaterialState(ctx, tx, item, activity.MaterialArchived, ""); err != nil {
 			return domain.ContentItem{}, err
 		}
 	}
@@ -641,6 +649,7 @@ type lockedContentItem struct {
 	status              domain.ContentStatus
 	revisionID          string
 	publishedRevisionID string
+	hidden              bool
 }
 
 func (item lockedContentItem) checkRevision(expected string) error {
@@ -652,14 +661,14 @@ func (item lockedContentItem) checkRevision(expected string) error {
 
 func lockOwnedContentItem(ctx context.Context, tx pgx.Tx, id, actorID string) (lockedContentItem, error) {
 	const query = `
-		SELECT status, current_revision_id, published_revision_id
+		SELECT status, current_revision_id, published_revision_id, moderation_hidden
 		FROM content_items
 		WHERE id = $1 AND created_by = $2
 		FOR UPDATE
 	`
 	var item lockedContentItem
 	var current, published *string
-	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&item.status, &current, &published)
+	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&item.status, &current, &published, &item.hidden)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return lockedContentItem{}, service.ErrNotFound
 	}

@@ -15,17 +15,34 @@ import (
 
 type actorIDKey struct{}
 
-func requireServiceActor(token string) grpc.UnaryServerInterceptor {
+type bearerCredential struct {
+	enabled bool
+	length  int
+	digest  [sha256.Size]byte
+}
+
+func newBearerCredential(token string) bearerCredential {
 	bearer := "Bearer " + token
-	digest := sha256.Sum256([]byte(bearer))
+	return bearerCredential{enabled: token != "", length: len(bearer), digest: sha256.Sum256([]byte(bearer))}
+}
+
+func requireServiceActor(token, moderationToken string) grpc.UnaryServerInterceptor {
+	service, moderation := newBearerCredential(token), newBearerCredential(moderationToken)
 
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, next grpc.UnaryHandler) (any, error) {
+		credential := &service
+		if info != nil {
+			switch info.FullMethod {
+			case contentpb.ContentService_GetMaterialModeration_FullMethodName, contentpb.ContentService_SetMaterialModeration_FullMethodName:
+				credential = &moderation
+			}
+		}
 		auth := metadata.ValueFromIncomingContext(ctx, "authorization")
-		if token == "" || len(auth) != 1 || len(auth[0]) != len(bearer) {
+		if !credential.enabled || len(auth) != 1 || len(auth[0]) != credential.length {
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
 		}
 		presented := sha256.Sum256([]byte(auth[0]))
-		if subtle.ConstantTimeCompare(digest[:], presented[:]) != 1 {
+		if subtle.ConstantTimeCompare(credential.digest[:], presented[:]) != 1 {
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
 		}
 		if info != nil && info.FullMethod == contentpb.ContentService_SnapshotMaterials_FullMethodName {

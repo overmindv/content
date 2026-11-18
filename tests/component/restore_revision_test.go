@@ -109,7 +109,8 @@ func TestRestorePublishedRevision(t *testing.T) {
 		t.Errorf("restore history has %d revisions: %v", len(revisions), err)
 	}
 	events := readActivity[activity.MaterialState](t, f, f.material)
-	if len(events) != 4 || events[3].RevisionID != restored.ID || events[3].EventType != activity.MaterialPublished ||
+	if len(events) != 4 || events[3].RevisionID != restored.ID || events[3].EventType != activity.MaterialCorrected ||
+		events[3].Payload.InvalidatedRevisionID != merged ||
 		events[3].AggregateVersion <= events[1].AggregateVersion || events[3].Payload.Tombstone {
 		t.Error("restore did not advance the public material stream exactly once")
 	}

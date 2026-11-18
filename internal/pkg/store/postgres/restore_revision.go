@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/pkg/api/activity"
 )
 
 func (s *ContentItemStore) RestorePublishedRevision(ctx context.Context, input domain.RestorePublishedRevisionInput) (domain.ContentRevision, error) {
@@ -16,7 +17,7 @@ func (s *ContentItemStore) RestorePublishedRevision(ctx context.Context, input d
 		if err != nil {
 			return err
 		}
-		if item.status != domain.ContentStatusPublished {
+		if item.status != domain.ContentStatusPublished || item.hidden {
 			return service.ErrInvalidState
 		}
 		if item.publishedRevisionID != input.ExpectedPublishedID {
@@ -74,7 +75,7 @@ func (s *ContentItemStore) RestorePublishedRevision(ctx context.Context, input d
 		if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, updated); err != nil {
 			return err
 		}
-		_, err = s.recordMaterialState(ctx, tx, updated, false)
+		_, err = s.recordMaterialState(ctx, tx, updated, activity.MaterialCorrected, item.publishedRevisionID)
 		return err
 	})
 	if err != nil {

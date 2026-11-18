@@ -19,7 +19,7 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 
 	const getPublishedRevision = `
 		SELECT published_revision_id FROM content_items
-		WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL
+		WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL AND NOT moderation_hidden
 		FOR SHARE
 	`
 	var publishedRevisionID string
@@ -89,7 +89,7 @@ func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input dom
 		if err != nil {
 			return domain.ChangeProposal{}, err
 		}
-		if material.status != domain.ContentStatusPublished {
+		if material.status != domain.ContentStatusPublished || material.hidden {
 			return domain.ChangeProposal{}, service.ErrInvalidState
 		}
 		if material.publishedRevisionID != newBaseID {

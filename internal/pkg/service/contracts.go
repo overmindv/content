@@ -30,6 +30,7 @@ var (
 	ErrAttachmentNotReady        = errors.New("attachment is not ready or cannot be used")
 	ErrAttachmentsPending        = errors.New("revision attachments are not bound yet")
 	ErrPublishedRevisionNotFound = errors.New("published source revision not found")
+	ErrModerationConflict        = errors.New("material moderation state changed")
 )
 
 type ContentItemStore interface {
@@ -43,6 +44,8 @@ type ContentItemStore interface {
 	Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error)
 	ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error)
 	RestorePublishedRevision(context.Context, domain.RestorePublishedRevisionInput) (domain.ContentRevision, error)
+	GetMaterialModeration(context.Context, string) (domain.MaterialModeration, error)
+	SetMaterialModeration(context.Context, domain.SetMaterialModerationInput) (domain.MaterialModeration, error)
 	Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error)
 	ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error)

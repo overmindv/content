@@ -47,6 +47,8 @@ const (
 	ContentService_MergeChangeProposal_FullMethodName          = "/overmindv.content.ContentService/MergeChangeProposal"
 	ContentService_SnapshotMaterials_FullMethodName            = "/overmindv.content.ContentService/SnapshotMaterials"
 	ContentService_ConfirmMaterialRead_FullMethodName          = "/overmindv.content.ContentService/ConfirmMaterialRead"
+	ContentService_GetMaterialModeration_FullMethodName        = "/overmindv.content.ContentService/GetMaterialModeration"
+	ContentService_SetMaterialModeration_FullMethodName        = "/overmindv.content.ContentService/SetMaterialModeration"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -81,6 +83,8 @@ type ContentServiceClient interface {
 	MergeChangeProposal(ctx context.Context, in *MergeChangeProposalRequest, opts ...grpc.CallOption) (*MergeChangeProposalResponse, error)
 	SnapshotMaterials(ctx context.Context, in *SnapshotMaterialsRequest, opts ...grpc.CallOption) (*SnapshotMaterialsResponse, error)
 	ConfirmMaterialRead(ctx context.Context, in *ConfirmMaterialReadRequest, opts ...grpc.CallOption) (*ConfirmMaterialReadResponse, error)
+	GetMaterialModeration(ctx context.Context, in *GetMaterialModerationRequest, opts ...grpc.CallOption) (*MaterialModerationState, error)
+	SetMaterialModeration(ctx context.Context, in *SetMaterialModerationRequest, opts ...grpc.CallOption) (*MaterialModerationState, error)
 }
 
 type contentServiceClient struct {
@@ -371,6 +375,26 @@ func (c *contentServiceClient) ConfirmMaterialRead(ctx context.Context, in *Conf
 	return out, nil
 }
 
+func (c *contentServiceClient) GetMaterialModeration(ctx context.Context, in *GetMaterialModerationRequest, opts ...grpc.CallOption) (*MaterialModerationState, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MaterialModerationState)
+	err := c.cc.Invoke(ctx, ContentService_GetMaterialModeration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) SetMaterialModeration(ctx context.Context, in *SetMaterialModerationRequest, opts ...grpc.CallOption) (*MaterialModerationState, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MaterialModerationState)
+	err := c.cc.Invoke(ctx, ContentService_SetMaterialModeration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -403,6 +427,8 @@ type ContentServiceServer interface {
 	MergeChangeProposal(context.Context, *MergeChangeProposalRequest) (*MergeChangeProposalResponse, error)
 	SnapshotMaterials(context.Context, *SnapshotMaterialsRequest) (*SnapshotMaterialsResponse, error)
 	ConfirmMaterialRead(context.Context, *ConfirmMaterialReadRequest) (*ConfirmMaterialReadResponse, error)
+	GetMaterialModeration(context.Context, *GetMaterialModerationRequest) (*MaterialModerationState, error)
+	SetMaterialModeration(context.Context, *SetMaterialModerationRequest) (*MaterialModerationState, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -496,6 +522,12 @@ func (UnimplementedContentServiceServer) SnapshotMaterials(context.Context, *Sna
 }
 func (UnimplementedContentServiceServer) ConfirmMaterialRead(context.Context, *ConfirmMaterialReadRequest) (*ConfirmMaterialReadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmMaterialRead not implemented")
+}
+func (UnimplementedContentServiceServer) GetMaterialModeration(context.Context, *GetMaterialModerationRequest) (*MaterialModerationState, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMaterialModeration not implemented")
+}
+func (UnimplementedContentServiceServer) SetMaterialModeration(context.Context, *SetMaterialModerationRequest) (*MaterialModerationState, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetMaterialModeration not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -1022,6 +1054,42 @@ func _ContentService_ConfirmMaterialRead_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_GetMaterialModeration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMaterialModerationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetMaterialModeration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetMaterialModeration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetMaterialModeration(ctx, req.(*GetMaterialModerationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_SetMaterialModeration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetMaterialModerationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SetMaterialModeration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SetMaterialModeration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SetMaterialModeration(ctx, req.(*SetMaterialModerationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1140,6 +1208,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ConfirmMaterialRead",
 			Handler:    _ContentService_ConfirmMaterialRead_Handler,
+		},
+		{
+			MethodName: "GetMaterialModeration",
+			Handler:    _ContentService_GetMaterialModeration_Handler,
+		},
+		{
+			MethodName: "SetMaterialModeration",
+			Handler:    _ContentService_SetMaterialModeration_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

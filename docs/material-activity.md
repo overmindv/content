@@ -6,7 +6,7 @@
 
 | Переменная | Топик по умолчанию | События |
 | --- | --- | --- |
-| `KAFKA_CONTENT_MATERIAL_TOPIC` | `content.material.v1` | `material.published`, `material.archived` |
+| `KAFKA_CONTENT_MATERIAL_TOPIC` | `content.material.v1` | `material.published`, `material.archived`, `material.withdrawn`, `material.restored`, `material.corrected` |
 | `KAFKA_CONTENT_CONTRIBUTION_TOPIC` | `content.contribution.v1` | `contribution.merged`, `review.accepted` |
 | `KAFKA_CONTENT_LEARNING_TOPIC` | `content.learning.v1` | `material.read_confirmed` |
 
@@ -20,8 +20,18 @@
 
 - Каталог: применяй только версию новее сохраненной для этого материала.
   Публикация несет тип, формат, заголовок (до 256 символов), темы и оценку
-  времени. Архивация или удаление опубликованного материала отправляет
-  `tombstone: true` без метаданных. Частные черновики в поток не попадают.
+  времени. Архивация, удаление и скрытие отправляют `tombstone: true` без
+  метаданных. Восстановление возвращает ту же ревизию с более новой версией
+  события. Откат публикует новую ревизию с восстановленным текстом.
+  Частные черновики в поток не попадают.
+- Рейтинг: `material.corrected` и `material.withdrawn` содержат
+  `payload.invalidated_revision_id` замененной или скрытой публикации.
+  Связывай компенсации с материалом и этой ревизией; дедуплицируй по
+  `event_id`. Для пары скрытие/восстановление применяй последнюю версию
+  события для данной ревизии. `material.restored` снимает ограничение
+  по `revision_id`, но не создает новое начисление. Не пропускай
+  исправление другой ревизии из-за более нового события каталога.
+  Причина и ID модератора не передаются.
 - Вклад: дедуплицируй по `event_id`. После merge есть одно событие автора и
   отдельное событие каждого действующего рецензента, чей голос учтен в ревью.
   `decision` передается отдельно, в том числе `request_changes`. Событие не
@@ -53,3 +63,13 @@ tombstones. При смене числа partitions или потере сохр
 
 Подтверждения чтения и события вклада не входят в каталог. Для них используй
 отдельные consumer groups и ключ `event_id` для повторной доставки.
+
+## Проверка доставки
+
+Для `TestModerationKafkaDelivery` нужны пустая тестовая БД с миграциями
+и отдельный пустой топик Kafka. Задай `COMPONENT_TEST_DSN`,
+`COMPONENT_TEST_KAFKA_BROKER` и `COMPONENT_TEST_MATERIAL_TOPIC`, затем запусти:
+
+```bash
+go test -tags=component ./tests/component -run '^TestModerationKafkaDelivery$' -count=1
+```

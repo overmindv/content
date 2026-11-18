@@ -7,6 +7,9 @@ const (
 
 	MaterialPublished     = "material.published"
 	MaterialArchived      = "material.archived"
+	MaterialWithdrawn     = "material.withdrawn"
+	MaterialRestored      = "material.restored"
+	MaterialCorrected     = "material.corrected"
 	ContributionMerged    = "contribution.merged"
 	ReviewAccepted        = "review.accepted"
 	MaterialReadConfirmed = "material.read_confirmed"
@@ -37,8 +40,9 @@ type ResourceMetadata struct {
 }
 
 type MaterialState struct {
-	Tombstone bool              `json:"tombstone"`
-	Metadata  *ResourceMetadata `json:"metadata,omitempty"`
+	Tombstone             bool              `json:"tombstone"`
+	Metadata              *ResourceMetadata `json:"metadata,omitempty"`
+	InvalidatedRevisionID string            `json:"invalidated_revision_id,omitempty"`
 }
 
 type EditorialContribution struct {

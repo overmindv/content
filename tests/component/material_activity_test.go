@@ -93,7 +93,8 @@ func readActivity[P any](t *testing.T, f activityFixture, topic string) []activi
 		if err := json.Unmarshal(payload, &event); err != nil || event.EventID != id || event.AggregateID != key || event.SchemaVersion != 1 {
 			t.Fatalf("outbox envelope mismatch: %v", err)
 		}
-		for _, forbidden := range []string{"Source should never", "Private description marker", "Unpublished draft marker", `"source"`, `"reason"`} {
+		for _, forbidden := range []string{"Source should never", "Private description marker", "Unpublished draft marker",
+			"private moderator evidence", `"source"`, `"reason"`, `"actor_id"`} {
 			if strings.Contains(string(payload), forbidden) {
 				t.Errorf("activity contains %q", forbidden)
 			}

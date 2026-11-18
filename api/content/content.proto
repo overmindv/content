@@ -471,6 +471,31 @@ message ConfirmMaterialReadRequest {
 
 message ConfirmMaterialReadResponse {}
 
+enum MaterialModerationAction {
+  MATERIAL_MODERATION_ACTION_UNSPECIFIED = 0;
+  MATERIAL_MODERATION_ACTION_HIDE = 1;
+  MATERIAL_MODERATION_ACTION_RESTORE = 2;
+}
+
+message MaterialModerationState {
+  string material_id = 1;
+  string published_revision_id = 2;
+  int64 version = 3;
+  bool hidden = 4;
+}
+
+message GetMaterialModerationRequest {
+  string material_id = 1;
+}
+
+message SetMaterialModerationRequest {
+  string material_id = 1;
+  string expected_published_revision_id = 2;
+  optional int64 expected_moderation_version = 3;
+  MaterialModerationAction action = 4;
+  string reason = 5;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -500,4 +525,6 @@ service ContentService {
   rpc MergeChangeProposal(MergeChangeProposalRequest) returns (MergeChangeProposalResponse);
   rpc SnapshotMaterials(SnapshotMaterialsRequest) returns (SnapshotMaterialsResponse);
   rpc ConfirmMaterialRead(ConfirmMaterialReadRequest) returns (ConfirmMaterialReadResponse);
+  rpc GetMaterialModeration(GetMaterialModerationRequest) returns (MaterialModerationState);
+  rpc SetMaterialModeration(SetMaterialModerationRequest) returns (MaterialModerationState);
 }

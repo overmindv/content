@@ -10,6 +10,7 @@ import (
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/validator"
+	"github.com/overmindv/content/pkg/api/activity"
 )
 
 type proposalMaterial struct {
@@ -20,7 +21,7 @@ type proposalMaterial struct {
 func lockProposalMaterial(ctx context.Context, tx pgx.Tx, proposalID, actorID string, rebase bool) (proposalMaterial, error) {
 	// Блокируем материал раньше предложения, как при удалении материала.
 	query := `
-		SELECT i.id, i.status, i.current_revision_id, i.published_revision_id
+		SELECT i.id, i.status, i.current_revision_id, i.published_revision_id, i.moderation_hidden
 		FROM content_items AS i
 		WHERE i.id = (SELECT p.content_item_id FROM content_change_proposals AS p
 		              WHERE p.id = $1 AND (NOT $3::boolean OR p.author_id = $2))
@@ -32,7 +33,7 @@ func lockProposalMaterial(ctx context.Context, tx pgx.Tx, proposalID, actorID st
 	}
 	var material proposalMaterial
 	var current, published *string
-	err := tx.QueryRow(ctx, query, proposalID, actorID, rebase).Scan(&material.id, &material.status, &current, &published)
+	err := tx.QueryRow(ctx, query, proposalID, actorID, rebase).Scan(&material.id, &material.status, &current, &published, &material.hidden)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return proposalMaterial{}, service.ErrProposalNotFound
 	}
@@ -67,7 +68,7 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 			result = domain.MergeChangeProposalResult{ContentItemID: material.id, PublishedRevisionID: *merged}
 			return nil
 		}
-		if state != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished {
+		if state != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished || material.hidden {
 			return service.ErrInvalidState
 		}
 		review, err := validateMergeReview(ctx, tx, input, material, originalBase)
@@ -98,7 +99,7 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 		if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
 			return err
 		}
-		version, err := s.recordMaterialState(ctx, tx, item, false)
+		version, err := s.recordMaterialState(ctx, tx, item, activity.MaterialPublished, "")
 		if err != nil {
 			return err
 		}

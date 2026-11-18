@@ -27,10 +27,13 @@ func WithActivityOutbox(material, contribution, learning string) StoreOption {
 	}
 }
 
-func (s *ContentItemStore) recordMaterialState(ctx context.Context, tx pgx.Tx, item domain.ContentItem, tombstone bool) (int64, error) {
-	state := activity.MaterialState{Tombstone: tombstone}
+func (s *ContentItemStore) recordMaterialState(ctx context.Context, tx pgx.Tx, item domain.ContentItem, kind, invalidatedRevisionID string) (int64, error) {
+	state := activity.MaterialState{
+		Tombstone:             kind == activity.MaterialArchived || kind == activity.MaterialWithdrawn,
+		InvalidatedRevisionID: invalidatedRevisionID,
+	}
 	var metadata []byte
-	if !tombstone {
+	if !state.Tombstone {
 		state.Metadata = &activity.ResourceMetadata{Title: resourceTitle(item.Title), Type: string(item.Type), TopicIDs: []string{}}
 		if item.CurrentRevision != nil {
 			state.Metadata.Format = string(item.CurrentRevision.Format)
@@ -57,12 +60,8 @@ func (s *ContentItemStore) recordMaterialState(ctx context.Context, tx pgx.Tx, i
 		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata)
 		SELECT $1, watermark, $2, $3, $4::jsonb FROM next RETURNING version`
 	var version int64
-	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, tombstone, metadata).Scan(&version); err != nil {
+	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, state.Tombstone, metadata).Scan(&version); err != nil {
 		return 0, fmt.Errorf("record material state: %w", err)
-	}
-	kind := activity.MaterialPublished
-	if tombstone {
-		kind = activity.MaterialArchived
 	}
 	event := newActivity(kind, item.ID, item.PublishedRevisionID, version, state)
 	return version, s.enqueueActivity(ctx, tx, s.activity.material, event.EventID, event.AggregateID, event)
@@ -187,7 +186,7 @@ func (s *ContentItemStore) ConfirmMaterialRead(ctx context.Context, input domain
 	return pgx.BeginFunc(ctx, s.db, func(tx pgx.Tx) error {
 		const lock = `
 			SELECT published_revision_id FROM content_items
-			WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL FOR SHARE`
+			WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL AND NOT moderation_hidden FOR SHARE`
 		var revision string
 		err := tx.QueryRow(ctx, lock, input.MaterialID).Scan(&revision)
 		if errors.Is(err, pgx.ErrNoRows) {
