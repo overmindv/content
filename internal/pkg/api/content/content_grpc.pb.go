@@ -34,6 +34,13 @@ const (
 	ContentService_CloseChangeProposal_FullMethodName          = "/overmindv.content.ContentService/CloseChangeProposal"
 	ContentService_ListChangeProposalHistory_FullMethodName    = "/overmindv.content.ContentService/ListChangeProposalHistory"
 	ContentService_GetChangeProposalDiff_FullMethodName        = "/overmindv.content.ContentService/GetChangeProposalDiff"
+	ContentService_CreateReviewThread_FullMethodName           = "/overmindv.content.ContentService/CreateReviewThread"
+	ContentService_ReplyToReviewThread_FullMethodName          = "/overmindv.content.ContentService/ReplyToReviewThread"
+	ContentService_SetReviewThreadResolved_FullMethodName      = "/overmindv.content.ContentService/SetReviewThreadResolved"
+	ContentService_ListReviewThreads_FullMethodName            = "/overmindv.content.ContentService/ListReviewThreads"
+	ContentService_ListReviewReplies_FullMethodName            = "/overmindv.content.ContentService/ListReviewReplies"
+	ContentService_SubmitReviewDecision_FullMethodName         = "/overmindv.content.ContentService/SubmitReviewDecision"
+	ContentService_GetReviewRevisionStatus_FullMethodName      = "/overmindv.content.ContentService/GetReviewRevisionStatus"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -55,6 +62,13 @@ type ContentServiceClient interface {
 	CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error)
 	ListChangeProposalHistory(ctx context.Context, in *ListChangeProposalHistoryRequest, opts ...grpc.CallOption) (*ListChangeProposalHistoryResponse, error)
 	GetChangeProposalDiff(ctx context.Context, in *GetChangeProposalDiffRequest, opts ...grpc.CallOption) (*GetChangeProposalDiffResponse, error)
+	CreateReviewThread(ctx context.Context, in *CreateReviewThreadRequest, opts ...grpc.CallOption) (*CreateReviewThreadResponse, error)
+	ReplyToReviewThread(ctx context.Context, in *ReplyToReviewThreadRequest, opts ...grpc.CallOption) (*ReplyToReviewThreadResponse, error)
+	SetReviewThreadResolved(ctx context.Context, in *SetReviewThreadResolvedRequest, opts ...grpc.CallOption) (*SetReviewThreadResolvedResponse, error)
+	ListReviewThreads(ctx context.Context, in *ListReviewThreadsRequest, opts ...grpc.CallOption) (*ListReviewThreadsResponse, error)
+	ListReviewReplies(ctx context.Context, in *ListReviewRepliesRequest, opts ...grpc.CallOption) (*ListReviewRepliesResponse, error)
+	SubmitReviewDecision(ctx context.Context, in *SubmitReviewDecisionRequest, opts ...grpc.CallOption) (*SubmitReviewDecisionResponse, error)
+	GetReviewRevisionStatus(ctx context.Context, in *GetReviewRevisionStatusRequest, opts ...grpc.CallOption) (*GetReviewRevisionStatusResponse, error)
 }
 
 type contentServiceClient struct {
@@ -215,6 +229,76 @@ func (c *contentServiceClient) GetChangeProposalDiff(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *contentServiceClient) CreateReviewThread(ctx context.Context, in *CreateReviewThreadRequest, opts ...grpc.CallOption) (*CreateReviewThreadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateReviewThreadResponse)
+	err := c.cc.Invoke(ctx, ContentService_CreateReviewThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ReplyToReviewThread(ctx context.Context, in *ReplyToReviewThreadRequest, opts ...grpc.CallOption) (*ReplyToReviewThreadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReplyToReviewThreadResponse)
+	err := c.cc.Invoke(ctx, ContentService_ReplyToReviewThread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) SetReviewThreadResolved(ctx context.Context, in *SetReviewThreadResolvedRequest, opts ...grpc.CallOption) (*SetReviewThreadResolvedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetReviewThreadResolvedResponse)
+	err := c.cc.Invoke(ctx, ContentService_SetReviewThreadResolved_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ListReviewThreads(ctx context.Context, in *ListReviewThreadsRequest, opts ...grpc.CallOption) (*ListReviewThreadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListReviewThreadsResponse)
+	err := c.cc.Invoke(ctx, ContentService_ListReviewThreads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ListReviewReplies(ctx context.Context, in *ListReviewRepliesRequest, opts ...grpc.CallOption) (*ListReviewRepliesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListReviewRepliesResponse)
+	err := c.cc.Invoke(ctx, ContentService_ListReviewReplies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) SubmitReviewDecision(ctx context.Context, in *SubmitReviewDecisionRequest, opts ...grpc.CallOption) (*SubmitReviewDecisionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitReviewDecisionResponse)
+	err := c.cc.Invoke(ctx, ContentService_SubmitReviewDecision_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetReviewRevisionStatus(ctx context.Context, in *GetReviewRevisionStatusRequest, opts ...grpc.CallOption) (*GetReviewRevisionStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReviewRevisionStatusResponse)
+	err := c.cc.Invoke(ctx, ContentService_GetReviewRevisionStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -234,6 +318,13 @@ type ContentServiceServer interface {
 	CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error)
 	ListChangeProposalHistory(context.Context, *ListChangeProposalHistoryRequest) (*ListChangeProposalHistoryResponse, error)
 	GetChangeProposalDiff(context.Context, *GetChangeProposalDiffRequest) (*GetChangeProposalDiffResponse, error)
+	CreateReviewThread(context.Context, *CreateReviewThreadRequest) (*CreateReviewThreadResponse, error)
+	ReplyToReviewThread(context.Context, *ReplyToReviewThreadRequest) (*ReplyToReviewThreadResponse, error)
+	SetReviewThreadResolved(context.Context, *SetReviewThreadResolvedRequest) (*SetReviewThreadResolvedResponse, error)
+	ListReviewThreads(context.Context, *ListReviewThreadsRequest) (*ListReviewThreadsResponse, error)
+	ListReviewReplies(context.Context, *ListReviewRepliesRequest) (*ListReviewRepliesResponse, error)
+	SubmitReviewDecision(context.Context, *SubmitReviewDecisionRequest) (*SubmitReviewDecisionResponse, error)
+	GetReviewRevisionStatus(context.Context, *GetReviewRevisionStatusRequest) (*GetReviewRevisionStatusResponse, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -288,6 +379,27 @@ func (UnimplementedContentServiceServer) ListChangeProposalHistory(context.Conte
 }
 func (UnimplementedContentServiceServer) GetChangeProposalDiff(context.Context, *GetChangeProposalDiffRequest) (*GetChangeProposalDiffResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChangeProposalDiff not implemented")
+}
+func (UnimplementedContentServiceServer) CreateReviewThread(context.Context, *CreateReviewThreadRequest) (*CreateReviewThreadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateReviewThread not implemented")
+}
+func (UnimplementedContentServiceServer) ReplyToReviewThread(context.Context, *ReplyToReviewThreadRequest) (*ReplyToReviewThreadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplyToReviewThread not implemented")
+}
+func (UnimplementedContentServiceServer) SetReviewThreadResolved(context.Context, *SetReviewThreadResolvedRequest) (*SetReviewThreadResolvedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetReviewThreadResolved not implemented")
+}
+func (UnimplementedContentServiceServer) ListReviewThreads(context.Context, *ListReviewThreadsRequest) (*ListReviewThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListReviewThreads not implemented")
+}
+func (UnimplementedContentServiceServer) ListReviewReplies(context.Context, *ListReviewRepliesRequest) (*ListReviewRepliesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListReviewReplies not implemented")
+}
+func (UnimplementedContentServiceServer) SubmitReviewDecision(context.Context, *SubmitReviewDecisionRequest) (*SubmitReviewDecisionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitReviewDecision not implemented")
+}
+func (UnimplementedContentServiceServer) GetReviewRevisionStatus(context.Context, *GetReviewRevisionStatusRequest) (*GetReviewRevisionStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReviewRevisionStatus not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -580,6 +692,132 @@ func _ContentService_GetChangeProposalDiff_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_CreateReviewThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReviewThreadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).CreateReviewThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_CreateReviewThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).CreateReviewThread(ctx, req.(*CreateReviewThreadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ReplyToReviewThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplyToReviewThreadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ReplyToReviewThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ReplyToReviewThread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ReplyToReviewThread(ctx, req.(*ReplyToReviewThreadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_SetReviewThreadResolved_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetReviewThreadResolvedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SetReviewThreadResolved(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SetReviewThreadResolved_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SetReviewThreadResolved(ctx, req.(*SetReviewThreadResolvedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ListReviewThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReviewThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ListReviewThreads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ListReviewThreads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ListReviewThreads(ctx, req.(*ListReviewThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ListReviewReplies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReviewRepliesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ListReviewReplies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ListReviewReplies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ListReviewReplies(ctx, req.(*ListReviewRepliesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_SubmitReviewDecision_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitReviewDecisionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SubmitReviewDecision(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SubmitReviewDecision_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SubmitReviewDecision(ctx, req.(*SubmitReviewDecisionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetReviewRevisionStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReviewRevisionStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetReviewRevisionStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetReviewRevisionStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetReviewRevisionStatus(ctx, req.(*GetReviewRevisionStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -646,6 +884,34 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChangeProposalDiff",
 			Handler:    _ContentService_GetChangeProposalDiff_Handler,
+		},
+		{
+			MethodName: "CreateReviewThread",
+			Handler:    _ContentService_CreateReviewThread_Handler,
+		},
+		{
+			MethodName: "ReplyToReviewThread",
+			Handler:    _ContentService_ReplyToReviewThread_Handler,
+		},
+		{
+			MethodName: "SetReviewThreadResolved",
+			Handler:    _ContentService_SetReviewThreadResolved_Handler,
+		},
+		{
+			MethodName: "ListReviewThreads",
+			Handler:    _ContentService_ListReviewThreads_Handler,
+		},
+		{
+			MethodName: "ListReviewReplies",
+			Handler:    _ContentService_ListReviewReplies_Handler,
+		},
+		{
+			MethodName: "SubmitReviewDecision",
+			Handler:    _ContentService_SubmitReviewDecision_Handler,
+		},
+		{
+			MethodName: "GetReviewRevisionStatus",
+			Handler:    _ContentService_GetReviewRevisionStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

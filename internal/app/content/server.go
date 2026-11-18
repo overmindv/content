@@ -13,6 +13,7 @@ type Server struct {
 	contentpb.UnimplementedContentServiceServer
 	itemService *service.ContentItemService
 	proposals   *service.ChangeProposalService
+	review      *service.ChangeReviewService
 }
 
 func (s *Server) PublishContentItem(ctx context.Context, req *contentpb.PublishContentItemRequest) (*contentpb.PublishContentItemResponse, error) {
@@ -43,8 +44,8 @@ func (s *Server) ArchiveContentItem(ctx context.Context, req *contentpb.ArchiveC
 	return &contentpb.ArchiveContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
-func NewServer(itemService *service.ContentItemService, proposals *service.ChangeProposalService) *Server {
-	return &Server{itemService: itemService, proposals: proposals}
+func NewServer(itemService *service.ContentItemService, proposals *service.ChangeProposalService, review *service.ChangeReviewService) *Server {
+	return &Server{itemService: itemService, proposals: proposals, review: review}
 }
 
 func (s *Server) CreateContentItem(ctx context.Context, req *contentpb.CreateContentItemRequest) (*contentpb.CreateContentItemResponse, error) {

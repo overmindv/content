@@ -43,7 +43,7 @@ func Build(app *parker.App) error {
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store))
+	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store), service.NewChangeReviewService(store))
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {
