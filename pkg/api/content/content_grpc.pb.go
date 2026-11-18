@@ -22,6 +22,7 @@ const (
 	ContentService_CreateContentItem_FullMethodName            = "/overmindv.content.ContentService/CreateContentItem"
 	ContentService_GetContentItem_FullMethodName               = "/overmindv.content.ContentService/GetContentItem"
 	ContentService_ListContentItems_FullMethodName             = "/overmindv.content.ContentService/ListContentItems"
+	ContentService_ListContentCatalog_FullMethodName           = "/overmindv.content.ContentService/ListContentCatalog"
 	ContentService_UpdateContentItem_FullMethodName            = "/overmindv.content.ContentService/UpdateContentItem"
 	ContentService_DeleteContentItem_FullMethodName            = "/overmindv.content.ContentService/DeleteContentItem"
 	ContentService_CreateContentRevision_FullMethodName        = "/overmindv.content.ContentService/CreateContentRevision"
@@ -50,6 +51,7 @@ type ContentServiceClient interface {
 	CreateContentItem(ctx context.Context, in *CreateContentItemRequest, opts ...grpc.CallOption) (*CreateContentItemResponse, error)
 	GetContentItem(ctx context.Context, in *GetContentItemRequest, opts ...grpc.CallOption) (*GetContentItemResponse, error)
 	ListContentItems(ctx context.Context, in *ListContentItemsRequest, opts ...grpc.CallOption) (*ListContentItemsResponse, error)
+	ListContentCatalog(ctx context.Context, in *ListContentCatalogRequest, opts ...grpc.CallOption) (*ListContentCatalogResponse, error)
 	UpdateContentItem(ctx context.Context, in *UpdateContentItemRequest, opts ...grpc.CallOption) (*UpdateContentItemResponse, error)
 	DeleteContentItem(ctx context.Context, in *DeleteContentItemRequest, opts ...grpc.CallOption) (*DeleteContentItemResponse, error)
 	CreateContentRevision(ctx context.Context, in *CreateContentRevisionRequest, opts ...grpc.CallOption) (*CreateContentRevisionResponse, error)
@@ -103,6 +105,16 @@ func (c *contentServiceClient) ListContentItems(ctx context.Context, in *ListCon
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListContentItemsResponse)
 	err := c.cc.Invoke(ctx, ContentService_ListContentItems_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ListContentCatalog(ctx context.Context, in *ListContentCatalogRequest, opts ...grpc.CallOption) (*ListContentCatalogResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListContentCatalogResponse)
+	err := c.cc.Invoke(ctx, ContentService_ListContentCatalog_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -306,6 +318,7 @@ type ContentServiceServer interface {
 	CreateContentItem(context.Context, *CreateContentItemRequest) (*CreateContentItemResponse, error)
 	GetContentItem(context.Context, *GetContentItemRequest) (*GetContentItemResponse, error)
 	ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error)
+	ListContentCatalog(context.Context, *ListContentCatalogRequest) (*ListContentCatalogResponse, error)
 	UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error)
 	DeleteContentItem(context.Context, *DeleteContentItemRequest) (*DeleteContentItemResponse, error)
 	CreateContentRevision(context.Context, *CreateContentRevisionRequest) (*CreateContentRevisionResponse, error)
@@ -343,6 +356,9 @@ func (UnimplementedContentServiceServer) GetContentItem(context.Context, *GetCon
 }
 func (UnimplementedContentServiceServer) ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentItems not implemented")
+}
+func (UnimplementedContentServiceServer) ListContentCatalog(context.Context, *ListContentCatalogRequest) (*ListContentCatalogResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListContentCatalog not implemented")
 }
 func (UnimplementedContentServiceServer) UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateContentItem not implemented")
@@ -472,6 +488,24 @@ func _ContentService_ListContentItems_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).ListContentItems(ctx, req.(*ListContentItemsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ListContentCatalog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListContentCatalogRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ListContentCatalog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ListContentCatalog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ListContentCatalog(ctx, req.(*ListContentCatalogRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -836,6 +870,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListContentItems",
 			Handler:    _ContentService_ListContentItems_Handler,
+		},
+		{
+			MethodName: "ListContentCatalog",
+			Handler:    _ContentService_ListContentCatalog_Handler,
 		},
 		{
 			MethodName: "UpdateContentItem",

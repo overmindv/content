@@ -53,6 +53,7 @@ type ContentItem struct {
 	CurrentRevision     *ContentRevision
 	Tags                []Tag
 	Assets              []ContentAsset
+	Learning            *LearningMetadata `json:",omitempty"`
 }
 
 type ContentRevision struct {
@@ -97,6 +98,7 @@ type CreateContentItemInput struct {
 	CreatedBy   string
 	Tags        []string
 	Assets      []CreateContentAssetInput
+	Learning    *LearningMetadata
 }
 
 type UpdateContentItemInput struct {
@@ -107,6 +109,7 @@ type UpdateContentItemInput struct {
 	Slug        string
 	Description string
 	UpdatedBy   string
+	Learning    *LearningMetadata
 }
 
 type CreateContentRevisionInput struct {

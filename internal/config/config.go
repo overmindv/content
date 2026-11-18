@@ -9,8 +9,9 @@ import (
 const ServiceName = "content"
 
 type Config struct {
-	GRPC  GRPCConfig
-	Kafka KafkaConfig
+	GRPC        GRPCConfig
+	Kafka       KafkaConfig
+	EntitiesURL string
 }
 
 type GRPCConfig struct {
@@ -27,6 +28,7 @@ type KafkaConfig struct {
 
 func Load() Config {
 	return Config{
+		EntitiesURL: os.Getenv("CONTENT_ENTITIES_URL"),
 		GRPC: GRPCConfig{
 			Addr:         env("GRPC_ADDR", ":9090"),
 			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),

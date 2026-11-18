@@ -131,6 +131,21 @@ func (mr *MockContentItemStoreMockRecorder) List(ctx, actorID any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockContentItemStore)(nil).List), ctx, actorID)
 }
 
+// ListCatalog mocks base method.
+func (m *MockContentItemStore) ListCatalog(arg0 context.Context, arg1 domain.CatalogFilter, arg2 *domain.CatalogCursor) ([]domain.CatalogEntry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListCatalog", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]domain.CatalogEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCatalog indicates an expected call of ListCatalog.
+func (mr *MockContentItemStoreMockRecorder) ListCatalog(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCatalog", reflect.TypeOf((*MockContentItemStore)(nil).ListCatalog), arg0, arg1, arg2)
+}
+
 // ListRevisions mocks base method.
 func (m *MockContentItemStore) ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error) {
 	m.ctrl.T.Helper()
@@ -173,6 +188,44 @@ func (m *MockContentItemStore) Update(ctx context.Context, input domain.UpdateCo
 func (mr *MockContentItemStoreMockRecorder) Update(ctx, input any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockContentItemStore)(nil).Update), ctx, input)
+}
+
+// MockTopicChecker is a mock of TopicChecker interface.
+type MockTopicChecker struct {
+	ctrl     *gomock.Controller
+	recorder *MockTopicCheckerMockRecorder
+	isgomock struct{}
+}
+
+// MockTopicCheckerMockRecorder is the mock recorder for MockTopicChecker.
+type MockTopicCheckerMockRecorder struct {
+	mock *MockTopicChecker
+}
+
+// NewMockTopicChecker creates a new mock instance.
+func NewMockTopicChecker(ctrl *gomock.Controller) *MockTopicChecker {
+	mock := &MockTopicChecker{ctrl: ctrl}
+	mock.recorder = &MockTopicCheckerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTopicChecker) EXPECT() *MockTopicCheckerMockRecorder {
+	return m.recorder
+}
+
+// CheckActiveTopic mocks base method.
+func (m *MockTopicChecker) CheckActiveTopic(ctx context.Context, topicID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckActiveTopic", ctx, topicID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckActiveTopic indicates an expected call of CheckActiveTopic.
+func (mr *MockTopicCheckerMockRecorder) CheckActiveTopic(ctx, topicID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckActiveTopic", reflect.TypeOf((*MockTopicChecker)(nil).CheckActiveTopic), ctx, topicID)
 }
 
 // MockChangeProposalStore is a mock of ChangeProposalStore interface.

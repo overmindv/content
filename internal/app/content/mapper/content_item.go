@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/overmindv/content/internal/dto"
-	content "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
+	content "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -32,6 +32,7 @@ func CreateContentItemFromProto(req *content.CreateContentItemRequest, actorID s
 		CreatedBy:   actorID,
 		Tags:        req.GetTags(),
 		Assets:      assets,
+		Learning:    learningFromProto(req.GetLearning()),
 	}
 }
 
@@ -44,6 +45,7 @@ func UpdateContentItemFromProto(req *content.UpdateContentItemRequest, actorID s
 		Slug:        req.GetSlug(),
 		Description: req.GetDescription(),
 		UpdatedBy:   actorID,
+		Learning:    learningFromProto(req.GetLearning()),
 	}
 }
 
@@ -81,6 +83,7 @@ func ToCreateInput(payload dto.CreateContentItem) domain.CreateContentItemInput 
 		CreatedBy:   payload.CreatedBy,
 		Tags:        payload.Tags,
 		Assets:      assets,
+		Learning:    learningToDomain(payload.Learning),
 	}
 }
 
@@ -93,6 +96,7 @@ func ToUpdateInput(payload dto.UpdateContentItem) domain.UpdateContentItemInput 
 		Slug:        payload.Slug,
 		Description: payload.Description,
 		UpdatedBy:   payload.UpdatedBy,
+		Learning:    learningToDomain(payload.Learning),
 	}
 }
 
@@ -125,12 +129,34 @@ func ToProto(item domain.ContentItem) *content.ContentItem {
 		ArchivedAt:          timestampOrNil(item.ArchivedAt),
 		Tags:                ToProtoTags(item.Tags),
 		Assets:              ToProtoAssets(item.Assets),
+		Learning:            ToProtoLearning(item.Learning),
 	}
 	if item.CurrentRevision != nil {
 		result.CurrentRevision = ToProtoRevision(*item.CurrentRevision)
 	}
 
 	return result
+}
+
+func learningFromProto(value *content.ContentLearningMetadata) *dto.LearningMetadata {
+	if value == nil {
+		return nil
+	}
+	return &dto.LearningMetadata{TopicIDs: value.GetTopicIds(), EstimatedMinutes: value.GetEstimatedMinutes(), LearningOutcomes: value.GetLearningOutcomes()}
+}
+
+func learningToDomain(value *dto.LearningMetadata) *domain.LearningMetadata {
+	if value == nil {
+		return nil
+	}
+	return &domain.LearningMetadata{TopicIDs: value.TopicIDs, EstimatedMinutes: value.EstimatedMinutes, LearningOutcomes: value.LearningOutcomes}
+}
+
+func ToProtoLearning(value *domain.LearningMetadata) *content.ContentLearningMetadata {
+	if value == nil {
+		return nil
+	}
+	return &content.ContentLearningMetadata{TopicIds: value.TopicIDs, EstimatedMinutes: value.EstimatedMinutes, LearningOutcomes: value.LearningOutcomes}
 }
 
 func ToProtoList(items []domain.ContentItem) []*content.ContentItem {

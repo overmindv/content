@@ -6,9 +6,10 @@ import (
 	"net"
 
 	"github.com/overmindv/content/internal/config"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/service/external"
 	"github.com/overmindv/content/internal/pkg/store/postgres"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"github.com/overmindv/parker"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -20,6 +21,14 @@ import (
 // берёт на себя parker.
 func Build(app *parker.App) error {
 	cfg := config.Load()
+	var topics service.TopicChecker
+	if cfg.EntitiesURL != "" {
+		client, err := external.NewTopicClient(cfg.EntitiesURL)
+		if err != nil {
+			return err
+		}
+		topics = client
+	}
 
 	pool, err := app.Postgres() // добавляет health-чек "postgres" в /ready
 	if err != nil {
@@ -43,7 +52,7 @@ func Build(app *parker.App) error {
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store), service.NewChangeReviewService(store))
+	handler := NewServer(service.NewContentItemService(store, topics), service.NewChangeProposalService(store), service.NewChangeReviewService(store))
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {

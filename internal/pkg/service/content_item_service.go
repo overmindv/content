@@ -9,12 +9,14 @@ import (
 )
 
 type ContentItemService struct {
-	store ContentItemStore
+	store  ContentItemStore
+	topics TopicChecker
 }
 
-func NewContentItemService(store ContentItemStore) *ContentItemService {
+func NewContentItemService(store ContentItemStore, topics TopicChecker) *ContentItemService {
 	return &ContentItemService{
-		store: store,
+		store:  store,
+		topics: topics,
 	}
 }
 
@@ -31,6 +33,9 @@ func (s *ContentItemService) Create(ctx context.Context, input domain.CreateCont
 	}
 	normalized := normalizeCreateInput(input)
 	if err = validator.ValidateCreateContentItem(normalized); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if normalized.Learning, err = s.validateLearningMetadata(ctx, input.Learning); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -54,6 +59,9 @@ func (s *ContentItemService) List(ctx context.Context, actorID string) (items []
 func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateContentItemInput) (item domain.ContentItem, err error) {
 	normalized := normalizeUpdateInput(input)
 	if err = validator.ValidateUpdateContentItem(normalized); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if normalized.Learning, err = s.validateLearningMetadata(ctx, input.Learning); err != nil {
 		return domain.ContentItem{}, err
 	}
 

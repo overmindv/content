@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/overmindv/content/internal/mock"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

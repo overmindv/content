@@ -22,6 +22,8 @@ var (
 	ErrReviewThreadNotFound     = errors.New("review thread not found")
 	ErrReviewNotAllowed         = errors.New("only a reviewer other than the proposal author can submit a decision")
 	ErrReviewDecisionExists     = errors.New("a different decision already exists for this revision")
+	ErrInactiveTopic            = errors.New("topic does not exist or is not active")
+	ErrTopicCatalogUnavailable  = errors.New("topic catalog is unavailable")
 )
 
 type ContentItemStore interface {
@@ -29,11 +31,16 @@ type ContentItemStore interface {
 	Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error)
 	Get(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	List(ctx context.Context, actorID string) ([]domain.ContentItem, error)
+	ListCatalog(context.Context, domain.CatalogFilter, *domain.CatalogCursor) ([]domain.CatalogEntry, error)
 	Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error)
 	ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error)
 	Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error)
 	ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error)
+}
+
+type TopicChecker interface {
+	CheckActiveTopic(ctx context.Context, topicID string) error
 }
 
 type ChangeProposalStore interface {
