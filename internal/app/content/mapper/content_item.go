@@ -124,6 +124,13 @@ func FromAttachmentSet(set *content.AttachmentSet) *domain.AttachmentSet {
 	return &domain.AttachmentSet{Assets: assets}
 }
 
+func FromDraftMetadata(value *content.DraftMetadata) *domain.DraftMetadata {
+	if value == nil {
+		return nil
+	}
+	return &domain.DraftMetadata{Title: value.GetTitle(), TopicIDs: value.GetTopicIds()}
+}
+
 func ToProto(item domain.ContentItem) *content.ContentItem {
 	result := &content.ContentItem{
 		Id:                  item.ID,

@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/overmindv/content/internal/pkg/domain"
@@ -36,11 +37,8 @@ func ValidateCreateContentItem(input domain.CreateContentItemInput) error {
 	if input.Status != domain.ContentStatusDraft {
 		return Error{Message: "new content must have draft status"}
 	}
-	if strings.TrimSpace(input.Title) == "" {
-		return Error{Message: "title is required"}
-	}
-	if len(input.Title) > 256 {
-		return Error{Message: "title must be shorter than 257 characters"}
+	if err := ValidateContentTitle(input.Title); err != nil {
+		return err
 	}
 	if !isSlug(input.Slug) {
 		return Error{Message: "slug must contain lowercase latin letters, digits and single hyphens"}
@@ -68,6 +66,16 @@ func ValidateCreateContentItem(input domain.CreateContentItemInput) error {
 		}
 	}
 
+	return nil
+}
+
+func ValidateContentTitle(title string) error {
+	if strings.TrimSpace(title) == "" {
+		return Error{Message: "title is required"}
+	}
+	if len(title) > 256 || !utf8.ValidString(title) || strings.IndexByte(title, 0) >= 0 {
+		return Error{Message: "title must be UTF-8 text without NUL, up to 256 bytes"}
+	}
 	return nil
 }
 

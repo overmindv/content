@@ -519,7 +519,8 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	if err != nil {
 		return domain.ContentRevision{}, err
 	}
-	if current.status == domain.ContentStatusArchived {
+	if current.status == domain.ContentStatusArchived ||
+		(input.DraftMetadata != nil && current.status != domain.ContentStatusDraft) {
 		return domain.ContentRevision{}, service.ErrInvalidState
 	}
 	if err = current.checkRevision(input.ExpectedRevisionID); err != nil {
@@ -573,6 +574,7 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		UPDATE content_items
 		SET current_revision_id = $2,
 		    updated_by = $3,
+		    title = COALESCE($4, title),
 		    updated_at = NOW()
 		WHERE id = $1
 	`
@@ -581,13 +583,29 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		return domain.ContentRevision{}, err
 	}
 
-	if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy)); err != nil {
+	var title *string
+	if metadata := input.DraftMetadata; metadata != nil {
+		title = &metadata.Title
+		if _, err = tx.Exec(ctx, "WITH "+replaceContentTopics, itemID, metadata.TopicIDs); err != nil {
+			return domain.ContentRevision{}, err
+		}
+	}
+	if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy), title); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
 	// Событие пишется в outbox атомарно с созданием ревизии.
 	if err = s.enqueueContentRevision(ctx, tx, revision); err != nil {
 		return domain.ContentRevision{}, err
+	}
+	if title != nil && s.outboxEnabled && s.outboxTopic != "" {
+		item, err := s.get(ctx, tx, itemID, input.CreatedBy)
+		if err != nil {
+			return domain.ContentRevision{}, err
+		}
+		if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
+			return domain.ContentRevision{}, err
+		}
 	}
 	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentRevision{}, err

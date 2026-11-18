@@ -86,7 +86,8 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 		return input.UpdatedBy == testActor
 	})).Return(domain.ContentItem{UpdatedBy: testActor}, nil)
 	store.EXPECT().CreateRevision(gomock.Any(), gomock.Cond(func(input domain.CreateContentRevisionInput) bool {
-		return input.CreatedBy == testActor && input.ExpectedRevisionID == testActor
+		return input.CreatedBy == testActor && input.ExpectedRevisionID == testActor &&
+			input.DraftMetadata != nil && input.DraftMetadata.Title == "Go basics"
 	})).Return(domain.ContentRevision{CreatedBy: testActor}, nil)
 
 	created, err := client.CreateContentItem(ctx, &contentpb.CreateContentItemRequest{
@@ -103,6 +104,7 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 	}
 	revision, err := client.CreateContentRevision(ctx, &contentpb.CreateContentRevisionRequest{
 		ContentItemId: testActor, Source: "# Go", CreatedBy: testOtherActor, ExpectedRevisionId: testActor,
+		DraftMetadata: &contentpb.DraftMetadata{Title: " Go basics "},
 	})
 	if err != nil || revision.GetRevision().GetCreatedBy() != testActor {
 		t.Errorf("CreateContentRevision did not use the verified actor: %v", err)

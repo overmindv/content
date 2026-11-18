@@ -131,6 +131,7 @@ func (s *Server) CreateContentRevision(ctx context.Context, req *contentpb.Creat
 	}
 	input := mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req, id))
 	input.Attachments = mapper.FromAttachmentSet(req.GetAttachments())
+	input.DraftMetadata = mapper.FromDraftMetadata(req.GetDraftMetadata())
 	revision, err := s.itemService.CreateRevision(ctx, input)
 	if err != nil {
 		return nil, toStatusError(err)

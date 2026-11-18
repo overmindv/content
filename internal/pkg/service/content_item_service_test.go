@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/validator"
 )
 
 type storeStub struct {
@@ -126,5 +128,31 @@ func TestCreateAppliesDefaults(t *testing.T) {
 
 	if len(store.lastCreate.Tags) != 1 || store.lastCreate.Tags[0] != "go" {
 		t.Errorf("expected normalized unique tag go, got %#v", store.lastCreate.Tags)
+	}
+	if store.lastCreate.Source != "  # Starter article  " {
+		t.Error("Create changed source whitespace")
+	}
+}
+
+func TestCreateRevisionValidatesDraftMetadata(t *testing.T) {
+	svc := NewContentItemService(&storeStub{}, nil)
+	input := domain.CreateContentRevisionInput{
+		ContentItemID: "item-1", ExpectedRevisionID: "c7da7413-aef0-4746-bf62-c80356f7e350",
+		Source: "    code block\n\n",
+	}
+	for _, title := range []string{" ", strings.Repeat("a", 257), "Go\x00"} {
+		input.DraftMetadata = &domain.DraftMetadata{Title: title}
+		if _, err := svc.CreateRevision(t.Context(), input); !validator.IsValidationError(err) {
+			t.Errorf("expected title validation error, got %v", err)
+		}
+	}
+	input.DraftMetadata = &domain.DraftMetadata{Title: "Go", TopicIDs: []string{"not-a-uuid"}}
+	if _, err := svc.CreateRevision(t.Context(), input); !validator.IsValidationError(err) {
+		t.Errorf("expected topic validation error, got %v", err)
+	}
+	input.DraftMetadata.TopicIDs = nil
+	revision, err := svc.CreateRevision(t.Context(), input)
+	if err != nil || revision.Source != input.Source {
+		t.Errorf("source after save = %q, error = %v", revision.Source, err)
 	}
 }

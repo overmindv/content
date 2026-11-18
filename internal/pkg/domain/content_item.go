@@ -128,6 +128,12 @@ type CreateContentRevisionInput struct {
 	Message            string
 	CreatedBy          string
 	Attachments        *AttachmentSet
+	DraftMetadata      *DraftMetadata
+}
+
+type DraftMetadata struct {
+	Title    string
+	TopicIDs []string
 }
 
 type ChangeContentItemStateInput struct {

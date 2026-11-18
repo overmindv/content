@@ -163,6 +163,11 @@ message DeleteContentItemResponse {
   ContentItem item = 1;
 }
 
+message DraftMetadata {
+  string title = 1;
+  repeated string topic_ids = 2;
+}
+
 message CreateContentRevisionRequest {
   string content_item_id = 1;
   string format = 2;
@@ -171,6 +176,7 @@ message CreateContentRevisionRequest {
   string created_by = 5;
   string expected_revision_id = 6;
   AttachmentSet attachments = 7;
+  DraftMetadata draft_metadata = 8;
 }
 
 message CreateContentRevisionResponse {
