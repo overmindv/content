@@ -102,12 +102,22 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 	if err != nil || updated.GetItem().GetUpdatedBy() != testActor {
 		t.Errorf("UpdateContentItem did not use the verified actor: %v", err)
 	}
-	revision, err := client.CreateContentRevision(ctx, &contentpb.CreateContentRevisionRequest{
-		ContentItemId: testActor, Source: "# Go", CreatedBy: testOtherActor, ExpectedRevisionId: testActor,
+	revision, err := client.SaveContentDraft(ctx, &contentpb.SaveContentDraftRequest{
+		Revision: &contentpb.CreateContentRevisionRequest{
+			ContentItemId: testActor, Source: "# Go", CreatedBy: testOtherActor, ExpectedRevisionId: testActor,
+		},
 		DraftMetadata: &contentpb.DraftMetadata{Title: " Go basics "},
 	})
 	if err != nil || revision.GetRevision().GetCreatedBy() != testActor {
-		t.Errorf("CreateContentRevision did not use the verified actor: %v", err)
+		t.Errorf("SaveContentDraft did not use the verified actor: %v", err)
+	}
+	_, err = client.SaveContentDraft(ctx, &contentpb.SaveContentDraftRequest{
+		Revision: &contentpb.CreateContentRevisionRequest{
+			ContentItemId: testActor, Source: "# Go", ExpectedRevisionId: testActor,
+		},
+	})
+	if status.Code(err) != codes.InvalidArgument {
+		t.Errorf("SaveContentDraft without metadata: %v", err)
 	}
 }
 

@@ -125,9 +125,6 @@ func FromAttachmentSet(set *content.AttachmentSet) *domain.AttachmentSet {
 }
 
 func FromDraftMetadata(value *content.DraftMetadata) *domain.DraftMetadata {
-	if value == nil {
-		return nil
-	}
 	return &domain.DraftMetadata{Title: value.GetTitle(), TopicIDs: value.GetTopicIds()}
 }
 

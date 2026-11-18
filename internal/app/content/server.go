@@ -125,19 +125,35 @@ func (s *Server) DeleteContentItem(ctx context.Context, req *contentpb.DeleteCon
 }
 
 func (s *Server) CreateContentRevision(ctx context.Context, req *contentpb.CreateContentRevisionRequest) (*contentpb.CreateContentRevisionResponse, error) {
+	revision, err := s.createRevision(ctx, req, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &contentpb.CreateContentRevisionResponse{Revision: revision}, nil
+}
+
+func (s *Server) SaveContentDraft(ctx context.Context, req *contentpb.SaveContentDraftRequest) (*contentpb.SaveContentDraftResponse, error) {
+	revision, err := s.createRevision(ctx, req.GetRevision(), mapper.FromDraftMetadata(req.GetDraftMetadata()))
+	if err != nil {
+		return nil, err
+	}
+	return &contentpb.SaveContentDraftResponse{Revision: revision}, nil
+}
+
+func (s *Server) createRevision(ctx context.Context, req *contentpb.CreateContentRevisionRequest, metadata *domain.DraftMetadata) (*contentpb.ContentRevision, error) {
 	id, err := actorID(ctx)
 	if err != nil {
 		return nil, err
 	}
 	input := mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req, id))
 	input.Attachments = mapper.FromAttachmentSet(req.GetAttachments())
-	input.DraftMetadata = mapper.FromDraftMetadata(req.GetDraftMetadata())
+	input.DraftMetadata = metadata
 	revision, err := s.itemService.CreateRevision(ctx, input)
 	if err != nil {
 		return nil, toStatusError(err)
 	}
 
-	return &contentpb.CreateContentRevisionResponse{Revision: mapper.ToProtoRevision(revision)}, nil
+	return mapper.ToProtoRevision(revision), nil
 }
 
 func (s *Server) ListContentRevisions(ctx context.Context, req *contentpb.ListContentRevisionsRequest) (*contentpb.ListContentRevisionsResponse, error) {

@@ -42,6 +42,7 @@ curl http://localhost:8080/metrics
 - `UpdateContentItem`
 - `DeleteContentItem`
 - `CreateContentRevision`
+- `SaveContentDraft`
 - `ListContentRevisions`
 - `PublishContentItem`
 - `ArchiveContentItem`
@@ -51,11 +52,12 @@ curl http://localhost:8080/metrics
 нет версионирования. Для правки текста используй `CreateContentRevision`: она
 сдвигает `current_revision_id`, не меняя `published_revision_id`.
 
-Редактор может передать в `CreateContentRevision` поле `draft_metadata` с
-`title` и `topic_ids`. Заголовок, темы, текст и вложения сохраняются в одной
+Чтобы править заголовок и темы, редактор вызывает `SaveContentDraft` с
+`revision` и `draft_metadata` (`title`, `topic_ids`). Эти поля, текст и вложения сохраняются в одной
 транзакции. Пустой список снимает привязки к темам и не меняет время изучения
 или результаты обучения. Если материал уже опубликован, запрос с
-`draft_metadata` отклоняется. Без этого поля меняется только ревизия.
+`draft_metadata` отклоняется. Для правки только ревизии используется
+`CreateContentRevision`.
 
 ### Каталог и учебные поля
 

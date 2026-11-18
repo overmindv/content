@@ -27,6 +27,7 @@ const (
 	ContentService_UpdateContentItem_FullMethodName            = "/overmindv.content.ContentService/UpdateContentItem"
 	ContentService_DeleteContentItem_FullMethodName            = "/overmindv.content.ContentService/DeleteContentItem"
 	ContentService_CreateContentRevision_FullMethodName        = "/overmindv.content.ContentService/CreateContentRevision"
+	ContentService_SaveContentDraft_FullMethodName             = "/overmindv.content.ContentService/SaveContentDraft"
 	ContentService_ListContentRevisions_FullMethodName         = "/overmindv.content.ContentService/ListContentRevisions"
 	ContentService_ListContentRevisionHistory_FullMethodName   = "/overmindv.content.ContentService/ListContentRevisionHistory"
 	ContentService_PublishContentItem_FullMethodName           = "/overmindv.content.ContentService/PublishContentItem"
@@ -65,6 +66,7 @@ type ContentServiceClient interface {
 	UpdateContentItem(ctx context.Context, in *UpdateContentItemRequest, opts ...grpc.CallOption) (*UpdateContentItemResponse, error)
 	DeleteContentItem(ctx context.Context, in *DeleteContentItemRequest, opts ...grpc.CallOption) (*DeleteContentItemResponse, error)
 	CreateContentRevision(ctx context.Context, in *CreateContentRevisionRequest, opts ...grpc.CallOption) (*CreateContentRevisionResponse, error)
+	SaveContentDraft(ctx context.Context, in *SaveContentDraftRequest, opts ...grpc.CallOption) (*SaveContentDraftResponse, error)
 	ListContentRevisions(ctx context.Context, in *ListContentRevisionsRequest, opts ...grpc.CallOption) (*ListContentRevisionsResponse, error)
 	ListContentRevisionHistory(ctx context.Context, in *ListContentRevisionHistoryRequest, opts ...grpc.CallOption) (*ListContentRevisionHistoryResponse, error)
 	PublishContentItem(ctx context.Context, in *PublishContentItemRequest, opts ...grpc.CallOption) (*PublishContentItemResponse, error)
@@ -173,6 +175,16 @@ func (c *contentServiceClient) CreateContentRevision(ctx context.Context, in *Cr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateContentRevisionResponse)
 	err := c.cc.Invoke(ctx, ContentService_CreateContentRevision_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) SaveContentDraft(ctx context.Context, in *SaveContentDraftRequest, opts ...grpc.CallOption) (*SaveContentDraftResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveContentDraftResponse)
+	err := c.cc.Invoke(ctx, ContentService_SaveContentDraft_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -431,6 +443,7 @@ type ContentServiceServer interface {
 	UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error)
 	DeleteContentItem(context.Context, *DeleteContentItemRequest) (*DeleteContentItemResponse, error)
 	CreateContentRevision(context.Context, *CreateContentRevisionRequest) (*CreateContentRevisionResponse, error)
+	SaveContentDraft(context.Context, *SaveContentDraftRequest) (*SaveContentDraftResponse, error)
 	ListContentRevisions(context.Context, *ListContentRevisionsRequest) (*ListContentRevisionsResponse, error)
 	ListContentRevisionHistory(context.Context, *ListContentRevisionHistoryRequest) (*ListContentRevisionHistoryResponse, error)
 	PublishContentItem(context.Context, *PublishContentItemRequest) (*PublishContentItemResponse, error)
@@ -488,6 +501,9 @@ func (UnimplementedContentServiceServer) DeleteContentItem(context.Context, *Del
 }
 func (UnimplementedContentServiceServer) CreateContentRevision(context.Context, *CreateContentRevisionRequest) (*CreateContentRevisionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateContentRevision not implemented")
+}
+func (UnimplementedContentServiceServer) SaveContentDraft(context.Context, *SaveContentDraftRequest) (*SaveContentDraftResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveContentDraft not implemented")
 }
 func (UnimplementedContentServiceServer) ListContentRevisions(context.Context, *ListContentRevisionsRequest) (*ListContentRevisionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentRevisions not implemented")
@@ -722,6 +738,24 @@ func _ContentService_CreateContentRevision_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).CreateContentRevision(ctx, req.(*CreateContentRevisionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_SaveContentDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveContentDraftRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SaveContentDraft(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SaveContentDraft_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SaveContentDraft(ctx, req.(*SaveContentDraftRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1196,6 +1230,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateContentRevision",
 			Handler:    _ContentService_CreateContentRevision_Handler,
+		},
+		{
+			MethodName: "SaveContentDraft",
+			Handler:    _ContentService_SaveContentDraft_Handler,
 		},
 		{
 			MethodName: "ListContentRevisions",
