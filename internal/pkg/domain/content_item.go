@@ -119,6 +119,7 @@ type CreateContentRevisionInput struct {
 	Source             string
 	Message            string
 	CreatedBy          string
+	Attachments        *AttachmentSet
 }
 
 type ChangeContentItemStateInput struct {

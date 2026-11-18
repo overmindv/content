@@ -118,7 +118,9 @@ func (s *Server) CreateContentRevision(ctx context.Context, req *contentpb.Creat
 	if err != nil {
 		return nil, err
 	}
-	revision, err := s.itemService.CreateRevision(ctx, mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req, id)))
+	input := mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req, id))
+	input.Attachments = mapper.FromAttachmentSet(req.GetAttachments())
+	revision, err := s.itemService.CreateRevision(ctx, input)
 	if err != nil {
 		return nil, toStatusError(err)
 	}

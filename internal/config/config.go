@@ -16,6 +16,8 @@ type Config struct {
 	EntitiesURL           string
 	ReviewCandidatesURL   string
 	ReviewCandidatesToken string
+	MediaURL              string
+	MediaToken            string
 }
 
 type GRPCConfig struct {
@@ -39,6 +41,8 @@ func Load() Config {
 		EntitiesURL:           os.Getenv("CONTENT_ENTITIES_URL"),
 		ReviewCandidatesURL:   os.Getenv("CONTENT_REVIEW_CANDIDATES_URL"),
 		ReviewCandidatesToken: os.Getenv("CONTENT_REVIEW_CANDIDATES_TOKEN"),
+		MediaURL:              os.Getenv("CONTENT_MEDIA_URL"),
+		MediaToken:            os.Getenv("CONTENT_MEDIA_TOKEN"),
 		GRPC: GRPCConfig{
 			Addr:         env("GRPC_ADDR", ":9090"),
 			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),

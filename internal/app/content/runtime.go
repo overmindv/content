@@ -38,7 +38,7 @@ func Build(app *parker.App) error {
 	}
 
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
-	options := []postgres.StoreOption{postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic)}
+	options := []postgres.StoreOption{postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments()}
 	if cfg.Kafka.Enabled && cfg.Kafka.ActivityEnabled {
 		seen := map[string]bool{cfg.Kafka.Topic: true}
 		for _, topic := range []string{cfg.Kafka.MaterialTopic, cfg.Kafka.ContributionTopic, cfg.Kafka.LearningTopic} {
@@ -78,7 +78,21 @@ func Build(app *parker.App) error {
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	handler := NewServer(service.NewContentItemService(store, topics), service.NewChangeProposalService(store), service.NewChangeReviewService(store))
+	items, proposals := service.NewContentItemService(store, topics), service.NewChangeProposalService(store)
+	if cfg.MediaURL != "" || cfg.MediaToken != "" {
+		if cfg.MediaToken != "" && (cfg.MediaToken == cfg.GRPC.ServiceToken || cfg.MediaToken == cfg.ReviewCandidatesToken) {
+			return errors.New("Media bindings require a separate service token")
+		}
+		media, err := external.NewMediaClient(cfg.MediaURL, cfg.MediaToken)
+		if err != nil {
+			return err
+		}
+		items.SetAttachmentChecker(media)
+		proposals.SetAttachmentChecker(media)
+		worker := service.NewMediaBindingWorker(store, media)
+		app.AddRunnable("media-bindings", func(ctx context.Context) error { return worker.Run(ctx, app.Logger()) })
+	}
+	handler := NewServer(items, proposals, service.NewChangeReviewService(store))
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {

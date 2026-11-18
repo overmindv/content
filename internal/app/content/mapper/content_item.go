@@ -111,6 +111,19 @@ func ToCreateRevisionInput(payload dto.CreateContentRevision) domain.CreateConte
 	}
 }
 
+func FromAttachmentSet(set *content.AttachmentSet) *domain.AttachmentSet {
+	if set == nil {
+		return nil
+	}
+	assets := make([]domain.CreateContentAssetInput, 0, len(set.GetAssets()))
+	for _, a := range set.GetAssets() {
+		assets = append(assets, domain.CreateContentAssetInput{
+			AssetID: a.GetAssetId(), Kind: domain.AssetKind(a.GetKind()), Title: a.GetTitle(), Position: int(a.GetPosition()),
+		})
+	}
+	return &domain.AttachmentSet{Assets: assets}
+}
+
 func ToProto(item domain.ContentItem) *content.ContentItem {
 	result := &content.ContentItem{
 		Id:                  item.ID,

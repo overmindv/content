@@ -256,8 +256,13 @@ func TestContentItemStoreAccess(t *testing.T) {
 		t.Error("published item missing from List")
 	}
 	owned, err = store.Get(ctx, item.ID, owner)
-	if err != nil || owned.CurrentRevisionID != next.ID || len(owned.Assets) != 3 {
+	if err != nil || owned.CurrentRevisionID != next.ID || len(owned.Assets) != 2 {
 		t.Errorf("owner did not receive the unpublished revision and assets: %v", err)
+	}
+	for _, asset := range owned.Assets {
+		if asset.RevisionID != next.ID {
+			t.Error("owner view must contain only current revision assets")
+		}
 	}
 	_, err = store.ListRevisions(ctx, item.ID, reader)
 	assertHidden(err)

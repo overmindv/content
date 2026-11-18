@@ -70,6 +70,10 @@ message CreateContentAsset {
   int32 position = 4;
 }
 
+message AttachmentSet {
+  repeated CreateContentAsset assets = 1;
+}
+
 message CreateContentItemRequest {
   string type = 1;
   string status = 2;
@@ -157,6 +161,7 @@ message CreateContentRevisionRequest {
   string message = 4;
   string created_by = 5;
   string expected_revision_id = 6;
+  AttachmentSet attachments = 7;
 }
 
 message CreateContentRevisionResponse {
@@ -209,6 +214,7 @@ message ChangeProposalRevision {
   string source = 4;
   string message = 5;
   google.protobuf.Timestamp created_at = 6;
+  repeated ContentAsset assets = 7;
 }
 
 message OpenChangeProposalRequest {
@@ -216,6 +222,7 @@ message OpenChangeProposalRequest {
   string base_revision_id = 2;
   string source = 3;
   string message = 4;
+  AttachmentSet attachments = 5;
 }
 
 message OpenChangeProposalResponse {
@@ -235,6 +242,7 @@ message AppendChangeProposalRevisionRequest {
   string expected_head_id = 2;
   string source = 3;
   string message = 4;
+  AttachmentSet attachments = 5;
 }
 
 message AppendChangeProposalRevisionResponse {
@@ -400,6 +408,7 @@ message RebaseChangeProposalRequest {
   string base_revision_id = 3;
   string source = 4;
   string message = 5;
+  AttachmentSet attachments = 6;
 }
 
 message RebaseChangeProposalResponse {

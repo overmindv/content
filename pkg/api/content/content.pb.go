@@ -606,6 +606,50 @@ func (x *CreateContentAsset) GetPosition() int32 {
 	return 0
 }
 
+type AttachmentSet struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Assets        []*CreateContentAsset  `protobuf:"bytes,1,rep,name=assets,proto3" json:"assets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AttachmentSet) Reset() {
+	*x = AttachmentSet{}
+	mi := &file_api_content_content_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AttachmentSet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AttachmentSet) ProtoMessage() {}
+
+func (x *AttachmentSet) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AttachmentSet.ProtoReflect.Descriptor instead.
+func (*AttachmentSet) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *AttachmentSet) GetAssets() []*CreateContentAsset {
+	if x != nil {
+		return x.Assets
+	}
+	return nil
+}
+
 type CreateContentItemRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	Type          string                   `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -626,7 +670,7 @@ type CreateContentItemRequest struct {
 
 func (x *CreateContentItemRequest) Reset() {
 	*x = CreateContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[6]
+	mi := &file_api_content_content_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -638,7 +682,7 @@ func (x *CreateContentItemRequest) String() string {
 func (*CreateContentItemRequest) ProtoMessage() {}
 
 func (x *CreateContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[6]
+	mi := &file_api_content_content_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -651,7 +695,7 @@ func (x *CreateContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContentItemRequest.ProtoReflect.Descriptor instead.
 func (*CreateContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{6}
+	return file_api_content_content_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateContentItemRequest) GetType() string {
@@ -747,7 +791,7 @@ type CreateContentItemResponse struct {
 
 func (x *CreateContentItemResponse) Reset() {
 	*x = CreateContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[7]
+	mi := &file_api_content_content_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -759,7 +803,7 @@ func (x *CreateContentItemResponse) String() string {
 func (*CreateContentItemResponse) ProtoMessage() {}
 
 func (x *CreateContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[7]
+	mi := &file_api_content_content_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -772,7 +816,7 @@ func (x *CreateContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContentItemResponse.ProtoReflect.Descriptor instead.
 func (*CreateContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{7}
+	return file_api_content_content_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateContentItemResponse) GetItem() *ContentItem {
@@ -791,7 +835,7 @@ type GetContentItemRequest struct {
 
 func (x *GetContentItemRequest) Reset() {
 	*x = GetContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[8]
+	mi := &file_api_content_content_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -803,7 +847,7 @@ func (x *GetContentItemRequest) String() string {
 func (*GetContentItemRequest) ProtoMessage() {}
 
 func (x *GetContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[8]
+	mi := &file_api_content_content_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -816,7 +860,7 @@ func (x *GetContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContentItemRequest.ProtoReflect.Descriptor instead.
 func (*GetContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{8}
+	return file_api_content_content_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetContentItemRequest) GetId() string {
@@ -835,7 +879,7 @@ type GetContentItemResponse struct {
 
 func (x *GetContentItemResponse) Reset() {
 	*x = GetContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[9]
+	mi := &file_api_content_content_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -847,7 +891,7 @@ func (x *GetContentItemResponse) String() string {
 func (*GetContentItemResponse) ProtoMessage() {}
 
 func (x *GetContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[9]
+	mi := &file_api_content_content_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -860,7 +904,7 @@ func (x *GetContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContentItemResponse.ProtoReflect.Descriptor instead.
 func (*GetContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{9}
+	return file_api_content_content_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetContentItemResponse) GetItem() *ContentItem {
@@ -878,7 +922,7 @@ type ListContentItemsRequest struct {
 
 func (x *ListContentItemsRequest) Reset() {
 	*x = ListContentItemsRequest{}
-	mi := &file_api_content_content_proto_msgTypes[10]
+	mi := &file_api_content_content_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -890,7 +934,7 @@ func (x *ListContentItemsRequest) String() string {
 func (*ListContentItemsRequest) ProtoMessage() {}
 
 func (x *ListContentItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[10]
+	mi := &file_api_content_content_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +947,7 @@ func (x *ListContentItemsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentItemsRequest.ProtoReflect.Descriptor instead.
 func (*ListContentItemsRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{10}
+	return file_api_content_content_proto_rawDescGZIP(), []int{11}
 }
 
 type ListContentItemsResponse struct {
@@ -915,7 +959,7 @@ type ListContentItemsResponse struct {
 
 func (x *ListContentItemsResponse) Reset() {
 	*x = ListContentItemsResponse{}
-	mi := &file_api_content_content_proto_msgTypes[11]
+	mi := &file_api_content_content_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -927,7 +971,7 @@ func (x *ListContentItemsResponse) String() string {
 func (*ListContentItemsResponse) ProtoMessage() {}
 
 func (x *ListContentItemsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[11]
+	mi := &file_api_content_content_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -940,7 +984,7 @@ func (x *ListContentItemsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentItemsResponse.ProtoReflect.Descriptor instead.
 func (*ListContentItemsResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{11}
+	return file_api_content_content_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListContentItemsResponse) GetItems() []*ContentItem {
@@ -966,7 +1010,7 @@ type UpdateContentItemRequest struct {
 
 func (x *UpdateContentItemRequest) Reset() {
 	*x = UpdateContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[12]
+	mi := &file_api_content_content_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -978,7 +1022,7 @@ func (x *UpdateContentItemRequest) String() string {
 func (*UpdateContentItemRequest) ProtoMessage() {}
 
 func (x *UpdateContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[12]
+	mi := &file_api_content_content_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -991,7 +1035,7 @@ func (x *UpdateContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateContentItemRequest.ProtoReflect.Descriptor instead.
 func (*UpdateContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{12}
+	return file_api_content_content_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateContentItemRequest) GetId() string {
@@ -1066,7 +1110,7 @@ type ContentCatalogEntry struct {
 
 func (x *ContentCatalogEntry) Reset() {
 	*x = ContentCatalogEntry{}
-	mi := &file_api_content_content_proto_msgTypes[13]
+	mi := &file_api_content_content_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1078,7 +1122,7 @@ func (x *ContentCatalogEntry) String() string {
 func (*ContentCatalogEntry) ProtoMessage() {}
 
 func (x *ContentCatalogEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[13]
+	mi := &file_api_content_content_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1091,7 +1135,7 @@ func (x *ContentCatalogEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContentCatalogEntry.ProtoReflect.Descriptor instead.
 func (*ContentCatalogEntry) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{13}
+	return file_api_content_content_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ContentCatalogEntry) GetId() string {
@@ -1163,7 +1207,7 @@ type ListContentCatalogRequest struct {
 
 func (x *ListContentCatalogRequest) Reset() {
 	*x = ListContentCatalogRequest{}
-	mi := &file_api_content_content_proto_msgTypes[14]
+	mi := &file_api_content_content_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1219,7 @@ func (x *ListContentCatalogRequest) String() string {
 func (*ListContentCatalogRequest) ProtoMessage() {}
 
 func (x *ListContentCatalogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[14]
+	mi := &file_api_content_content_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1232,7 @@ func (x *ListContentCatalogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentCatalogRequest.ProtoReflect.Descriptor instead.
 func (*ListContentCatalogRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{14}
+	return file_api_content_content_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListContentCatalogRequest) GetTopicId() string {
@@ -1236,7 +1280,7 @@ type ListContentCatalogResponse struct {
 
 func (x *ListContentCatalogResponse) Reset() {
 	*x = ListContentCatalogResponse{}
-	mi := &file_api_content_content_proto_msgTypes[15]
+	mi := &file_api_content_content_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1248,7 +1292,7 @@ func (x *ListContentCatalogResponse) String() string {
 func (*ListContentCatalogResponse) ProtoMessage() {}
 
 func (x *ListContentCatalogResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[15]
+	mi := &file_api_content_content_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1261,7 +1305,7 @@ func (x *ListContentCatalogResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentCatalogResponse.ProtoReflect.Descriptor instead.
 func (*ListContentCatalogResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{15}
+	return file_api_content_content_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListContentCatalogResponse) GetEntries() []*ContentCatalogEntry {
@@ -1287,7 +1331,7 @@ type UpdateContentItemResponse struct {
 
 func (x *UpdateContentItemResponse) Reset() {
 	*x = UpdateContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[16]
+	mi := &file_api_content_content_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1299,7 +1343,7 @@ func (x *UpdateContentItemResponse) String() string {
 func (*UpdateContentItemResponse) ProtoMessage() {}
 
 func (x *UpdateContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[16]
+	mi := &file_api_content_content_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1312,7 +1356,7 @@ func (x *UpdateContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateContentItemResponse.ProtoReflect.Descriptor instead.
 func (*UpdateContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{16}
+	return file_api_content_content_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateContentItemResponse) GetItem() *ContentItem {
@@ -1331,7 +1375,7 @@ type DeleteContentItemRequest struct {
 
 func (x *DeleteContentItemRequest) Reset() {
 	*x = DeleteContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[17]
+	mi := &file_api_content_content_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1343,7 +1387,7 @@ func (x *DeleteContentItemRequest) String() string {
 func (*DeleteContentItemRequest) ProtoMessage() {}
 
 func (x *DeleteContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[17]
+	mi := &file_api_content_content_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1356,7 +1400,7 @@ func (x *DeleteContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteContentItemRequest.ProtoReflect.Descriptor instead.
 func (*DeleteContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{17}
+	return file_api_content_content_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeleteContentItemRequest) GetId() string {
@@ -1375,7 +1419,7 @@ type DeleteContentItemResponse struct {
 
 func (x *DeleteContentItemResponse) Reset() {
 	*x = DeleteContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[18]
+	mi := &file_api_content_content_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1387,7 +1431,7 @@ func (x *DeleteContentItemResponse) String() string {
 func (*DeleteContentItemResponse) ProtoMessage() {}
 
 func (x *DeleteContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[18]
+	mi := &file_api_content_content_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1400,7 +1444,7 @@ func (x *DeleteContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteContentItemResponse.ProtoReflect.Descriptor instead.
 func (*DeleteContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{18}
+	return file_api_content_content_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DeleteContentItemResponse) GetItem() *ContentItem {
@@ -1418,13 +1462,14 @@ type CreateContentRevisionRequest struct {
 	Message            string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
 	CreatedBy          string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	ExpectedRevisionId string                 `protobuf:"bytes,6,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	Attachments        *AttachmentSet         `protobuf:"bytes,7,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateContentRevisionRequest) Reset() {
 	*x = CreateContentRevisionRequest{}
-	mi := &file_api_content_content_proto_msgTypes[19]
+	mi := &file_api_content_content_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1436,7 +1481,7 @@ func (x *CreateContentRevisionRequest) String() string {
 func (*CreateContentRevisionRequest) ProtoMessage() {}
 
 func (x *CreateContentRevisionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[19]
+	mi := &file_api_content_content_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1449,7 +1494,7 @@ func (x *CreateContentRevisionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContentRevisionRequest.ProtoReflect.Descriptor instead.
 func (*CreateContentRevisionRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{19}
+	return file_api_content_content_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateContentRevisionRequest) GetContentItemId() string {
@@ -1494,6 +1539,13 @@ func (x *CreateContentRevisionRequest) GetExpectedRevisionId() string {
 	return ""
 }
 
+func (x *CreateContentRevisionRequest) GetAttachments() *AttachmentSet {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
 type CreateContentRevisionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Revision      *ContentRevision       `protobuf:"bytes,1,opt,name=revision,proto3" json:"revision,omitempty"`
@@ -1503,7 +1555,7 @@ type CreateContentRevisionResponse struct {
 
 func (x *CreateContentRevisionResponse) Reset() {
 	*x = CreateContentRevisionResponse{}
-	mi := &file_api_content_content_proto_msgTypes[20]
+	mi := &file_api_content_content_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1515,7 +1567,7 @@ func (x *CreateContentRevisionResponse) String() string {
 func (*CreateContentRevisionResponse) ProtoMessage() {}
 
 func (x *CreateContentRevisionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[20]
+	mi := &file_api_content_content_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1528,7 +1580,7 @@ func (x *CreateContentRevisionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContentRevisionResponse.ProtoReflect.Descriptor instead.
 func (*CreateContentRevisionResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{20}
+	return file_api_content_content_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateContentRevisionResponse) GetRevision() *ContentRevision {
@@ -1547,7 +1599,7 @@ type ListContentRevisionsRequest struct {
 
 func (x *ListContentRevisionsRequest) Reset() {
 	*x = ListContentRevisionsRequest{}
-	mi := &file_api_content_content_proto_msgTypes[21]
+	mi := &file_api_content_content_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1559,7 +1611,7 @@ func (x *ListContentRevisionsRequest) String() string {
 func (*ListContentRevisionsRequest) ProtoMessage() {}
 
 func (x *ListContentRevisionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[21]
+	mi := &file_api_content_content_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1572,7 +1624,7 @@ func (x *ListContentRevisionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentRevisionsRequest.ProtoReflect.Descriptor instead.
 func (*ListContentRevisionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{21}
+	return file_api_content_content_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListContentRevisionsRequest) GetContentItemId() string {
@@ -1591,7 +1643,7 @@ type ListContentRevisionsResponse struct {
 
 func (x *ListContentRevisionsResponse) Reset() {
 	*x = ListContentRevisionsResponse{}
-	mi := &file_api_content_content_proto_msgTypes[22]
+	mi := &file_api_content_content_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1603,7 +1655,7 @@ func (x *ListContentRevisionsResponse) String() string {
 func (*ListContentRevisionsResponse) ProtoMessage() {}
 
 func (x *ListContentRevisionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[22]
+	mi := &file_api_content_content_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1616,7 +1668,7 @@ func (x *ListContentRevisionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContentRevisionsResponse.ProtoReflect.Descriptor instead.
 func (*ListContentRevisionsResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{22}
+	return file_api_content_content_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListContentRevisionsResponse) GetRevisions() []*ContentRevision {
@@ -1636,7 +1688,7 @@ type PublishContentItemRequest struct {
 
 func (x *PublishContentItemRequest) Reset() {
 	*x = PublishContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[23]
+	mi := &file_api_content_content_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1648,7 +1700,7 @@ func (x *PublishContentItemRequest) String() string {
 func (*PublishContentItemRequest) ProtoMessage() {}
 
 func (x *PublishContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[23]
+	mi := &file_api_content_content_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1661,7 +1713,7 @@ func (x *PublishContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishContentItemRequest.ProtoReflect.Descriptor instead.
 func (*PublishContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{23}
+	return file_api_content_content_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *PublishContentItemRequest) GetId() string {
@@ -1687,7 +1739,7 @@ type PublishContentItemResponse struct {
 
 func (x *PublishContentItemResponse) Reset() {
 	*x = PublishContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[24]
+	mi := &file_api_content_content_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1699,7 +1751,7 @@ func (x *PublishContentItemResponse) String() string {
 func (*PublishContentItemResponse) ProtoMessage() {}
 
 func (x *PublishContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[24]
+	mi := &file_api_content_content_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1712,7 +1764,7 @@ func (x *PublishContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishContentItemResponse.ProtoReflect.Descriptor instead.
 func (*PublishContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{24}
+	return file_api_content_content_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *PublishContentItemResponse) GetItem() *ContentItem {
@@ -1732,7 +1784,7 @@ type ArchiveContentItemRequest struct {
 
 func (x *ArchiveContentItemRequest) Reset() {
 	*x = ArchiveContentItemRequest{}
-	mi := &file_api_content_content_proto_msgTypes[25]
+	mi := &file_api_content_content_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1744,7 +1796,7 @@ func (x *ArchiveContentItemRequest) String() string {
 func (*ArchiveContentItemRequest) ProtoMessage() {}
 
 func (x *ArchiveContentItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[25]
+	mi := &file_api_content_content_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1757,7 +1809,7 @@ func (x *ArchiveContentItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveContentItemRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveContentItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{25}
+	return file_api_content_content_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ArchiveContentItemRequest) GetId() string {
@@ -1783,7 +1835,7 @@ type ArchiveContentItemResponse struct {
 
 func (x *ArchiveContentItemResponse) Reset() {
 	*x = ArchiveContentItemResponse{}
-	mi := &file_api_content_content_proto_msgTypes[26]
+	mi := &file_api_content_content_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1795,7 +1847,7 @@ func (x *ArchiveContentItemResponse) String() string {
 func (*ArchiveContentItemResponse) ProtoMessage() {}
 
 func (x *ArchiveContentItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[26]
+	mi := &file_api_content_content_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1808,7 +1860,7 @@ func (x *ArchiveContentItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveContentItemResponse.ProtoReflect.Descriptor instead.
 func (*ArchiveContentItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{26}
+	return file_api_content_content_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ArchiveContentItemResponse) GetItem() *ContentItem {
@@ -1836,7 +1888,7 @@ type ChangeProposal struct {
 
 func (x *ChangeProposal) Reset() {
 	*x = ChangeProposal{}
-	mi := &file_api_content_content_proto_msgTypes[27]
+	mi := &file_api_content_content_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1848,7 +1900,7 @@ func (x *ChangeProposal) String() string {
 func (*ChangeProposal) ProtoMessage() {}
 
 func (x *ChangeProposal) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[27]
+	mi := &file_api_content_content_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1861,7 +1913,7 @@ func (x *ChangeProposal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeProposal.ProtoReflect.Descriptor instead.
 func (*ChangeProposal) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{27}
+	return file_api_content_content_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ChangeProposal) GetId() string {
@@ -1942,13 +1994,14 @@ type ChangeProposalRevision struct {
 	Source           string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
 	Message          string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Assets           []*ContentAsset        `protobuf:"bytes,7,rep,name=assets,proto3" json:"assets,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ChangeProposalRevision) Reset() {
 	*x = ChangeProposalRevision{}
-	mi := &file_api_content_content_proto_msgTypes[28]
+	mi := &file_api_content_content_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1960,7 +2013,7 @@ func (x *ChangeProposalRevision) String() string {
 func (*ChangeProposalRevision) ProtoMessage() {}
 
 func (x *ChangeProposalRevision) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[28]
+	mi := &file_api_content_content_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1973,7 +2026,7 @@ func (x *ChangeProposalRevision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeProposalRevision.ProtoReflect.Descriptor instead.
 func (*ChangeProposalRevision) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{28}
+	return file_api_content_content_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ChangeProposalRevision) GetId() string {
@@ -2018,19 +2071,27 @@ func (x *ChangeProposalRevision) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ChangeProposalRevision) GetAssets() []*ContentAsset {
+	if x != nil {
+		return x.Assets
+	}
+	return nil
+}
+
 type OpenChangeProposalRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ContentItemId  string                 `protobuf:"bytes,1,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
 	BaseRevisionId string                 `protobuf:"bytes,2,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
 	Source         string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
 	Message        string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	Attachments    *AttachmentSet         `protobuf:"bytes,5,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *OpenChangeProposalRequest) Reset() {
 	*x = OpenChangeProposalRequest{}
-	mi := &file_api_content_content_proto_msgTypes[29]
+	mi := &file_api_content_content_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2042,7 +2103,7 @@ func (x *OpenChangeProposalRequest) String() string {
 func (*OpenChangeProposalRequest) ProtoMessage() {}
 
 func (x *OpenChangeProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[29]
+	mi := &file_api_content_content_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2055,7 +2116,7 @@ func (x *OpenChangeProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpenChangeProposalRequest.ProtoReflect.Descriptor instead.
 func (*OpenChangeProposalRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{29}
+	return file_api_content_content_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *OpenChangeProposalRequest) GetContentItemId() string {
@@ -2086,6 +2147,13 @@ func (x *OpenChangeProposalRequest) GetMessage() string {
 	return ""
 }
 
+func (x *OpenChangeProposalRequest) GetAttachments() *AttachmentSet {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
 type OpenChangeProposalResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Proposal      *ChangeProposal        `protobuf:"bytes,1,opt,name=proposal,proto3" json:"proposal,omitempty"`
@@ -2095,7 +2163,7 @@ type OpenChangeProposalResponse struct {
 
 func (x *OpenChangeProposalResponse) Reset() {
 	*x = OpenChangeProposalResponse{}
-	mi := &file_api_content_content_proto_msgTypes[30]
+	mi := &file_api_content_content_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2107,7 +2175,7 @@ func (x *OpenChangeProposalResponse) String() string {
 func (*OpenChangeProposalResponse) ProtoMessage() {}
 
 func (x *OpenChangeProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[30]
+	mi := &file_api_content_content_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2120,7 +2188,7 @@ func (x *OpenChangeProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpenChangeProposalResponse.ProtoReflect.Descriptor instead.
 func (*OpenChangeProposalResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{30}
+	return file_api_content_content_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *OpenChangeProposalResponse) GetProposal() *ChangeProposal {
@@ -2139,7 +2207,7 @@ type GetChangeProposalRequest struct {
 
 func (x *GetChangeProposalRequest) Reset() {
 	*x = GetChangeProposalRequest{}
-	mi := &file_api_content_content_proto_msgTypes[31]
+	mi := &file_api_content_content_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2151,7 +2219,7 @@ func (x *GetChangeProposalRequest) String() string {
 func (*GetChangeProposalRequest) ProtoMessage() {}
 
 func (x *GetChangeProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[31]
+	mi := &file_api_content_content_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2164,7 +2232,7 @@ func (x *GetChangeProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangeProposalRequest.ProtoReflect.Descriptor instead.
 func (*GetChangeProposalRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{31}
+	return file_api_content_content_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetChangeProposalRequest) GetProposalId() string {
@@ -2183,7 +2251,7 @@ type GetChangeProposalResponse struct {
 
 func (x *GetChangeProposalResponse) Reset() {
 	*x = GetChangeProposalResponse{}
-	mi := &file_api_content_content_proto_msgTypes[32]
+	mi := &file_api_content_content_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2195,7 +2263,7 @@ func (x *GetChangeProposalResponse) String() string {
 func (*GetChangeProposalResponse) ProtoMessage() {}
 
 func (x *GetChangeProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[32]
+	mi := &file_api_content_content_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2208,7 +2276,7 @@ func (x *GetChangeProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangeProposalResponse.ProtoReflect.Descriptor instead.
 func (*GetChangeProposalResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{32}
+	return file_api_content_content_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetChangeProposalResponse) GetProposal() *ChangeProposal {
@@ -2224,13 +2292,14 @@ type AppendChangeProposalRevisionRequest struct {
 	ExpectedHeadId string                 `protobuf:"bytes,2,opt,name=expected_head_id,json=expectedHeadId,proto3" json:"expected_head_id,omitempty"`
 	Source         string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
 	Message        string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	Attachments    *AttachmentSet         `protobuf:"bytes,5,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AppendChangeProposalRevisionRequest) Reset() {
 	*x = AppendChangeProposalRevisionRequest{}
-	mi := &file_api_content_content_proto_msgTypes[33]
+	mi := &file_api_content_content_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2242,7 +2311,7 @@ func (x *AppendChangeProposalRevisionRequest) String() string {
 func (*AppendChangeProposalRevisionRequest) ProtoMessage() {}
 
 func (x *AppendChangeProposalRevisionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[33]
+	mi := &file_api_content_content_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2255,7 +2324,7 @@ func (x *AppendChangeProposalRevisionRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use AppendChangeProposalRevisionRequest.ProtoReflect.Descriptor instead.
 func (*AppendChangeProposalRevisionRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{33}
+	return file_api_content_content_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *AppendChangeProposalRevisionRequest) GetProposalId() string {
@@ -2286,6 +2355,13 @@ func (x *AppendChangeProposalRevisionRequest) GetMessage() string {
 	return ""
 }
 
+func (x *AppendChangeProposalRevisionRequest) GetAttachments() *AttachmentSet {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
 type AppendChangeProposalRevisionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Proposal      *ChangeProposal        `protobuf:"bytes,1,opt,name=proposal,proto3" json:"proposal,omitempty"`
@@ -2295,7 +2371,7 @@ type AppendChangeProposalRevisionResponse struct {
 
 func (x *AppendChangeProposalRevisionResponse) Reset() {
 	*x = AppendChangeProposalRevisionResponse{}
-	mi := &file_api_content_content_proto_msgTypes[34]
+	mi := &file_api_content_content_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2307,7 +2383,7 @@ func (x *AppendChangeProposalRevisionResponse) String() string {
 func (*AppendChangeProposalRevisionResponse) ProtoMessage() {}
 
 func (x *AppendChangeProposalRevisionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[34]
+	mi := &file_api_content_content_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2320,7 +2396,7 @@ func (x *AppendChangeProposalRevisionResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use AppendChangeProposalRevisionResponse.ProtoReflect.Descriptor instead.
 func (*AppendChangeProposalRevisionResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{34}
+	return file_api_content_content_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AppendChangeProposalRevisionResponse) GetProposal() *ChangeProposal {
@@ -2339,7 +2415,7 @@ type CloseChangeProposalRequest struct {
 
 func (x *CloseChangeProposalRequest) Reset() {
 	*x = CloseChangeProposalRequest{}
-	mi := &file_api_content_content_proto_msgTypes[35]
+	mi := &file_api_content_content_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2351,7 +2427,7 @@ func (x *CloseChangeProposalRequest) String() string {
 func (*CloseChangeProposalRequest) ProtoMessage() {}
 
 func (x *CloseChangeProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[35]
+	mi := &file_api_content_content_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2364,7 +2440,7 @@ func (x *CloseChangeProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloseChangeProposalRequest.ProtoReflect.Descriptor instead.
 func (*CloseChangeProposalRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{35}
+	return file_api_content_content_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *CloseChangeProposalRequest) GetProposalId() string {
@@ -2383,7 +2459,7 @@ type CloseChangeProposalResponse struct {
 
 func (x *CloseChangeProposalResponse) Reset() {
 	*x = CloseChangeProposalResponse{}
-	mi := &file_api_content_content_proto_msgTypes[36]
+	mi := &file_api_content_content_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2395,7 +2471,7 @@ func (x *CloseChangeProposalResponse) String() string {
 func (*CloseChangeProposalResponse) ProtoMessage() {}
 
 func (x *CloseChangeProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[36]
+	mi := &file_api_content_content_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2408,7 +2484,7 @@ func (x *CloseChangeProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloseChangeProposalResponse.ProtoReflect.Descriptor instead.
 func (*CloseChangeProposalResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{36}
+	return file_api_content_content_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CloseChangeProposalResponse) GetProposal() *ChangeProposal {
@@ -2433,7 +2509,7 @@ type ChangeProposalHistoryEntry struct {
 
 func (x *ChangeProposalHistoryEntry) Reset() {
 	*x = ChangeProposalHistoryEntry{}
-	mi := &file_api_content_content_proto_msgTypes[37]
+	mi := &file_api_content_content_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2445,7 +2521,7 @@ func (x *ChangeProposalHistoryEntry) String() string {
 func (*ChangeProposalHistoryEntry) ProtoMessage() {}
 
 func (x *ChangeProposalHistoryEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[37]
+	mi := &file_api_content_content_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2458,7 +2534,7 @@ func (x *ChangeProposalHistoryEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeProposalHistoryEntry.ProtoReflect.Descriptor instead.
 func (*ChangeProposalHistoryEntry) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{37}
+	return file_api_content_content_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ChangeProposalHistoryEntry) GetId() string {
@@ -2521,7 +2597,7 @@ type ListChangeProposalHistoryRequest struct {
 
 func (x *ListChangeProposalHistoryRequest) Reset() {
 	*x = ListChangeProposalHistoryRequest{}
-	mi := &file_api_content_content_proto_msgTypes[38]
+	mi := &file_api_content_content_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2533,7 +2609,7 @@ func (x *ListChangeProposalHistoryRequest) String() string {
 func (*ListChangeProposalHistoryRequest) ProtoMessage() {}
 
 func (x *ListChangeProposalHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[38]
+	mi := &file_api_content_content_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2546,7 +2622,7 @@ func (x *ListChangeProposalHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChangeProposalHistoryRequest.ProtoReflect.Descriptor instead.
 func (*ListChangeProposalHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{38}
+	return file_api_content_content_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListChangeProposalHistoryRequest) GetProposalId() string {
@@ -2580,7 +2656,7 @@ type ListChangeProposalHistoryResponse struct {
 
 func (x *ListChangeProposalHistoryResponse) Reset() {
 	*x = ListChangeProposalHistoryResponse{}
-	mi := &file_api_content_content_proto_msgTypes[39]
+	mi := &file_api_content_content_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2592,7 +2668,7 @@ func (x *ListChangeProposalHistoryResponse) String() string {
 func (*ListChangeProposalHistoryResponse) ProtoMessage() {}
 
 func (x *ListChangeProposalHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[39]
+	mi := &file_api_content_content_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2605,7 +2681,7 @@ func (x *ListChangeProposalHistoryResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListChangeProposalHistoryResponse.ProtoReflect.Descriptor instead.
 func (*ListChangeProposalHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{39}
+	return file_api_content_content_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListChangeProposalHistoryResponse) GetEntries() []*ChangeProposalHistoryEntry {
@@ -2632,7 +2708,7 @@ type GetChangeProposalDiffRequest struct {
 
 func (x *GetChangeProposalDiffRequest) Reset() {
 	*x = GetChangeProposalDiffRequest{}
-	mi := &file_api_content_content_proto_msgTypes[40]
+	mi := &file_api_content_content_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2644,7 +2720,7 @@ func (x *GetChangeProposalDiffRequest) String() string {
 func (*GetChangeProposalDiffRequest) ProtoMessage() {}
 
 func (x *GetChangeProposalDiffRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[40]
+	mi := &file_api_content_content_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2657,7 +2733,7 @@ func (x *GetChangeProposalDiffRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangeProposalDiffRequest.ProtoReflect.Descriptor instead.
 func (*GetChangeProposalDiffRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{40}
+	return file_api_content_content_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GetChangeProposalDiffRequest) GetProposalId() string {
@@ -2686,7 +2762,7 @@ type GetChangeProposalDiffResponse struct {
 
 func (x *GetChangeProposalDiffResponse) Reset() {
 	*x = GetChangeProposalDiffResponse{}
-	mi := &file_api_content_content_proto_msgTypes[41]
+	mi := &file_api_content_content_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2698,7 +2774,7 @@ func (x *GetChangeProposalDiffResponse) String() string {
 func (*GetChangeProposalDiffResponse) ProtoMessage() {}
 
 func (x *GetChangeProposalDiffResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[41]
+	mi := &file_api_content_content_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2711,7 +2787,7 @@ func (x *GetChangeProposalDiffResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangeProposalDiffResponse.ProtoReflect.Descriptor instead.
 func (*GetChangeProposalDiffResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{41}
+	return file_api_content_content_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetChangeProposalDiffResponse) GetBaseRevisionId() string {
@@ -2759,7 +2835,7 @@ type ReviewThread struct {
 
 func (x *ReviewThread) Reset() {
 	*x = ReviewThread{}
-	mi := &file_api_content_content_proto_msgTypes[42]
+	mi := &file_api_content_content_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2771,7 +2847,7 @@ func (x *ReviewThread) String() string {
 func (*ReviewThread) ProtoMessage() {}
 
 func (x *ReviewThread) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[42]
+	mi := &file_api_content_content_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2784,7 +2860,7 @@ func (x *ReviewThread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewThread.ProtoReflect.Descriptor instead.
 func (*ReviewThread) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{42}
+	return file_api_content_content_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ReviewThread) GetId() int64 {
@@ -2862,7 +2938,7 @@ type ReviewReply struct {
 
 func (x *ReviewReply) Reset() {
 	*x = ReviewReply{}
-	mi := &file_api_content_content_proto_msgTypes[43]
+	mi := &file_api_content_content_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2874,7 +2950,7 @@ func (x *ReviewReply) String() string {
 func (*ReviewReply) ProtoMessage() {}
 
 func (x *ReviewReply) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[43]
+	mi := &file_api_content_content_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2887,7 +2963,7 @@ func (x *ReviewReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewReply.ProtoReflect.Descriptor instead.
 func (*ReviewReply) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{43}
+	return file_api_content_content_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ReviewReply) GetId() int64 {
@@ -2931,7 +3007,7 @@ type ReviewDecision struct {
 
 func (x *ReviewDecision) Reset() {
 	*x = ReviewDecision{}
-	mi := &file_api_content_content_proto_msgTypes[44]
+	mi := &file_api_content_content_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2943,7 +3019,7 @@ func (x *ReviewDecision) String() string {
 func (*ReviewDecision) ProtoMessage() {}
 
 func (x *ReviewDecision) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[44]
+	mi := &file_api_content_content_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2956,7 +3032,7 @@ func (x *ReviewDecision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewDecision.ProtoReflect.Descriptor instead.
 func (*ReviewDecision) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{44}
+	return file_api_content_content_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ReviewDecision) GetReviewerId() string {
@@ -3004,7 +3080,7 @@ type ReviewAssignment struct {
 
 func (x *ReviewAssignment) Reset() {
 	*x = ReviewAssignment{}
-	mi := &file_api_content_content_proto_msgTypes[45]
+	mi := &file_api_content_content_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3016,7 +3092,7 @@ func (x *ReviewAssignment) String() string {
 func (*ReviewAssignment) ProtoMessage() {}
 
 func (x *ReviewAssignment) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[45]
+	mi := &file_api_content_content_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3029,7 +3105,7 @@ func (x *ReviewAssignment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReviewAssignment.ProtoReflect.Descriptor instead.
 func (*ReviewAssignment) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{45}
+	return file_api_content_content_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ReviewAssignment) GetReviewerId() string {
@@ -3058,7 +3134,7 @@ type CreateReviewThreadRequest struct {
 
 func (x *CreateReviewThreadRequest) Reset() {
 	*x = CreateReviewThreadRequest{}
-	mi := &file_api_content_content_proto_msgTypes[46]
+	mi := &file_api_content_content_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3070,7 +3146,7 @@ func (x *CreateReviewThreadRequest) String() string {
 func (*CreateReviewThreadRequest) ProtoMessage() {}
 
 func (x *CreateReviewThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[46]
+	mi := &file_api_content_content_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3083,7 +3159,7 @@ func (x *CreateReviewThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateReviewThreadRequest.ProtoReflect.Descriptor instead.
 func (*CreateReviewThreadRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{46}
+	return file_api_content_content_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *CreateReviewThreadRequest) GetProposalId() string {
@@ -3123,7 +3199,7 @@ type CreateReviewThreadResponse struct {
 
 func (x *CreateReviewThreadResponse) Reset() {
 	*x = CreateReviewThreadResponse{}
-	mi := &file_api_content_content_proto_msgTypes[47]
+	mi := &file_api_content_content_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3135,7 +3211,7 @@ func (x *CreateReviewThreadResponse) String() string {
 func (*CreateReviewThreadResponse) ProtoMessage() {}
 
 func (x *CreateReviewThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[47]
+	mi := &file_api_content_content_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3148,7 +3224,7 @@ func (x *CreateReviewThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateReviewThreadResponse.ProtoReflect.Descriptor instead.
 func (*CreateReviewThreadResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{47}
+	return file_api_content_content_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *CreateReviewThreadResponse) GetThread() *ReviewThread {
@@ -3169,7 +3245,7 @@ type ReplyToReviewThreadRequest struct {
 
 func (x *ReplyToReviewThreadRequest) Reset() {
 	*x = ReplyToReviewThreadRequest{}
-	mi := &file_api_content_content_proto_msgTypes[48]
+	mi := &file_api_content_content_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3181,7 +3257,7 @@ func (x *ReplyToReviewThreadRequest) String() string {
 func (*ReplyToReviewThreadRequest) ProtoMessage() {}
 
 func (x *ReplyToReviewThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[48]
+	mi := &file_api_content_content_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3194,7 +3270,7 @@ func (x *ReplyToReviewThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplyToReviewThreadRequest.ProtoReflect.Descriptor instead.
 func (*ReplyToReviewThreadRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{48}
+	return file_api_content_content_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ReplyToReviewThreadRequest) GetProposalId() string {
@@ -3227,7 +3303,7 @@ type ReplyToReviewThreadResponse struct {
 
 func (x *ReplyToReviewThreadResponse) Reset() {
 	*x = ReplyToReviewThreadResponse{}
-	mi := &file_api_content_content_proto_msgTypes[49]
+	mi := &file_api_content_content_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3239,7 +3315,7 @@ func (x *ReplyToReviewThreadResponse) String() string {
 func (*ReplyToReviewThreadResponse) ProtoMessage() {}
 
 func (x *ReplyToReviewThreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[49]
+	mi := &file_api_content_content_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3252,7 +3328,7 @@ func (x *ReplyToReviewThreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplyToReviewThreadResponse.ProtoReflect.Descriptor instead.
 func (*ReplyToReviewThreadResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{49}
+	return file_api_content_content_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ReplyToReviewThreadResponse) GetReply() *ReviewReply {
@@ -3273,7 +3349,7 @@ type SetReviewThreadResolvedRequest struct {
 
 func (x *SetReviewThreadResolvedRequest) Reset() {
 	*x = SetReviewThreadResolvedRequest{}
-	mi := &file_api_content_content_proto_msgTypes[50]
+	mi := &file_api_content_content_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3285,7 +3361,7 @@ func (x *SetReviewThreadResolvedRequest) String() string {
 func (*SetReviewThreadResolvedRequest) ProtoMessage() {}
 
 func (x *SetReviewThreadResolvedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[50]
+	mi := &file_api_content_content_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3298,7 +3374,7 @@ func (x *SetReviewThreadResolvedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetReviewThreadResolvedRequest.ProtoReflect.Descriptor instead.
 func (*SetReviewThreadResolvedRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{50}
+	return file_api_content_content_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *SetReviewThreadResolvedRequest) GetProposalId() string {
@@ -3331,7 +3407,7 @@ type SetReviewThreadResolvedResponse struct {
 
 func (x *SetReviewThreadResolvedResponse) Reset() {
 	*x = SetReviewThreadResolvedResponse{}
-	mi := &file_api_content_content_proto_msgTypes[51]
+	mi := &file_api_content_content_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3343,7 +3419,7 @@ func (x *SetReviewThreadResolvedResponse) String() string {
 func (*SetReviewThreadResolvedResponse) ProtoMessage() {}
 
 func (x *SetReviewThreadResolvedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[51]
+	mi := &file_api_content_content_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3356,7 +3432,7 @@ func (x *SetReviewThreadResolvedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetReviewThreadResolvedResponse.ProtoReflect.Descriptor instead.
 func (*SetReviewThreadResolvedResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{51}
+	return file_api_content_content_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *SetReviewThreadResolvedResponse) GetThread() *ReviewThread {
@@ -3377,7 +3453,7 @@ type ListReviewThreadsRequest struct {
 
 func (x *ListReviewThreadsRequest) Reset() {
 	*x = ListReviewThreadsRequest{}
-	mi := &file_api_content_content_proto_msgTypes[52]
+	mi := &file_api_content_content_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3389,7 +3465,7 @@ func (x *ListReviewThreadsRequest) String() string {
 func (*ListReviewThreadsRequest) ProtoMessage() {}
 
 func (x *ListReviewThreadsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[52]
+	mi := &file_api_content_content_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3402,7 +3478,7 @@ func (x *ListReviewThreadsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReviewThreadsRequest.ProtoReflect.Descriptor instead.
 func (*ListReviewThreadsRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{52}
+	return file_api_content_content_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ListReviewThreadsRequest) GetProposalId() string {
@@ -3436,7 +3512,7 @@ type ListReviewThreadsResponse struct {
 
 func (x *ListReviewThreadsResponse) Reset() {
 	*x = ListReviewThreadsResponse{}
-	mi := &file_api_content_content_proto_msgTypes[53]
+	mi := &file_api_content_content_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3448,7 +3524,7 @@ func (x *ListReviewThreadsResponse) String() string {
 func (*ListReviewThreadsResponse) ProtoMessage() {}
 
 func (x *ListReviewThreadsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[53]
+	mi := &file_api_content_content_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3461,7 +3537,7 @@ func (x *ListReviewThreadsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReviewThreadsResponse.ProtoReflect.Descriptor instead.
 func (*ListReviewThreadsResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{53}
+	return file_api_content_content_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListReviewThreadsResponse) GetThreads() []*ReviewThread {
@@ -3490,7 +3566,7 @@ type ListReviewRepliesRequest struct {
 
 func (x *ListReviewRepliesRequest) Reset() {
 	*x = ListReviewRepliesRequest{}
-	mi := &file_api_content_content_proto_msgTypes[54]
+	mi := &file_api_content_content_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3502,7 +3578,7 @@ func (x *ListReviewRepliesRequest) String() string {
 func (*ListReviewRepliesRequest) ProtoMessage() {}
 
 func (x *ListReviewRepliesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[54]
+	mi := &file_api_content_content_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3515,7 +3591,7 @@ func (x *ListReviewRepliesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReviewRepliesRequest.ProtoReflect.Descriptor instead.
 func (*ListReviewRepliesRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{54}
+	return file_api_content_content_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListReviewRepliesRequest) GetProposalId() string {
@@ -3556,7 +3632,7 @@ type ListReviewRepliesResponse struct {
 
 func (x *ListReviewRepliesResponse) Reset() {
 	*x = ListReviewRepliesResponse{}
-	mi := &file_api_content_content_proto_msgTypes[55]
+	mi := &file_api_content_content_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3568,7 +3644,7 @@ func (x *ListReviewRepliesResponse) String() string {
 func (*ListReviewRepliesResponse) ProtoMessage() {}
 
 func (x *ListReviewRepliesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[55]
+	mi := &file_api_content_content_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3581,7 +3657,7 @@ func (x *ListReviewRepliesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReviewRepliesResponse.ProtoReflect.Descriptor instead.
 func (*ListReviewRepliesResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{55}
+	return file_api_content_content_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ListReviewRepliesResponse) GetReplies() []*ReviewReply {
@@ -3610,7 +3686,7 @@ type SubmitReviewDecisionRequest struct {
 
 func (x *SubmitReviewDecisionRequest) Reset() {
 	*x = SubmitReviewDecisionRequest{}
-	mi := &file_api_content_content_proto_msgTypes[56]
+	mi := &file_api_content_content_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3622,7 +3698,7 @@ func (x *SubmitReviewDecisionRequest) String() string {
 func (*SubmitReviewDecisionRequest) ProtoMessage() {}
 
 func (x *SubmitReviewDecisionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[56]
+	mi := &file_api_content_content_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3635,7 +3711,7 @@ func (x *SubmitReviewDecisionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitReviewDecisionRequest.ProtoReflect.Descriptor instead.
 func (*SubmitReviewDecisionRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{56}
+	return file_api_content_content_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *SubmitReviewDecisionRequest) GetProposalId() string {
@@ -3675,7 +3751,7 @@ type SubmitReviewDecisionResponse struct {
 
 func (x *SubmitReviewDecisionResponse) Reset() {
 	*x = SubmitReviewDecisionResponse{}
-	mi := &file_api_content_content_proto_msgTypes[57]
+	mi := &file_api_content_content_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3687,7 +3763,7 @@ func (x *SubmitReviewDecisionResponse) String() string {
 func (*SubmitReviewDecisionResponse) ProtoMessage() {}
 
 func (x *SubmitReviewDecisionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[57]
+	mi := &file_api_content_content_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3700,7 +3776,7 @@ func (x *SubmitReviewDecisionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitReviewDecisionResponse.ProtoReflect.Descriptor instead.
 func (*SubmitReviewDecisionResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{57}
+	return file_api_content_content_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *SubmitReviewDecisionResponse) GetDecision() *ReviewDecision {
@@ -3720,7 +3796,7 @@ type GetReviewRevisionStatusRequest struct {
 
 func (x *GetReviewRevisionStatusRequest) Reset() {
 	*x = GetReviewRevisionStatusRequest{}
-	mi := &file_api_content_content_proto_msgTypes[58]
+	mi := &file_api_content_content_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3732,7 +3808,7 @@ func (x *GetReviewRevisionStatusRequest) String() string {
 func (*GetReviewRevisionStatusRequest) ProtoMessage() {}
 
 func (x *GetReviewRevisionStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[58]
+	mi := &file_api_content_content_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3745,7 +3821,7 @@ func (x *GetReviewRevisionStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReviewRevisionStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetReviewRevisionStatusRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{58}
+	return file_api_content_content_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetReviewRevisionStatusRequest) GetProposalId() string {
@@ -3777,7 +3853,7 @@ type GetReviewRevisionStatusResponse struct {
 
 func (x *GetReviewRevisionStatusResponse) Reset() {
 	*x = GetReviewRevisionStatusResponse{}
-	mi := &file_api_content_content_proto_msgTypes[59]
+	mi := &file_api_content_content_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3789,7 +3865,7 @@ func (x *GetReviewRevisionStatusResponse) String() string {
 func (*GetReviewRevisionStatusResponse) ProtoMessage() {}
 
 func (x *GetReviewRevisionStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[59]
+	mi := &file_api_content_content_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3802,7 +3878,7 @@ func (x *GetReviewRevisionStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReviewRevisionStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetReviewRevisionStatusResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{59}
+	return file_api_content_content_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *GetReviewRevisionStatusResponse) GetRevisionId() string {
@@ -3861,13 +3937,14 @@ type RebaseChangeProposalRequest struct {
 	BaseRevisionId string                 `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
 	Source         string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
 	Message        string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	Attachments    *AttachmentSet         `protobuf:"bytes,6,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RebaseChangeProposalRequest) Reset() {
 	*x = RebaseChangeProposalRequest{}
-	mi := &file_api_content_content_proto_msgTypes[60]
+	mi := &file_api_content_content_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3879,7 +3956,7 @@ func (x *RebaseChangeProposalRequest) String() string {
 func (*RebaseChangeProposalRequest) ProtoMessage() {}
 
 func (x *RebaseChangeProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[60]
+	mi := &file_api_content_content_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3892,7 +3969,7 @@ func (x *RebaseChangeProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RebaseChangeProposalRequest.ProtoReflect.Descriptor instead.
 func (*RebaseChangeProposalRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{60}
+	return file_api_content_content_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *RebaseChangeProposalRequest) GetProposalId() string {
@@ -3930,6 +4007,13 @@ func (x *RebaseChangeProposalRequest) GetMessage() string {
 	return ""
 }
 
+func (x *RebaseChangeProposalRequest) GetAttachments() *AttachmentSet {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
 type RebaseChangeProposalResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Proposal      *ChangeProposal        `protobuf:"bytes,1,opt,name=proposal,proto3" json:"proposal,omitempty"`
@@ -3939,7 +4023,7 @@ type RebaseChangeProposalResponse struct {
 
 func (x *RebaseChangeProposalResponse) Reset() {
 	*x = RebaseChangeProposalResponse{}
-	mi := &file_api_content_content_proto_msgTypes[61]
+	mi := &file_api_content_content_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3951,7 +4035,7 @@ func (x *RebaseChangeProposalResponse) String() string {
 func (*RebaseChangeProposalResponse) ProtoMessage() {}
 
 func (x *RebaseChangeProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[61]
+	mi := &file_api_content_content_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3964,7 +4048,7 @@ func (x *RebaseChangeProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RebaseChangeProposalResponse.ProtoReflect.Descriptor instead.
 func (*RebaseChangeProposalResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{61}
+	return file_api_content_content_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *RebaseChangeProposalResponse) GetProposal() *ChangeProposal {
@@ -3984,7 +4068,7 @@ type MergeChangeProposalRequest struct {
 
 func (x *MergeChangeProposalRequest) Reset() {
 	*x = MergeChangeProposalRequest{}
-	mi := &file_api_content_content_proto_msgTypes[62]
+	mi := &file_api_content_content_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3996,7 +4080,7 @@ func (x *MergeChangeProposalRequest) String() string {
 func (*MergeChangeProposalRequest) ProtoMessage() {}
 
 func (x *MergeChangeProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[62]
+	mi := &file_api_content_content_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4009,7 +4093,7 @@ func (x *MergeChangeProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MergeChangeProposalRequest.ProtoReflect.Descriptor instead.
 func (*MergeChangeProposalRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{62}
+	return file_api_content_content_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *MergeChangeProposalRequest) GetProposalId() string {
@@ -4036,7 +4120,7 @@ type MergeChangeProposalResponse struct {
 
 func (x *MergeChangeProposalResponse) Reset() {
 	*x = MergeChangeProposalResponse{}
-	mi := &file_api_content_content_proto_msgTypes[63]
+	mi := &file_api_content_content_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4048,7 +4132,7 @@ func (x *MergeChangeProposalResponse) String() string {
 func (*MergeChangeProposalResponse) ProtoMessage() {}
 
 func (x *MergeChangeProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[63]
+	mi := &file_api_content_content_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4061,7 +4145,7 @@ func (x *MergeChangeProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MergeChangeProposalResponse.ProtoReflect.Descriptor instead.
 func (*MergeChangeProposalResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{63}
+	return file_api_content_content_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *MergeChangeProposalResponse) GetContentItemId() string {
@@ -4091,7 +4175,7 @@ type MaterialSnapshotMetadata struct {
 
 func (x *MaterialSnapshotMetadata) Reset() {
 	*x = MaterialSnapshotMetadata{}
-	mi := &file_api_content_content_proto_msgTypes[64]
+	mi := &file_api_content_content_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4103,7 +4187,7 @@ func (x *MaterialSnapshotMetadata) String() string {
 func (*MaterialSnapshotMetadata) ProtoMessage() {}
 
 func (x *MaterialSnapshotMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[64]
+	mi := &file_api_content_content_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4116,7 +4200,7 @@ func (x *MaterialSnapshotMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MaterialSnapshotMetadata.ProtoReflect.Descriptor instead.
 func (*MaterialSnapshotMetadata) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{64}
+	return file_api_content_content_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *MaterialSnapshotMetadata) GetTitle() string {
@@ -4167,7 +4251,7 @@ type MaterialSnapshotEntry struct {
 
 func (x *MaterialSnapshotEntry) Reset() {
 	*x = MaterialSnapshotEntry{}
-	mi := &file_api_content_content_proto_msgTypes[65]
+	mi := &file_api_content_content_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4179,7 +4263,7 @@ func (x *MaterialSnapshotEntry) String() string {
 func (*MaterialSnapshotEntry) ProtoMessage() {}
 
 func (x *MaterialSnapshotEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[65]
+	mi := &file_api_content_content_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4192,7 +4276,7 @@ func (x *MaterialSnapshotEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MaterialSnapshotEntry.ProtoReflect.Descriptor instead.
 func (*MaterialSnapshotEntry) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{65}
+	return file_api_content_content_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *MaterialSnapshotEntry) GetMaterialId() string {
@@ -4241,7 +4325,7 @@ type SnapshotMaterialsRequest struct {
 
 func (x *SnapshotMaterialsRequest) Reset() {
 	*x = SnapshotMaterialsRequest{}
-	mi := &file_api_content_content_proto_msgTypes[66]
+	mi := &file_api_content_content_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4253,7 +4337,7 @@ func (x *SnapshotMaterialsRequest) String() string {
 func (*SnapshotMaterialsRequest) ProtoMessage() {}
 
 func (x *SnapshotMaterialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[66]
+	mi := &file_api_content_content_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4266,7 +4350,7 @@ func (x *SnapshotMaterialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotMaterialsRequest.ProtoReflect.Descriptor instead.
 func (*SnapshotMaterialsRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{66}
+	return file_api_content_content_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *SnapshotMaterialsRequest) GetWatermark() int64 {
@@ -4301,7 +4385,7 @@ type SnapshotMaterialsResponse struct {
 
 func (x *SnapshotMaterialsResponse) Reset() {
 	*x = SnapshotMaterialsResponse{}
-	mi := &file_api_content_content_proto_msgTypes[67]
+	mi := &file_api_content_content_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4313,7 +4397,7 @@ func (x *SnapshotMaterialsResponse) String() string {
 func (*SnapshotMaterialsResponse) ProtoMessage() {}
 
 func (x *SnapshotMaterialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[67]
+	mi := &file_api_content_content_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4326,7 +4410,7 @@ func (x *SnapshotMaterialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotMaterialsResponse.ProtoReflect.Descriptor instead.
 func (*SnapshotMaterialsResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{67}
+	return file_api_content_content_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *SnapshotMaterialsResponse) GetWatermark() int64 {
@@ -4360,7 +4444,7 @@ type ConfirmMaterialReadRequest struct {
 
 func (x *ConfirmMaterialReadRequest) Reset() {
 	*x = ConfirmMaterialReadRequest{}
-	mi := &file_api_content_content_proto_msgTypes[68]
+	mi := &file_api_content_content_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4372,7 +4456,7 @@ func (x *ConfirmMaterialReadRequest) String() string {
 func (*ConfirmMaterialReadRequest) ProtoMessage() {}
 
 func (x *ConfirmMaterialReadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[68]
+	mi := &file_api_content_content_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4385,7 +4469,7 @@ func (x *ConfirmMaterialReadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmMaterialReadRequest.ProtoReflect.Descriptor instead.
 func (*ConfirmMaterialReadRequest) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{68}
+	return file_api_content_content_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ConfirmMaterialReadRequest) GetMaterialId() string {
@@ -4410,7 +4494,7 @@ type ConfirmMaterialReadResponse struct {
 
 func (x *ConfirmMaterialReadResponse) Reset() {
 	*x = ConfirmMaterialReadResponse{}
-	mi := &file_api_content_content_proto_msgTypes[69]
+	mi := &file_api_content_content_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4422,7 +4506,7 @@ func (x *ConfirmMaterialReadResponse) String() string {
 func (*ConfirmMaterialReadResponse) ProtoMessage() {}
 
 func (x *ConfirmMaterialReadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_content_content_proto_msgTypes[69]
+	mi := &file_api_content_content_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4435,7 +4519,7 @@ func (x *ConfirmMaterialReadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmMaterialReadResponse.ProtoReflect.Descriptor instead.
 func (*ConfirmMaterialReadResponse) Descriptor() ([]byte, []int) {
-	return file_api_content_content_proto_rawDescGZIP(), []int{69}
+	return file_api_content_content_proto_rawDescGZIP(), []int{70}
 }
 
 var File_api_content_content_proto protoreflect.FileDescriptor
@@ -4506,7 +4590,9 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\basset_id\x18\x01 \x01(\tR\aassetId\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x1a\n" +
-	"\bposition\x18\x04 \x01(\x05R\bposition\"\x96\x03\n" +
+	"\bposition\x18\x04 \x01(\x05R\bposition\"N\n" +
+	"\rAttachmentSet\x12=\n" +
+	"\x06assets\x18\x01 \x03(\v2%.overmindv.content.CreateContentAssetR\x06assets\"\x96\x03\n" +
 	"\x18CreateContentItemRequest\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
@@ -4567,7 +4653,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x18DeleteContentItemRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"O\n" +
 	"\x19DeleteContentItemResponse\x122\n" +
-	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xe1\x01\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xa5\x02\n" +
 	"\x1cCreateContentRevisionRequest\x12&\n" +
 	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\x12\x16\n" +
 	"\x06format\x18\x02 \x01(\tR\x06format\x12\x16\n" +
@@ -4575,7 +4661,8 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12\x1d\n" +
 	"\n" +
 	"created_by\x18\x05 \x01(\tR\tcreatedBy\x120\n" +
-	"\x14expected_revision_id\x18\x06 \x01(\tR\x12expectedRevisionId\"_\n" +
+	"\x14expected_revision_id\x18\x06 \x01(\tR\x12expectedRevisionId\x12B\n" +
+	"\vattachments\x18\a \x01(\v2 .overmindv.content.AttachmentSetR\vattachments\"_\n" +
 	"\x1dCreateContentRevisionResponse\x12>\n" +
 	"\brevision\x18\x01 \x01(\v2\".overmindv.content.ContentRevisionR\brevision\"E\n" +
 	"\x1bListContentRevisionsRequest\x12&\n" +
@@ -4604,7 +4691,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12#\n" +
 	"\rbase_outdated\x18\t \x01(\bR\fbaseOutdated\x12,\n" +
 	"\x12merged_revision_id\x18\n" +
-	" \x01(\tR\x10mergedRevisionId\"\xdd\x01\n" +
+	" \x01(\tR\x10mergedRevisionId\"\x96\x02\n" +
 	"\x16ChangeProposalRevision\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -4612,25 +4699,28 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x06source\x18\x04 \x01(\tR\x06source\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x9f\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
+	"\x06assets\x18\a \x03(\v2\x1f.overmindv.content.ContentAssetR\x06assets\"\xe3\x01\n" +
 	"\x19OpenChangeProposalRequest\x12&\n" +
 	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\x12(\n" +
 	"\x10base_revision_id\x18\x02 \x01(\tR\x0ebaseRevisionId\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\"[\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\x12B\n" +
+	"\vattachments\x18\x05 \x01(\v2 .overmindv.content.AttachmentSetR\vattachments\"[\n" +
 	"\x1aOpenChangeProposalResponse\x12=\n" +
 	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\";\n" +
 	"\x18GetChangeProposalRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\"Z\n" +
 	"\x19GetChangeProposalResponse\x12=\n" +
-	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\xa2\x01\n" +
+	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\xe6\x01\n" +
 	"#AppendChangeProposalRevisionRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12(\n" +
 	"\x10expected_head_id\x18\x02 \x01(\tR\x0eexpectedHeadId\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\"e\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\x12B\n" +
+	"\vattachments\x18\x05 \x01(\v2 .overmindv.content.AttachmentSetR\vattachments\"e\n" +
 	"$AppendChangeProposalRevisionResponse\x12=\n" +
 	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"=\n" +
 	"\x1aCloseChangeProposalRequest\x12\x1f\n" +
@@ -4763,14 +4853,15 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\aoutcome\x18\x05 \x01(\tR\aoutcome\x12\x1f\n" +
 	"\vwait_reason\x18\x06 \x01(\tR\n" +
 	"waitReason\x12\x19\n" +
-	"\btopic_id\x18\a \x01(\tR\atopicId\"\xc4\x01\n" +
+	"\btopic_id\x18\a \x01(\tR\atopicId\"\x88\x02\n" +
 	"\x1bRebaseChangeProposalRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12(\n" +
 	"\x10expected_head_id\x18\x02 \x01(\tR\x0eexpectedHeadId\x12(\n" +
 	"\x10base_revision_id\x18\x03 \x01(\tR\x0ebaseRevisionId\x12\x16\n" +
 	"\x06source\x18\x04 \x01(\tR\x06source\x12\x18\n" +
-	"\amessage\x18\x05 \x01(\tR\amessage\"]\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage\x12B\n" +
+	"\vattachments\x18\x06 \x01(\v2 .overmindv.content.AttachmentSetR\vattachments\"]\n" +
 	"\x1cRebaseChangeProposalResponse\x12=\n" +
 	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"g\n" +
 	"\x1aMergeChangeProposalRequest\x12\x1f\n" +
@@ -4851,7 +4942,7 @@ func file_api_content_content_proto_rawDescGZIP() []byte {
 	return file_api_content_content_proto_rawDescData
 }
 
-var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 70)
+var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 71)
 var file_api_content_content_proto_goTypes = []any{
 	(*ContentLearningMetadata)(nil),              // 0: overmindv.content.ContentLearningMetadata
 	(*ContentItem)(nil),                          // 1: overmindv.content.ContentItem
@@ -4859,183 +4950,190 @@ var file_api_content_content_proto_goTypes = []any{
 	(*Tag)(nil),                                  // 3: overmindv.content.Tag
 	(*ContentAsset)(nil),                         // 4: overmindv.content.ContentAsset
 	(*CreateContentAsset)(nil),                   // 5: overmindv.content.CreateContentAsset
-	(*CreateContentItemRequest)(nil),             // 6: overmindv.content.CreateContentItemRequest
-	(*CreateContentItemResponse)(nil),            // 7: overmindv.content.CreateContentItemResponse
-	(*GetContentItemRequest)(nil),                // 8: overmindv.content.GetContentItemRequest
-	(*GetContentItemResponse)(nil),               // 9: overmindv.content.GetContentItemResponse
-	(*ListContentItemsRequest)(nil),              // 10: overmindv.content.ListContentItemsRequest
-	(*ListContentItemsResponse)(nil),             // 11: overmindv.content.ListContentItemsResponse
-	(*UpdateContentItemRequest)(nil),             // 12: overmindv.content.UpdateContentItemRequest
-	(*ContentCatalogEntry)(nil),                  // 13: overmindv.content.ContentCatalogEntry
-	(*ListContentCatalogRequest)(nil),            // 14: overmindv.content.ListContentCatalogRequest
-	(*ListContentCatalogResponse)(nil),           // 15: overmindv.content.ListContentCatalogResponse
-	(*UpdateContentItemResponse)(nil),            // 16: overmindv.content.UpdateContentItemResponse
-	(*DeleteContentItemRequest)(nil),             // 17: overmindv.content.DeleteContentItemRequest
-	(*DeleteContentItemResponse)(nil),            // 18: overmindv.content.DeleteContentItemResponse
-	(*CreateContentRevisionRequest)(nil),         // 19: overmindv.content.CreateContentRevisionRequest
-	(*CreateContentRevisionResponse)(nil),        // 20: overmindv.content.CreateContentRevisionResponse
-	(*ListContentRevisionsRequest)(nil),          // 21: overmindv.content.ListContentRevisionsRequest
-	(*ListContentRevisionsResponse)(nil),         // 22: overmindv.content.ListContentRevisionsResponse
-	(*PublishContentItemRequest)(nil),            // 23: overmindv.content.PublishContentItemRequest
-	(*PublishContentItemResponse)(nil),           // 24: overmindv.content.PublishContentItemResponse
-	(*ArchiveContentItemRequest)(nil),            // 25: overmindv.content.ArchiveContentItemRequest
-	(*ArchiveContentItemResponse)(nil),           // 26: overmindv.content.ArchiveContentItemResponse
-	(*ChangeProposal)(nil),                       // 27: overmindv.content.ChangeProposal
-	(*ChangeProposalRevision)(nil),               // 28: overmindv.content.ChangeProposalRevision
-	(*OpenChangeProposalRequest)(nil),            // 29: overmindv.content.OpenChangeProposalRequest
-	(*OpenChangeProposalResponse)(nil),           // 30: overmindv.content.OpenChangeProposalResponse
-	(*GetChangeProposalRequest)(nil),             // 31: overmindv.content.GetChangeProposalRequest
-	(*GetChangeProposalResponse)(nil),            // 32: overmindv.content.GetChangeProposalResponse
-	(*AppendChangeProposalRevisionRequest)(nil),  // 33: overmindv.content.AppendChangeProposalRevisionRequest
-	(*AppendChangeProposalRevisionResponse)(nil), // 34: overmindv.content.AppendChangeProposalRevisionResponse
-	(*CloseChangeProposalRequest)(nil),           // 35: overmindv.content.CloseChangeProposalRequest
-	(*CloseChangeProposalResponse)(nil),          // 36: overmindv.content.CloseChangeProposalResponse
-	(*ChangeProposalHistoryEntry)(nil),           // 37: overmindv.content.ChangeProposalHistoryEntry
-	(*ListChangeProposalHistoryRequest)(nil),     // 38: overmindv.content.ListChangeProposalHistoryRequest
-	(*ListChangeProposalHistoryResponse)(nil),    // 39: overmindv.content.ListChangeProposalHistoryResponse
-	(*GetChangeProposalDiffRequest)(nil),         // 40: overmindv.content.GetChangeProposalDiffRequest
-	(*GetChangeProposalDiffResponse)(nil),        // 41: overmindv.content.GetChangeProposalDiffResponse
-	(*ReviewThread)(nil),                         // 42: overmindv.content.ReviewThread
-	(*ReviewReply)(nil),                          // 43: overmindv.content.ReviewReply
-	(*ReviewDecision)(nil),                       // 44: overmindv.content.ReviewDecision
-	(*ReviewAssignment)(nil),                     // 45: overmindv.content.ReviewAssignment
-	(*CreateReviewThreadRequest)(nil),            // 46: overmindv.content.CreateReviewThreadRequest
-	(*CreateReviewThreadResponse)(nil),           // 47: overmindv.content.CreateReviewThreadResponse
-	(*ReplyToReviewThreadRequest)(nil),           // 48: overmindv.content.ReplyToReviewThreadRequest
-	(*ReplyToReviewThreadResponse)(nil),          // 49: overmindv.content.ReplyToReviewThreadResponse
-	(*SetReviewThreadResolvedRequest)(nil),       // 50: overmindv.content.SetReviewThreadResolvedRequest
-	(*SetReviewThreadResolvedResponse)(nil),      // 51: overmindv.content.SetReviewThreadResolvedResponse
-	(*ListReviewThreadsRequest)(nil),             // 52: overmindv.content.ListReviewThreadsRequest
-	(*ListReviewThreadsResponse)(nil),            // 53: overmindv.content.ListReviewThreadsResponse
-	(*ListReviewRepliesRequest)(nil),             // 54: overmindv.content.ListReviewRepliesRequest
-	(*ListReviewRepliesResponse)(nil),            // 55: overmindv.content.ListReviewRepliesResponse
-	(*SubmitReviewDecisionRequest)(nil),          // 56: overmindv.content.SubmitReviewDecisionRequest
-	(*SubmitReviewDecisionResponse)(nil),         // 57: overmindv.content.SubmitReviewDecisionResponse
-	(*GetReviewRevisionStatusRequest)(nil),       // 58: overmindv.content.GetReviewRevisionStatusRequest
-	(*GetReviewRevisionStatusResponse)(nil),      // 59: overmindv.content.GetReviewRevisionStatusResponse
-	(*RebaseChangeProposalRequest)(nil),          // 60: overmindv.content.RebaseChangeProposalRequest
-	(*RebaseChangeProposalResponse)(nil),         // 61: overmindv.content.RebaseChangeProposalResponse
-	(*MergeChangeProposalRequest)(nil),           // 62: overmindv.content.MergeChangeProposalRequest
-	(*MergeChangeProposalResponse)(nil),          // 63: overmindv.content.MergeChangeProposalResponse
-	(*MaterialSnapshotMetadata)(nil),             // 64: overmindv.content.MaterialSnapshotMetadata
-	(*MaterialSnapshotEntry)(nil),                // 65: overmindv.content.MaterialSnapshotEntry
-	(*SnapshotMaterialsRequest)(nil),             // 66: overmindv.content.SnapshotMaterialsRequest
-	(*SnapshotMaterialsResponse)(nil),            // 67: overmindv.content.SnapshotMaterialsResponse
-	(*ConfirmMaterialReadRequest)(nil),           // 68: overmindv.content.ConfirmMaterialReadRequest
-	(*ConfirmMaterialReadResponse)(nil),          // 69: overmindv.content.ConfirmMaterialReadResponse
-	(*timestamppb.Timestamp)(nil),                // 70: google.protobuf.Timestamp
+	(*AttachmentSet)(nil),                        // 6: overmindv.content.AttachmentSet
+	(*CreateContentItemRequest)(nil),             // 7: overmindv.content.CreateContentItemRequest
+	(*CreateContentItemResponse)(nil),            // 8: overmindv.content.CreateContentItemResponse
+	(*GetContentItemRequest)(nil),                // 9: overmindv.content.GetContentItemRequest
+	(*GetContentItemResponse)(nil),               // 10: overmindv.content.GetContentItemResponse
+	(*ListContentItemsRequest)(nil),              // 11: overmindv.content.ListContentItemsRequest
+	(*ListContentItemsResponse)(nil),             // 12: overmindv.content.ListContentItemsResponse
+	(*UpdateContentItemRequest)(nil),             // 13: overmindv.content.UpdateContentItemRequest
+	(*ContentCatalogEntry)(nil),                  // 14: overmindv.content.ContentCatalogEntry
+	(*ListContentCatalogRequest)(nil),            // 15: overmindv.content.ListContentCatalogRequest
+	(*ListContentCatalogResponse)(nil),           // 16: overmindv.content.ListContentCatalogResponse
+	(*UpdateContentItemResponse)(nil),            // 17: overmindv.content.UpdateContentItemResponse
+	(*DeleteContentItemRequest)(nil),             // 18: overmindv.content.DeleteContentItemRequest
+	(*DeleteContentItemResponse)(nil),            // 19: overmindv.content.DeleteContentItemResponse
+	(*CreateContentRevisionRequest)(nil),         // 20: overmindv.content.CreateContentRevisionRequest
+	(*CreateContentRevisionResponse)(nil),        // 21: overmindv.content.CreateContentRevisionResponse
+	(*ListContentRevisionsRequest)(nil),          // 22: overmindv.content.ListContentRevisionsRequest
+	(*ListContentRevisionsResponse)(nil),         // 23: overmindv.content.ListContentRevisionsResponse
+	(*PublishContentItemRequest)(nil),            // 24: overmindv.content.PublishContentItemRequest
+	(*PublishContentItemResponse)(nil),           // 25: overmindv.content.PublishContentItemResponse
+	(*ArchiveContentItemRequest)(nil),            // 26: overmindv.content.ArchiveContentItemRequest
+	(*ArchiveContentItemResponse)(nil),           // 27: overmindv.content.ArchiveContentItemResponse
+	(*ChangeProposal)(nil),                       // 28: overmindv.content.ChangeProposal
+	(*ChangeProposalRevision)(nil),               // 29: overmindv.content.ChangeProposalRevision
+	(*OpenChangeProposalRequest)(nil),            // 30: overmindv.content.OpenChangeProposalRequest
+	(*OpenChangeProposalResponse)(nil),           // 31: overmindv.content.OpenChangeProposalResponse
+	(*GetChangeProposalRequest)(nil),             // 32: overmindv.content.GetChangeProposalRequest
+	(*GetChangeProposalResponse)(nil),            // 33: overmindv.content.GetChangeProposalResponse
+	(*AppendChangeProposalRevisionRequest)(nil),  // 34: overmindv.content.AppendChangeProposalRevisionRequest
+	(*AppendChangeProposalRevisionResponse)(nil), // 35: overmindv.content.AppendChangeProposalRevisionResponse
+	(*CloseChangeProposalRequest)(nil),           // 36: overmindv.content.CloseChangeProposalRequest
+	(*CloseChangeProposalResponse)(nil),          // 37: overmindv.content.CloseChangeProposalResponse
+	(*ChangeProposalHistoryEntry)(nil),           // 38: overmindv.content.ChangeProposalHistoryEntry
+	(*ListChangeProposalHistoryRequest)(nil),     // 39: overmindv.content.ListChangeProposalHistoryRequest
+	(*ListChangeProposalHistoryResponse)(nil),    // 40: overmindv.content.ListChangeProposalHistoryResponse
+	(*GetChangeProposalDiffRequest)(nil),         // 41: overmindv.content.GetChangeProposalDiffRequest
+	(*GetChangeProposalDiffResponse)(nil),        // 42: overmindv.content.GetChangeProposalDiffResponse
+	(*ReviewThread)(nil),                         // 43: overmindv.content.ReviewThread
+	(*ReviewReply)(nil),                          // 44: overmindv.content.ReviewReply
+	(*ReviewDecision)(nil),                       // 45: overmindv.content.ReviewDecision
+	(*ReviewAssignment)(nil),                     // 46: overmindv.content.ReviewAssignment
+	(*CreateReviewThreadRequest)(nil),            // 47: overmindv.content.CreateReviewThreadRequest
+	(*CreateReviewThreadResponse)(nil),           // 48: overmindv.content.CreateReviewThreadResponse
+	(*ReplyToReviewThreadRequest)(nil),           // 49: overmindv.content.ReplyToReviewThreadRequest
+	(*ReplyToReviewThreadResponse)(nil),          // 50: overmindv.content.ReplyToReviewThreadResponse
+	(*SetReviewThreadResolvedRequest)(nil),       // 51: overmindv.content.SetReviewThreadResolvedRequest
+	(*SetReviewThreadResolvedResponse)(nil),      // 52: overmindv.content.SetReviewThreadResolvedResponse
+	(*ListReviewThreadsRequest)(nil),             // 53: overmindv.content.ListReviewThreadsRequest
+	(*ListReviewThreadsResponse)(nil),            // 54: overmindv.content.ListReviewThreadsResponse
+	(*ListReviewRepliesRequest)(nil),             // 55: overmindv.content.ListReviewRepliesRequest
+	(*ListReviewRepliesResponse)(nil),            // 56: overmindv.content.ListReviewRepliesResponse
+	(*SubmitReviewDecisionRequest)(nil),          // 57: overmindv.content.SubmitReviewDecisionRequest
+	(*SubmitReviewDecisionResponse)(nil),         // 58: overmindv.content.SubmitReviewDecisionResponse
+	(*GetReviewRevisionStatusRequest)(nil),       // 59: overmindv.content.GetReviewRevisionStatusRequest
+	(*GetReviewRevisionStatusResponse)(nil),      // 60: overmindv.content.GetReviewRevisionStatusResponse
+	(*RebaseChangeProposalRequest)(nil),          // 61: overmindv.content.RebaseChangeProposalRequest
+	(*RebaseChangeProposalResponse)(nil),         // 62: overmindv.content.RebaseChangeProposalResponse
+	(*MergeChangeProposalRequest)(nil),           // 63: overmindv.content.MergeChangeProposalRequest
+	(*MergeChangeProposalResponse)(nil),          // 64: overmindv.content.MergeChangeProposalResponse
+	(*MaterialSnapshotMetadata)(nil),             // 65: overmindv.content.MaterialSnapshotMetadata
+	(*MaterialSnapshotEntry)(nil),                // 66: overmindv.content.MaterialSnapshotEntry
+	(*SnapshotMaterialsRequest)(nil),             // 67: overmindv.content.SnapshotMaterialsRequest
+	(*SnapshotMaterialsResponse)(nil),            // 68: overmindv.content.SnapshotMaterialsResponse
+	(*ConfirmMaterialReadRequest)(nil),           // 69: overmindv.content.ConfirmMaterialReadRequest
+	(*ConfirmMaterialReadResponse)(nil),          // 70: overmindv.content.ConfirmMaterialReadResponse
+	(*timestamppb.Timestamp)(nil),                // 71: google.protobuf.Timestamp
 }
 var file_api_content_content_proto_depIdxs = []int32{
-	70, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
-	70, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
-	70, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
-	70, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
+	71, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
+	71, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
+	71, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
+	71, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
 	2,  // 4: overmindv.content.ContentItem.current_revision:type_name -> overmindv.content.ContentRevision
 	3,  // 5: overmindv.content.ContentItem.tags:type_name -> overmindv.content.Tag
 	4,  // 6: overmindv.content.ContentItem.assets:type_name -> overmindv.content.ContentAsset
 	0,  // 7: overmindv.content.ContentItem.learning:type_name -> overmindv.content.ContentLearningMetadata
-	70, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
-	70, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
-	70, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
-	5,  // 11: overmindv.content.CreateContentItemRequest.assets:type_name -> overmindv.content.CreateContentAsset
-	0,  // 12: overmindv.content.CreateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
-	1,  // 13: overmindv.content.CreateContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	1,  // 14: overmindv.content.GetContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	1,  // 15: overmindv.content.ListContentItemsResponse.items:type_name -> overmindv.content.ContentItem
-	0,  // 16: overmindv.content.UpdateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
-	70, // 17: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 18: overmindv.content.ContentCatalogEntry.learning:type_name -> overmindv.content.ContentLearningMetadata
-	13, // 19: overmindv.content.ListContentCatalogResponse.entries:type_name -> overmindv.content.ContentCatalogEntry
-	1,  // 20: overmindv.content.UpdateContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	1,  // 21: overmindv.content.DeleteContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	2,  // 22: overmindv.content.CreateContentRevisionResponse.revision:type_name -> overmindv.content.ContentRevision
-	2,  // 23: overmindv.content.ListContentRevisionsResponse.revisions:type_name -> overmindv.content.ContentRevision
-	1,  // 24: overmindv.content.PublishContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	1,  // 25: overmindv.content.ArchiveContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	28, // 26: overmindv.content.ChangeProposal.head:type_name -> overmindv.content.ChangeProposalRevision
-	70, // 27: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
-	70, // 28: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
-	70, // 29: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
-	27, // 30: overmindv.content.OpenChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	27, // 31: overmindv.content.GetChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	27, // 32: overmindv.content.AppendChangeProposalRevisionResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	27, // 33: overmindv.content.CloseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	70, // 34: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
-	37, // 35: overmindv.content.ListChangeProposalHistoryResponse.entries:type_name -> overmindv.content.ChangeProposalHistoryEntry
-	70, // 36: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
-	70, // 37: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
-	70, // 38: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
-	70, // 39: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
-	42, // 40: overmindv.content.CreateReviewThreadResponse.thread:type_name -> overmindv.content.ReviewThread
-	43, // 41: overmindv.content.ReplyToReviewThreadResponse.reply:type_name -> overmindv.content.ReviewReply
-	42, // 42: overmindv.content.SetReviewThreadResolvedResponse.thread:type_name -> overmindv.content.ReviewThread
-	42, // 43: overmindv.content.ListReviewThreadsResponse.threads:type_name -> overmindv.content.ReviewThread
-	43, // 44: overmindv.content.ListReviewRepliesResponse.replies:type_name -> overmindv.content.ReviewReply
-	44, // 45: overmindv.content.SubmitReviewDecisionResponse.decision:type_name -> overmindv.content.ReviewDecision
-	44, // 46: overmindv.content.GetReviewRevisionStatusResponse.decisions:type_name -> overmindv.content.ReviewDecision
-	45, // 47: overmindv.content.GetReviewRevisionStatusResponse.assignments:type_name -> overmindv.content.ReviewAssignment
-	27, // 48: overmindv.content.RebaseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	64, // 49: overmindv.content.MaterialSnapshotEntry.metadata:type_name -> overmindv.content.MaterialSnapshotMetadata
-	65, // 50: overmindv.content.SnapshotMaterialsResponse.entries:type_name -> overmindv.content.MaterialSnapshotEntry
-	6,  // 51: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
-	8,  // 52: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
-	10, // 53: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
-	14, // 54: overmindv.content.ContentService.ListContentCatalog:input_type -> overmindv.content.ListContentCatalogRequest
-	12, // 55: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
-	17, // 56: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
-	19, // 57: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
-	21, // 58: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
-	23, // 59: overmindv.content.ContentService.PublishContentItem:input_type -> overmindv.content.PublishContentItemRequest
-	25, // 60: overmindv.content.ContentService.ArchiveContentItem:input_type -> overmindv.content.ArchiveContentItemRequest
-	29, // 61: overmindv.content.ContentService.OpenChangeProposal:input_type -> overmindv.content.OpenChangeProposalRequest
-	31, // 62: overmindv.content.ContentService.GetChangeProposal:input_type -> overmindv.content.GetChangeProposalRequest
-	33, // 63: overmindv.content.ContentService.AppendChangeProposalRevision:input_type -> overmindv.content.AppendChangeProposalRevisionRequest
-	35, // 64: overmindv.content.ContentService.CloseChangeProposal:input_type -> overmindv.content.CloseChangeProposalRequest
-	38, // 65: overmindv.content.ContentService.ListChangeProposalHistory:input_type -> overmindv.content.ListChangeProposalHistoryRequest
-	40, // 66: overmindv.content.ContentService.GetChangeProposalDiff:input_type -> overmindv.content.GetChangeProposalDiffRequest
-	46, // 67: overmindv.content.ContentService.CreateReviewThread:input_type -> overmindv.content.CreateReviewThreadRequest
-	48, // 68: overmindv.content.ContentService.ReplyToReviewThread:input_type -> overmindv.content.ReplyToReviewThreadRequest
-	50, // 69: overmindv.content.ContentService.SetReviewThreadResolved:input_type -> overmindv.content.SetReviewThreadResolvedRequest
-	52, // 70: overmindv.content.ContentService.ListReviewThreads:input_type -> overmindv.content.ListReviewThreadsRequest
-	54, // 71: overmindv.content.ContentService.ListReviewReplies:input_type -> overmindv.content.ListReviewRepliesRequest
-	56, // 72: overmindv.content.ContentService.SubmitReviewDecision:input_type -> overmindv.content.SubmitReviewDecisionRequest
-	58, // 73: overmindv.content.ContentService.GetReviewRevisionStatus:input_type -> overmindv.content.GetReviewRevisionStatusRequest
-	60, // 74: overmindv.content.ContentService.RebaseChangeProposal:input_type -> overmindv.content.RebaseChangeProposalRequest
-	62, // 75: overmindv.content.ContentService.MergeChangeProposal:input_type -> overmindv.content.MergeChangeProposalRequest
-	66, // 76: overmindv.content.ContentService.SnapshotMaterials:input_type -> overmindv.content.SnapshotMaterialsRequest
-	68, // 77: overmindv.content.ContentService.ConfirmMaterialRead:input_type -> overmindv.content.ConfirmMaterialReadRequest
-	7,  // 78: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
-	9,  // 79: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
-	11, // 80: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
-	15, // 81: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
-	16, // 82: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
-	18, // 83: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
-	20, // 84: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
-	22, // 85: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
-	24, // 86: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
-	26, // 87: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
-	30, // 88: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
-	32, // 89: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
-	34, // 90: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
-	36, // 91: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
-	39, // 92: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
-	41, // 93: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
-	47, // 94: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
-	49, // 95: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
-	51, // 96: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
-	53, // 97: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
-	55, // 98: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
-	57, // 99: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
-	59, // 100: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
-	61, // 101: overmindv.content.ContentService.RebaseChangeProposal:output_type -> overmindv.content.RebaseChangeProposalResponse
-	63, // 102: overmindv.content.ContentService.MergeChangeProposal:output_type -> overmindv.content.MergeChangeProposalResponse
-	67, // 103: overmindv.content.ContentService.SnapshotMaterials:output_type -> overmindv.content.SnapshotMaterialsResponse
-	69, // 104: overmindv.content.ContentService.ConfirmMaterialRead:output_type -> overmindv.content.ConfirmMaterialReadResponse
-	78, // [78:105] is the sub-list for method output_type
-	51, // [51:78] is the sub-list for method input_type
-	51, // [51:51] is the sub-list for extension type_name
-	51, // [51:51] is the sub-list for extension extendee
-	0,  // [0:51] is the sub-list for field type_name
+	71, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
+	71, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
+	71, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 11: overmindv.content.AttachmentSet.assets:type_name -> overmindv.content.CreateContentAsset
+	5,  // 12: overmindv.content.CreateContentItemRequest.assets:type_name -> overmindv.content.CreateContentAsset
+	0,  // 13: overmindv.content.CreateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
+	1,  // 14: overmindv.content.CreateContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	1,  // 15: overmindv.content.GetContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	1,  // 16: overmindv.content.ListContentItemsResponse.items:type_name -> overmindv.content.ContentItem
+	0,  // 17: overmindv.content.UpdateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
+	71, // 18: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 19: overmindv.content.ContentCatalogEntry.learning:type_name -> overmindv.content.ContentLearningMetadata
+	14, // 20: overmindv.content.ListContentCatalogResponse.entries:type_name -> overmindv.content.ContentCatalogEntry
+	1,  // 21: overmindv.content.UpdateContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	1,  // 22: overmindv.content.DeleteContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	6,  // 23: overmindv.content.CreateContentRevisionRequest.attachments:type_name -> overmindv.content.AttachmentSet
+	2,  // 24: overmindv.content.CreateContentRevisionResponse.revision:type_name -> overmindv.content.ContentRevision
+	2,  // 25: overmindv.content.ListContentRevisionsResponse.revisions:type_name -> overmindv.content.ContentRevision
+	1,  // 26: overmindv.content.PublishContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	1,  // 27: overmindv.content.ArchiveContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	29, // 28: overmindv.content.ChangeProposal.head:type_name -> overmindv.content.ChangeProposalRevision
+	71, // 29: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
+	71, // 30: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
+	71, // 31: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
+	4,  // 32: overmindv.content.ChangeProposalRevision.assets:type_name -> overmindv.content.ContentAsset
+	6,  // 33: overmindv.content.OpenChangeProposalRequest.attachments:type_name -> overmindv.content.AttachmentSet
+	28, // 34: overmindv.content.OpenChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	28, // 35: overmindv.content.GetChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	6,  // 36: overmindv.content.AppendChangeProposalRevisionRequest.attachments:type_name -> overmindv.content.AttachmentSet
+	28, // 37: overmindv.content.AppendChangeProposalRevisionResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	28, // 38: overmindv.content.CloseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	71, // 39: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	38, // 40: overmindv.content.ListChangeProposalHistoryResponse.entries:type_name -> overmindv.content.ChangeProposalHistoryEntry
+	71, // 41: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
+	71, // 42: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
+	71, // 43: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
+	71, // 44: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
+	43, // 45: overmindv.content.CreateReviewThreadResponse.thread:type_name -> overmindv.content.ReviewThread
+	44, // 46: overmindv.content.ReplyToReviewThreadResponse.reply:type_name -> overmindv.content.ReviewReply
+	43, // 47: overmindv.content.SetReviewThreadResolvedResponse.thread:type_name -> overmindv.content.ReviewThread
+	43, // 48: overmindv.content.ListReviewThreadsResponse.threads:type_name -> overmindv.content.ReviewThread
+	44, // 49: overmindv.content.ListReviewRepliesResponse.replies:type_name -> overmindv.content.ReviewReply
+	45, // 50: overmindv.content.SubmitReviewDecisionResponse.decision:type_name -> overmindv.content.ReviewDecision
+	45, // 51: overmindv.content.GetReviewRevisionStatusResponse.decisions:type_name -> overmindv.content.ReviewDecision
+	46, // 52: overmindv.content.GetReviewRevisionStatusResponse.assignments:type_name -> overmindv.content.ReviewAssignment
+	6,  // 53: overmindv.content.RebaseChangeProposalRequest.attachments:type_name -> overmindv.content.AttachmentSet
+	28, // 54: overmindv.content.RebaseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	65, // 55: overmindv.content.MaterialSnapshotEntry.metadata:type_name -> overmindv.content.MaterialSnapshotMetadata
+	66, // 56: overmindv.content.SnapshotMaterialsResponse.entries:type_name -> overmindv.content.MaterialSnapshotEntry
+	7,  // 57: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
+	9,  // 58: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
+	11, // 59: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
+	15, // 60: overmindv.content.ContentService.ListContentCatalog:input_type -> overmindv.content.ListContentCatalogRequest
+	13, // 61: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
+	18, // 62: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
+	20, // 63: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
+	22, // 64: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
+	24, // 65: overmindv.content.ContentService.PublishContentItem:input_type -> overmindv.content.PublishContentItemRequest
+	26, // 66: overmindv.content.ContentService.ArchiveContentItem:input_type -> overmindv.content.ArchiveContentItemRequest
+	30, // 67: overmindv.content.ContentService.OpenChangeProposal:input_type -> overmindv.content.OpenChangeProposalRequest
+	32, // 68: overmindv.content.ContentService.GetChangeProposal:input_type -> overmindv.content.GetChangeProposalRequest
+	34, // 69: overmindv.content.ContentService.AppendChangeProposalRevision:input_type -> overmindv.content.AppendChangeProposalRevisionRequest
+	36, // 70: overmindv.content.ContentService.CloseChangeProposal:input_type -> overmindv.content.CloseChangeProposalRequest
+	39, // 71: overmindv.content.ContentService.ListChangeProposalHistory:input_type -> overmindv.content.ListChangeProposalHistoryRequest
+	41, // 72: overmindv.content.ContentService.GetChangeProposalDiff:input_type -> overmindv.content.GetChangeProposalDiffRequest
+	47, // 73: overmindv.content.ContentService.CreateReviewThread:input_type -> overmindv.content.CreateReviewThreadRequest
+	49, // 74: overmindv.content.ContentService.ReplyToReviewThread:input_type -> overmindv.content.ReplyToReviewThreadRequest
+	51, // 75: overmindv.content.ContentService.SetReviewThreadResolved:input_type -> overmindv.content.SetReviewThreadResolvedRequest
+	53, // 76: overmindv.content.ContentService.ListReviewThreads:input_type -> overmindv.content.ListReviewThreadsRequest
+	55, // 77: overmindv.content.ContentService.ListReviewReplies:input_type -> overmindv.content.ListReviewRepliesRequest
+	57, // 78: overmindv.content.ContentService.SubmitReviewDecision:input_type -> overmindv.content.SubmitReviewDecisionRequest
+	59, // 79: overmindv.content.ContentService.GetReviewRevisionStatus:input_type -> overmindv.content.GetReviewRevisionStatusRequest
+	61, // 80: overmindv.content.ContentService.RebaseChangeProposal:input_type -> overmindv.content.RebaseChangeProposalRequest
+	63, // 81: overmindv.content.ContentService.MergeChangeProposal:input_type -> overmindv.content.MergeChangeProposalRequest
+	67, // 82: overmindv.content.ContentService.SnapshotMaterials:input_type -> overmindv.content.SnapshotMaterialsRequest
+	69, // 83: overmindv.content.ContentService.ConfirmMaterialRead:input_type -> overmindv.content.ConfirmMaterialReadRequest
+	8,  // 84: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
+	10, // 85: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
+	12, // 86: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
+	16, // 87: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
+	17, // 88: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
+	19, // 89: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
+	21, // 90: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
+	23, // 91: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
+	25, // 92: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
+	27, // 93: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
+	31, // 94: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
+	33, // 95: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
+	35, // 96: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
+	37, // 97: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
+	40, // 98: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
+	42, // 99: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
+	48, // 100: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
+	50, // 101: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
+	52, // 102: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
+	54, // 103: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
+	56, // 104: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
+	58, // 105: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
+	60, // 106: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
+	62, // 107: overmindv.content.ContentService.RebaseChangeProposal:output_type -> overmindv.content.RebaseChangeProposalResponse
+	64, // 108: overmindv.content.ContentService.MergeChangeProposal:output_type -> overmindv.content.MergeChangeProposalResponse
+	68, // 109: overmindv.content.ContentService.SnapshotMaterials:output_type -> overmindv.content.SnapshotMaterialsResponse
+	70, // 110: overmindv.content.ContentService.ConfirmMaterialRead:output_type -> overmindv.content.ConfirmMaterialReadResponse
+	84, // [84:111] is the sub-list for method output_type
+	57, // [57:84] is the sub-list for method input_type
+	57, // [57:57] is the sub-list for extension type_name
+	57, // [57:57] is the sub-list for extension extendee
+	0,  // [0:57] is the sub-list for field type_name
 }
 
 func init() { file_api_content_content_proto_init() }
@@ -5043,14 +5141,14 @@ func file_api_content_content_proto_init() {
 	if File_api_content_content_proto != nil {
 		return
 	}
-	file_api_content_content_proto_msgTypes[66].OneofWrappers = []any{}
+	file_api_content_content_proto_msgTypes[67].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_content_content_proto_rawDesc), len(file_api_content_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   70,
+			NumMessages:   71,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

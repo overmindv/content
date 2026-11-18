@@ -30,6 +30,7 @@ type ChangeProposalRevision struct {
 	Source           string
 	Message          string
 	CreatedAt        time.Time
+	Assets           []ContentAsset
 }
 
 type OpenChangeProposalInput struct {
@@ -38,6 +39,7 @@ type OpenChangeProposalInput struct {
 	AuthorID       string
 	Source         string
 	Message        string
+	Attachments    *AttachmentSet
 }
 
 type AppendChangeProposalRevisionInput struct {
@@ -46,6 +48,7 @@ type AppendChangeProposalRevisionInput struct {
 	AuthorID       string
 	Source         string
 	Message        string
+	Attachments    *AttachmentSet
 }
 
 type RebaseChangeProposalInput struct {

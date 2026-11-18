@@ -74,8 +74,18 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 		if err != nil {
 			return err
 		}
+		source := attachmentRevision{revisionID: material.publishedRevisionID}
+		if review.attachmentsSnapshot {
+			source = attachmentRevision{revisionID: input.ExpectedHeadID, proposalID: input.ProposalID}
+		}
+		if err = s.requireAttachmentBindings(ctx, tx, material.id, source); err != nil {
+			return err
+		}
 		revisionID, err := insertMergedRevision(ctx, tx, input, material, author)
 		if err != nil {
+			return err
+		}
+		if err = s.saveRevisionAttachments(ctx, tx, material.id, author, attachmentRevision{revisionID: revisionID}, source, nil); err != nil {
 			return err
 		}
 		if err = publishMergedRevision(ctx, tx, input, material.id, revisionID); err != nil {
@@ -105,18 +115,20 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 }
 
 type mergeReview struct {
-	topicID     string
-	assignments []domain.ReviewAssignment
+	topicID             string
+	assignments         []domain.ReviewAssignment
+	attachmentsSnapshot bool
 }
 
 func validateMergeReview(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, originalBase string) (mergeReview, error) {
 	const query = `
-		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false), review_topic_id
+		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false), review_topic_id, attachments_snapshot
 		FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
 	var base string
 	var verified bool
 	var topic *string
-	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).Scan(&base, &verified, &topic); err != nil {
+	var attachmentsSnapshot bool
+	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).Scan(&base, &verified, &topic, &attachmentsSnapshot); err != nil {
 		return mergeReview{}, err
 	}
 	if base != material.publishedRevisionID {
@@ -132,7 +144,7 @@ func validateMergeReview(ctx context.Context, tx pgx.Tx, input domain.MergeChang
 	if outcome, _ := (domain.ReviewRevisionStatus{Assignments: assignments}).Outcome(); outcome != domain.ReviewApproved {
 		return mergeReview{}, service.ErrReviewRequired
 	}
-	return mergeReview{topicID: *topic, assignments: assignments}, nil
+	return mergeReview{topicID: *topic, assignments: assignments, attachmentsSnapshot: attachmentsSnapshot}, nil
 }
 
 func insertMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, author string) (string, error) {
@@ -162,16 +174,7 @@ func insertMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChan
 	if _, err := tx.Exec(ctx, insert, revisionID, material.id, format, *source, hashSource(*source), message, author); err != nil {
 		return "", err
 	}
-	const copyAssets = `
-		INSERT INTO content_assets (id, content_item_id, revision_id, asset_id, kind, title, position)
-		SELECT gen_random_uuid(), content_item_id, $3, asset_id, kind, title, position
-		FROM content_assets WHERE content_item_id = $1 AND revision_id = $2
-		ORDER BY position, id LIMIT $4`
-	tag, err := tx.Exec(ctx, copyAssets, material.id, material.publishedRevisionID, revisionID, validator.MaxAssets+1)
-	if err != nil {
-		return "", err
-	}
-	return revisionID, validator.ValidateAssetCount(int(tag.RowsAffected()))
+	return revisionID, nil
 }
 
 func publishMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, itemID, revisionID string) error {

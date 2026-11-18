@@ -49,9 +49,6 @@ func TestPublicationRejectsUnsupportedSavedRevisions(t *testing.T) {
 			input.CreatedBy = uuid.NewString()
 			input.Format = tt.format
 			input.Source = tt.source
-			for range tt.assetCount {
-				input.Assets = append(input.Assets, domain.CreateContentAssetInput{AssetID: uuid.NewString(), Kind: domain.AssetKindAttachment})
-			}
 			item, err := store.Create(ctx, input)
 			if err != nil {
 				t.Fatal(err)
@@ -61,6 +58,14 @@ func TestPublicationRejectsUnsupportedSavedRevisions(t *testing.T) {
 					t.Error(err)
 				}
 			}()
+			if tt.assetCount != 0 {
+				if _, err := pool.Exec(ctx, `
+					INSERT INTO content_assets (id, content_item_id, revision_id, asset_id, kind)
+					SELECT gen_random_uuid(), $1, $2, gen_random_uuid(), 'attachment'
+					FROM generate_series(1, $3::integer)`, item.ID, item.CurrentRevisionID, tt.assetCount); err != nil {
+					t.Fatal(err)
+				}
+			}
 			state := domain.ChangeContentItemStateInput{ID: item.ID, ActorID: input.CreatedBy, ExpectedRevisionID: item.CurrentRevisionID}
 			if _, err = store.ChangeState(ctx, state, domain.ContentStatusPublished); !validator.IsValidationError(err) {
 				t.Errorf("publish error = %v, want validation error", err)
