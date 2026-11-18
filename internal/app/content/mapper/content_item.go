@@ -183,15 +183,16 @@ func ToProtoList(items []domain.ContentItem) []*content.ContentItem {
 
 func ToProtoRevision(revision domain.ContentRevision) *content.ContentRevision {
 	return &content.ContentRevision{
-		Id:            revision.ID,
-		ContentItemId: revision.ContentItemID,
-		Revision:      int32(revision.Revision),
-		Format:        string(revision.Format),
-		Source:        revision.Source,
-		SourceHash:    revision.SourceHash,
-		Message:       revision.Message,
-		CreatedBy:     revision.CreatedBy,
-		CreatedAt:     timestamppb.New(revision.CreatedAt),
+		Id:                     revision.ID,
+		ContentItemId:          revision.ContentItemID,
+		Revision:               int32(revision.Revision),
+		Format:                 string(revision.Format),
+		Source:                 revision.Source,
+		SourceHash:             revision.SourceHash,
+		Message:                revision.Message,
+		CreatedBy:              revision.CreatedBy,
+		CreatedAt:              timestamppb.New(revision.CreatedAt),
+		RestoredFromRevisionId: revision.RestoredFromRevisionID,
 	}
 }
 

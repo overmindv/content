@@ -80,6 +80,10 @@ func (s *storeStub) ListRevisions(context.Context, string, string) ([]domain.Con
 	return nil, nil
 }
 
+func (s *storeStub) RestorePublishedRevision(context.Context, domain.RestorePublishedRevisionInput) (domain.ContentRevision, error) {
+	return domain.ContentRevision{}, nil
+}
+
 func TestCreateAppliesDefaults(t *testing.T) {
 	store := &storeStub{}
 	svc := NewContentItemService(store, nil)
