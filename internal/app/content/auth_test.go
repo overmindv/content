@@ -197,11 +197,18 @@ func BenchmarkServiceActor(b *testing.B) {
 
 func newAuthTestClient(t *testing.T, token string) (context.Context, contentpb.ContentServiceClient, *mock.MockContentItemStore) {
 	t.Helper()
+	store := mock.NewMockContentItemStore(gomock.NewController(t))
+	handler := NewServer(service.NewContentItemService(store), nil)
+	ctx, client := newGRPCTestClient(t, token, handler)
+	return ctx, client, store
+}
+
+func newGRPCTestClient(t *testing.T, token string, handler *Server) (context.Context, contentpb.ContentServiceClient) {
+	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	t.Cleanup(cancel)
-	store := mock.NewMockContentItemStore(gomock.NewController(t))
 	listener := bufconn.Listen(64 * 1024)
-	server := newGRPCServer(service.NewContentItemService(store), token)
+	server := newGRPCServer(handler, token)
 	go func() { _ = server.Serve(listener) }()
 	t.Cleanup(server.Stop)
 
@@ -214,5 +221,5 @@ func newAuthTestClient(t *testing.T, token string) (context.Context, contentpb.C
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = conn.Close() })
-	return ctx, contentpb.NewContentServiceClient(conn), store
+	return ctx, contentpb.NewContentServiceClient(conn)
 }

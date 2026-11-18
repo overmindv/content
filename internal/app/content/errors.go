@@ -13,8 +13,10 @@ func toStatusError(err error) error {
 	switch {
 	case err == nil:
 		return nil
-	case errors.Is(err, service.ErrNotFound):
+	case errors.Is(err, service.ErrNotFound), errors.Is(err, service.ErrProposalNotFound):
 		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, service.ErrProposalExists):
+		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):
 		return status.Error(codes.Aborted, err.Error())
 	case errors.Is(err, service.ErrInvalidState):
