@@ -72,63 +72,63 @@ func (mr *MockContentItemStoreMockRecorder) CreateRevision(ctx, input any) *gomo
 }
 
 // Delete mocks base method.
-func (m *MockContentItemStore) Delete(ctx context.Context, id string) (domain.ContentItem, error) {
+func (m *MockContentItemStore) Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret := m.ctrl.Call(m, "Delete", ctx, id, actorID)
 	ret0, _ := ret[0].(domain.ContentItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockContentItemStoreMockRecorder) Delete(ctx, id any) *gomock.Call {
+func (mr *MockContentItemStoreMockRecorder) Delete(ctx, id, actorID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockContentItemStore)(nil).Delete), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockContentItemStore)(nil).Delete), ctx, id, actorID)
 }
 
 // Get mocks base method.
-func (m *MockContentItemStore) Get(ctx context.Context, id string) (domain.ContentItem, error) {
+func (m *MockContentItemStore) Get(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, id)
+	ret := m.ctrl.Call(m, "Get", ctx, id, actorID)
 	ret0, _ := ret[0].(domain.ContentItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockContentItemStoreMockRecorder) Get(ctx, id any) *gomock.Call {
+func (mr *MockContentItemStoreMockRecorder) Get(ctx, id, actorID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockContentItemStore)(nil).Get), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockContentItemStore)(nil).Get), ctx, id, actorID)
 }
 
 // List mocks base method.
-func (m *MockContentItemStore) List(ctx context.Context) ([]domain.ContentItem, error) {
+func (m *MockContentItemStore) List(ctx context.Context, actorID string) ([]domain.ContentItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx)
+	ret := m.ctrl.Call(m, "List", ctx, actorID)
 	ret0, _ := ret[0].([]domain.ContentItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockContentItemStoreMockRecorder) List(ctx any) *gomock.Call {
+func (mr *MockContentItemStoreMockRecorder) List(ctx, actorID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockContentItemStore)(nil).List), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockContentItemStore)(nil).List), ctx, actorID)
 }
 
 // ListRevisions mocks base method.
-func (m *MockContentItemStore) ListRevisions(ctx context.Context, contentItemID string) ([]domain.ContentRevision, error) {
+func (m *MockContentItemStore) ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRevisions", ctx, contentItemID)
+	ret := m.ctrl.Call(m, "ListRevisions", ctx, contentItemID, actorID)
 	ret0, _ := ret[0].([]domain.ContentRevision)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListRevisions indicates an expected call of ListRevisions.
-func (mr *MockContentItemStoreMockRecorder) ListRevisions(ctx, contentItemID any) *gomock.Call {
+func (mr *MockContentItemStoreMockRecorder) ListRevisions(ctx, contentItemID, actorID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockContentItemStore)(nil).ListRevisions), ctx, contentItemID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisions", reflect.TypeOf((*MockContentItemStore)(nil).ListRevisions), ctx, contentItemID, actorID)
 }
 
 // PingContext mocks base method.

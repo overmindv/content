@@ -91,6 +91,31 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 	}
 }
 
+func TestGRPCPassesVerifiedActorToStore(t *testing.T) {
+	ctx, client, store := newAuthTestClient(t, testServiceToken)
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	store.EXPECT().Get(gomock.Any(), testOtherActor, testActor).Return(domain.ContentItem{}, service.ErrNotFound)
+	store.EXPECT().List(gomock.Any(), testActor).Return(nil, nil)
+	store.EXPECT().ListRevisions(gomock.Any(), testOtherActor, testActor).Return(nil, service.ErrNotFound)
+	store.EXPECT().Delete(gomock.Any(), testOtherActor, testActor).Return(domain.ContentItem{}, service.ErrNotFound)
+
+	_, err := client.GetContentItem(ctx, &contentpb.GetContentItemRequest{Id: testOtherActor})
+	if got := status.Code(err); got != codes.NotFound {
+		t.Errorf("GetContentItem status = %v, want NotFound", got)
+	}
+	if _, err = client.ListContentItems(ctx, &contentpb.ListContentItemsRequest{}); err != nil {
+		t.Errorf("ListContentItems: %v", err)
+	}
+	_, err = client.ListContentRevisions(ctx, &contentpb.ListContentRevisionsRequest{ContentItemId: testOtherActor})
+	if got := status.Code(err); got != codes.NotFound {
+		t.Errorf("ListContentRevisions status = %v, want NotFound", got)
+	}
+	_, err = client.DeleteContentItem(ctx, &contentpb.DeleteContentItemRequest{Id: testOtherActor})
+	if got := status.Code(err); got != codes.NotFound {
+		t.Errorf("DeleteContentItem status = %v, want NotFound", got)
+	}
+}
+
 func BenchmarkServiceActor(b *testing.B) {
 	ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
 		"authorization", "Bearer "+testServiceToken, "x-user-id", testActor,

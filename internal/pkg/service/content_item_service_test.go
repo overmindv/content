@@ -33,11 +33,11 @@ func (s *storeStub) Create(_ context.Context, input domain.CreateContentItemInpu
 	return s.item, nil
 }
 
-func (s *storeStub) Get(context.Context, string) (domain.ContentItem, error) {
+func (s *storeStub) Get(context.Context, string, string) (domain.ContentItem, error) {
 	return s.item, nil
 }
 
-func (s *storeStub) List(context.Context) ([]domain.ContentItem, error) {
+func (s *storeStub) List(context.Context, string) ([]domain.ContentItem, error) {
 	return []domain.ContentItem{s.item}, nil
 }
 
@@ -45,7 +45,7 @@ func (s *storeStub) Update(context.Context, domain.UpdateContentItemInput) (doma
 	return s.item, nil
 }
 
-func (s *storeStub) Delete(context.Context, string) (domain.ContentItem, error) {
+func (s *storeStub) Delete(context.Context, string, string) (domain.ContentItem, error) {
 	return s.item, nil
 }
 
@@ -60,7 +60,7 @@ func (s *storeStub) CreateRevision(_ context.Context, input domain.CreateContent
 	}, nil
 }
 
-func (s *storeStub) ListRevisions(context.Context, string) ([]domain.ContentRevision, error) {
+func (s *storeStub) ListRevisions(context.Context, string, string) ([]domain.ContentRevision, error) {
 	return nil, nil
 }
 
