@@ -104,7 +104,7 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 			created_by,
 			updated_by
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
+		VALUES ($1, $2, 'draft', $3, $4, $5, $6, $6)
 	`
 
 	_, err = tx.Exec(
@@ -112,7 +112,6 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 		insertItem,
 		itemID,
 		input.Type,
-		input.Status,
 		input.Title,
 		input.Slug,
 		input.Description,
@@ -161,8 +160,6 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	const updateCurrentRevision = `
 		UPDATE content_items
 		SET current_revision_id = $2,
-		    published_revision_id = CASE WHEN status = 'published' THEN $2 ELSE published_revision_id END,
-		    published_at = CASE WHEN status = 'published' THEN NOW() ELSE published_at END,
 		    updated_at = NOW()
 		WHERE id = $1
 	`
@@ -296,56 +293,31 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	defer func() {
 		_ = tx.Rollback(ctx)
 	}()
+	current, err := lockOwnedContentItem(ctx, tx, input.ID, input.UpdatedBy)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if current.status != domain.ContentStatusDraft {
+		return domain.ContentItem{}, service.ErrInvalidState
+	}
 
 	const query = `
 		UPDATE content_items
 		SET type = $2,
-		    status = $3,
-		    title = $4,
-		    slug = $5,
-		    description = $6,
-		    updated_by = $7,
-		    updated_at = NOW(),
-		    published_revision_id = CASE
-		        WHEN $3 = 'published' THEN current_revision_id
-		        WHEN $3 = 'draft' THEN NULL
-		        ELSE published_revision_id
-		    END,
-		    published_at = CASE
-		        WHEN $3 = 'published' THEN COALESCE(published_at, NOW())
-		        WHEN $3 = 'draft' THEN NULL
-		        ELSE published_at
-		    END,
-		    archived_at = CASE
-		        WHEN $3 = 'archived' THEN COALESCE(archived_at, NOW())
-		        WHEN $3 IN ('draft', 'published') THEN NULL
-		        ELSE archived_at
-		    END
-		WHERE id = $1 AND created_by = $7
-		RETURNING id
+		    title = $3,
+		    slug = $4,
+		    description = $5,
+		    updated_by = $6,
+		    updated_at = NOW()
+		WHERE id = $1
 	`
 
-	var id string
-	err = tx.QueryRow(
-		ctx,
-		query,
-		input.ID,
-		input.Type,
-		input.Status,
-		input.Title,
-		input.Slug,
-		input.Description,
-		nullableString(input.UpdatedBy),
-	).Scan(&id)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.ContentItem{}, service.ErrNotFound
-	}
-	if err != nil {
+	if _, err = tx.Exec(ctx, query, input.ID, input.Type, input.Title, input.Slug, input.Description, input.UpdatedBy); err != nil {
 		return domain.ContentItem{}, err
 	}
 
 	// Событие пишется в outbox атомарно с обновлением айтема.
-	item, err := s.get(ctx, tx, id, input.UpdatedBy)
+	item, err := s.get(ctx, tx, input.ID, input.UpdatedBy)
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
@@ -359,6 +331,56 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	return item, nil
 }
 
+func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error) {
+	if target != domain.ContentStatusPublished && target != domain.ContentStatusArchived {
+		return domain.ContentItem{}, service.ErrInvalidState
+	}
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	current, err := lockOwnedContentItem(ctx, tx, input.ID, input.ActorID)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if current.status == domain.ContentStatusArchived && target != current.status {
+		return domain.ContentItem{}, service.ErrInvalidState
+	}
+	if err = current.checkRevision(input.ExpectedRevisionID); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if target == current.status && (target == domain.ContentStatusArchived || current.publishedRevisionID == current.revisionID) {
+		return s.get(ctx, tx, input.ID, input.ActorID)
+	}
+
+	const query = `
+		UPDATE content_items
+		SET status = $2,
+		    published_revision_id = CASE WHEN $2 = 'published' THEN current_revision_id ELSE published_revision_id END,
+		    published_at = CASE WHEN $2 = 'published' THEN NOW() ELSE published_at END,
+		    archived_at = CASE WHEN $2 = 'archived' THEN NOW() ELSE NULL END,
+		    updated_by = $3,
+		    updated_at = NOW()
+		WHERE id = $1
+	`
+	if _, err = tx.Exec(ctx, query, input.ID, target, input.ActorID); err != nil {
+		return domain.ContentItem{}, err
+	}
+	item, err := s.get(ctx, tx, input.ID, input.ActorID)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return domain.ContentItem{}, err
+	}
+	return item, nil
+}
+
 func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
@@ -367,7 +389,7 @@ func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (doma
 	defer func() {
 		_ = tx.Rollback(ctx)
 	}()
-	if err = lockOwnedContentItem(ctx, tx, id, actorID); err != nil {
+	if _, err = lockOwnedContentItem(ctx, tx, id, actorID); err != nil {
 		return domain.ContentItem{}, err
 	}
 	item, err := s.get(ctx, tx, id, actorID)
@@ -409,7 +431,14 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	}()
 
 	itemID := input.ContentItemID
-	if err = lockOwnedContentItem(ctx, tx, itemID, input.CreatedBy); err != nil {
+	current, err := lockOwnedContentItem(ctx, tx, itemID, input.CreatedBy)
+	if err != nil {
+		return domain.ContentRevision{}, err
+	}
+	if current.status == domain.ContentStatusArchived {
+		return domain.ContentRevision{}, service.ErrInvalidState
+	}
+	if err = current.checkRevision(input.ExpectedRevisionID); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
@@ -528,19 +557,38 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID, act
 	return revisions, nil
 }
 
-func lockOwnedContentItem(ctx context.Context, tx pgx.Tx, id, actorID string) error {
+type lockedContentItem struct {
+	status              domain.ContentStatus
+	revisionID          string
+	publishedRevisionID string
+}
+
+func (item lockedContentItem) checkRevision(expected string) error {
+	if item.revisionID == "" || item.revisionID != expected {
+		return service.ErrRevisionConflict
+	}
+	return nil
+}
+
+func lockOwnedContentItem(ctx context.Context, tx pgx.Tx, id, actorID string) (lockedContentItem, error) {
 	const query = `
-		SELECT id
+		SELECT status, current_revision_id, published_revision_id
 		FROM content_items
 		WHERE id = $1 AND created_by = $2
 		FOR UPDATE
 	`
-	var itemID string
-	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&itemID)
+	var item lockedContentItem
+	var current, published *string
+	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&item.status, &current, &published)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return service.ErrNotFound
+		return lockedContentItem{}, service.ErrNotFound
 	}
-	return err
+	if err != nil {
+		return lockedContentItem{}, err
+	}
+	item.revisionID = stringFromPtr(current)
+	item.publishedRevisionID = stringFromPtr(published)
+	return item, nil
 }
 
 func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id, actorID string) (domain.ContentItem, error) {

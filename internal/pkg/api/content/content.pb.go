@@ -1099,14 +1099,15 @@ func (x *DeleteContentItemResponse) GetItem() *ContentItem {
 }
 
 type CreateContentRevisionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ContentItemId string                 `protobuf:"bytes,1,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
-	Format        string                 `protobuf:"bytes,2,opt,name=format,proto3" json:"format,omitempty"`
-	Source        string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
-	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	ContentItemId      string                 `protobuf:"bytes,1,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
+	Format             string                 `protobuf:"bytes,2,opt,name=format,proto3" json:"format,omitempty"`
+	Source             string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
+	Message            string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	CreatedBy          string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	ExpectedRevisionId string                 `protobuf:"bytes,6,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateContentRevisionRequest) Reset() {
@@ -1170,6 +1171,13 @@ func (x *CreateContentRevisionRequest) GetMessage() string {
 func (x *CreateContentRevisionRequest) GetCreatedBy() string {
 	if x != nil {
 		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *CreateContentRevisionRequest) GetExpectedRevisionId() string {
+	if x != nil {
+		return x.ExpectedRevisionId
 	}
 	return ""
 }
@@ -1306,6 +1314,198 @@ func (x *ListContentRevisionsResponse) GetRevisions() []*ContentRevision {
 	return nil
 }
 
+type PublishContentItemRequest struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ExpectedRevisionId string                 `protobuf:"bytes,2,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *PublishContentItemRequest) Reset() {
+	*x = PublishContentItemRequest{}
+	mi := &file_api_content_content_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishContentItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishContentItemRequest) ProtoMessage() {}
+
+func (x *PublishContentItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishContentItemRequest.ProtoReflect.Descriptor instead.
+func (*PublishContentItemRequest) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *PublishContentItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *PublishContentItemRequest) GetExpectedRevisionId() string {
+	if x != nil {
+		return x.ExpectedRevisionId
+	}
+	return ""
+}
+
+type PublishContentItemResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *ContentItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishContentItemResponse) Reset() {
+	*x = PublishContentItemResponse{}
+	mi := &file_api_content_content_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishContentItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishContentItemResponse) ProtoMessage() {}
+
+func (x *PublishContentItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishContentItemResponse.ProtoReflect.Descriptor instead.
+func (*PublishContentItemResponse) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *PublishContentItemResponse) GetItem() *ContentItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type ArchiveContentItemRequest struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Id                 string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ExpectedRevisionId string                 `protobuf:"bytes,2,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ArchiveContentItemRequest) Reset() {
+	*x = ArchiveContentItemRequest{}
+	mi := &file_api_content_content_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchiveContentItemRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchiveContentItemRequest) ProtoMessage() {}
+
+func (x *ArchiveContentItemRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchiveContentItemRequest.ProtoReflect.Descriptor instead.
+func (*ArchiveContentItemRequest) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ArchiveContentItemRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ArchiveContentItemRequest) GetExpectedRevisionId() string {
+	if x != nil {
+		return x.ExpectedRevisionId
+	}
+	return ""
+}
+
+type ArchiveContentItemResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *ContentItem           `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArchiveContentItemResponse) Reset() {
+	*x = ArchiveContentItemResponse{}
+	mi := &file_api_content_content_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchiveContentItemResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchiveContentItemResponse) ProtoMessage() {}
+
+func (x *ArchiveContentItemResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchiveContentItemResponse.ProtoReflect.Descriptor instead.
+func (*ArchiveContentItemResponse) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ArchiveContentItemResponse) GetItem() *ContentItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
 var File_api_content_content_proto protoreflect.FileDescriptor
 
 const file_api_content_content_proto_rawDesc = "" +
@@ -1407,20 +1607,31 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x18DeleteContentItemRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"O\n" +
 	"\x19DeleteContentItemResponse\x122\n" +
-	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xaf\x01\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xe1\x01\n" +
 	"\x1cCreateContentRevisionRequest\x12&\n" +
 	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\x12\x16\n" +
 	"\x06format\x18\x02 \x01(\tR\x06format\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12\x18\n" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\x05 \x01(\tR\tcreatedBy\"_\n" +
+	"created_by\x18\x05 \x01(\tR\tcreatedBy\x120\n" +
+	"\x14expected_revision_id\x18\x06 \x01(\tR\x12expectedRevisionId\"_\n" +
 	"\x1dCreateContentRevisionResponse\x12>\n" +
 	"\brevision\x18\x01 \x01(\v2\".overmindv.content.ContentRevisionR\brevision\"E\n" +
 	"\x1bListContentRevisionsRequest\x12&\n" +
 	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\"`\n" +
 	"\x1cListContentRevisionsResponse\x12@\n" +
-	"\trevisions\x18\x01 \x03(\v2\".overmindv.content.ContentRevisionR\trevisions2\xa9\x06\n" +
+	"\trevisions\x18\x01 \x03(\v2\".overmindv.content.ContentRevisionR\trevisions\"]\n" +
+	"\x19PublishContentItemRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
+	"\x14expected_revision_id\x18\x02 \x01(\tR\x12expectedRevisionId\"P\n" +
+	"\x1aPublishContentItemResponse\x122\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"]\n" +
+	"\x19ArchiveContentItemRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
+	"\x14expected_revision_id\x18\x02 \x01(\tR\x12expectedRevisionId\"P\n" +
+	"\x1aArchiveContentItemResponse\x122\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item2\x8f\b\n" +
 	"\x0eContentService\x12n\n" +
 	"\x11CreateContentItem\x12+.overmindv.content.CreateContentItemRequest\x1a,.overmindv.content.CreateContentItemResponse\x12e\n" +
 	"\x0eGetContentItem\x12(.overmindv.content.GetContentItemRequest\x1a).overmindv.content.GetContentItemResponse\x12k\n" +
@@ -1428,7 +1639,9 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x11UpdateContentItem\x12+.overmindv.content.UpdateContentItemRequest\x1a,.overmindv.content.UpdateContentItemResponse\x12n\n" +
 	"\x11DeleteContentItem\x12+.overmindv.content.DeleteContentItemRequest\x1a,.overmindv.content.DeleteContentItemResponse\x12z\n" +
 	"\x15CreateContentRevision\x12/.overmindv.content.CreateContentRevisionRequest\x1a0.overmindv.content.CreateContentRevisionResponse\x12w\n" +
-	"\x14ListContentRevisions\x12..overmindv.content.ListContentRevisionsRequest\x1a/.overmindv.content.ListContentRevisionsResponseB?Z=github.com/overmindv/content/internal/pkg/api/content;contentb\x06proto3"
+	"\x14ListContentRevisions\x12..overmindv.content.ListContentRevisionsRequest\x1a/.overmindv.content.ListContentRevisionsResponse\x12q\n" +
+	"\x12PublishContentItem\x12,.overmindv.content.PublishContentItemRequest\x1a-.overmindv.content.PublishContentItemResponse\x12q\n" +
+	"\x12ArchiveContentItem\x12,.overmindv.content.ArchiveContentItemRequest\x1a-.overmindv.content.ArchiveContentItemResponseB?Z=github.com/overmindv/content/internal/pkg/api/content;contentb\x06proto3"
 
 var (
 	file_api_content_content_proto_rawDescOnce sync.Once
@@ -1442,7 +1655,7 @@ func file_api_content_content_proto_rawDescGZIP() []byte {
 	return file_api_content_content_proto_rawDescData
 }
 
-var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_api_content_content_proto_goTypes = []any{
 	(*ContentItem)(nil),                   // 0: overmindv.content.ContentItem
 	(*ContentRevision)(nil),               // 1: overmindv.content.ContentRevision
@@ -1463,19 +1676,23 @@ var file_api_content_content_proto_goTypes = []any{
 	(*CreateContentRevisionResponse)(nil), // 16: overmindv.content.CreateContentRevisionResponse
 	(*ListContentRevisionsRequest)(nil),   // 17: overmindv.content.ListContentRevisionsRequest
 	(*ListContentRevisionsResponse)(nil),  // 18: overmindv.content.ListContentRevisionsResponse
-	(*timestamppb.Timestamp)(nil),         // 19: google.protobuf.Timestamp
+	(*PublishContentItemRequest)(nil),     // 19: overmindv.content.PublishContentItemRequest
+	(*PublishContentItemResponse)(nil),    // 20: overmindv.content.PublishContentItemResponse
+	(*ArchiveContentItemRequest)(nil),     // 21: overmindv.content.ArchiveContentItemRequest
+	(*ArchiveContentItemResponse)(nil),    // 22: overmindv.content.ArchiveContentItemResponse
+	(*timestamppb.Timestamp)(nil),         // 23: google.protobuf.Timestamp
 }
 var file_api_content_content_proto_depIdxs = []int32{
-	19, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
-	19, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
-	19, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
+	23, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
+	23, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
+	23, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: overmindv.content.ContentItem.current_revision:type_name -> overmindv.content.ContentRevision
 	2,  // 5: overmindv.content.ContentItem.tags:type_name -> overmindv.content.Tag
 	3,  // 6: overmindv.content.ContentItem.assets:type_name -> overmindv.content.ContentAsset
-	19, // 7: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
-	19, // 8: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
-	19, // 9: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
+	23, // 7: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
+	23, // 8: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
+	23, // 9: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
 	4,  // 10: overmindv.content.CreateContentItemRequest.assets:type_name -> overmindv.content.CreateContentAsset
 	0,  // 11: overmindv.content.CreateContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	0,  // 12: overmindv.content.GetContentItemResponse.item:type_name -> overmindv.content.ContentItem
@@ -1484,25 +1701,31 @@ var file_api_content_content_proto_depIdxs = []int32{
 	0,  // 15: overmindv.content.DeleteContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 16: overmindv.content.CreateContentRevisionResponse.revision:type_name -> overmindv.content.ContentRevision
 	1,  // 17: overmindv.content.ListContentRevisionsResponse.revisions:type_name -> overmindv.content.ContentRevision
-	5,  // 18: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
-	7,  // 19: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
-	9,  // 20: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
-	11, // 21: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
-	13, // 22: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
-	15, // 23: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
-	17, // 24: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
-	6,  // 25: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
-	8,  // 26: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
-	10, // 27: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
-	12, // 28: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
-	14, // 29: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
-	16, // 30: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
-	18, // 31: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
-	25, // [25:32] is the sub-list for method output_type
-	18, // [18:25] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	0,  // 18: overmindv.content.PublishContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	0,  // 19: overmindv.content.ArchiveContentItemResponse.item:type_name -> overmindv.content.ContentItem
+	5,  // 20: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
+	7,  // 21: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
+	9,  // 22: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
+	11, // 23: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
+	13, // 24: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
+	15, // 25: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
+	17, // 26: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
+	19, // 27: overmindv.content.ContentService.PublishContentItem:input_type -> overmindv.content.PublishContentItemRequest
+	21, // 28: overmindv.content.ContentService.ArchiveContentItem:input_type -> overmindv.content.ArchiveContentItemRequest
+	6,  // 29: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
+	8,  // 30: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
+	10, // 31: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
+	12, // 32: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
+	14, // 33: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
+	16, // 34: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
+	18, // 35: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
+	20, // 36: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
+	22, // 37: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
+	29, // [29:38] is the sub-list for method output_type
+	20, // [20:29] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_api_content_content_proto_init() }
@@ -1516,7 +1739,7 @@ func file_api_content_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_content_content_proto_rawDesc), len(file_api_content_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -5,12 +5,41 @@ import (
 
 	"github.com/overmindv/content/internal/app/content/mapper"
 	contentpb "github.com/overmindv/content/internal/pkg/api/content"
+	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 )
 
 type Server struct {
 	contentpb.UnimplementedContentServiceServer
 	itemService *service.ContentItemService
+}
+
+func (s *Server) PublishContentItem(ctx context.Context, req *contentpb.PublishContentItemRequest) (*contentpb.PublishContentItemResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Publish(ctx, domain.ChangeContentItemStateInput{
+		ID: req.GetId(), ExpectedRevisionID: req.GetExpectedRevisionId(), ActorID: actor,
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+	return &contentpb.PublishContentItemResponse{Item: mapper.ToProto(item)}, nil
+}
+
+func (s *Server) ArchiveContentItem(ctx context.Context, req *contentpb.ArchiveContentItemRequest) (*contentpb.ArchiveContentItemResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Archive(ctx, domain.ChangeContentItemStateInput{
+		ID: req.GetId(), ExpectedRevisionID: req.GetExpectedRevisionId(), ActorID: actor,
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+	return &contentpb.ArchiveContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
 func NewServer(itemService *service.ContentItemService) *Server {

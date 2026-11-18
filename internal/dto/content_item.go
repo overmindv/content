@@ -25,11 +25,12 @@ type UpdateContentItem struct {
 }
 
 type CreateContentRevision struct {
-	ContentItemID string
-	Format        string
-	Source        string
-	Message       string
-	CreatedBy     string
+	ContentItemID      string
+	ExpectedRevisionID string
+	Format             string
+	Source             string
+	Message            string
+	CreatedBy          string
 }
 
 type CreateContentAsset struct {

@@ -41,6 +41,21 @@ func (m *MockContentItemStore) EXPECT() *MockContentItemStoreMockRecorder {
 	return m.recorder
 }
 
+// ChangeState mocks base method.
+func (m *MockContentItemStore) ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeState", ctx, input, target)
+	ret0, _ := ret[0].(domain.ContentItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangeState indicates an expected call of ChangeState.
+func (mr *MockContentItemStoreMockRecorder) ChangeState(ctx, input, target any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeState", reflect.TypeOf((*MockContentItemStore)(nil).ChangeState), ctx, input, target)
+}
+
 // Create mocks base method.
 func (m *MockContentItemStore) Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()

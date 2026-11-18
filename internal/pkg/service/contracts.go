@@ -11,7 +11,11 @@ import (
 // outbox (в той же транзакции, что и бизнес-изменение), поэтому сервис не держит
 // собственного publisher-контракта.
 
-var ErrNotFound = errors.New("content item not found")
+var (
+	ErrNotFound         = errors.New("content item not found")
+	ErrRevisionConflict = errors.New("current revision changed")
+	ErrInvalidState     = errors.New("operation is not allowed in this content state")
+)
 
 type ContentItemStore interface {
 	PingContext(ctx context.Context) error
@@ -19,6 +23,7 @@ type ContentItemStore interface {
 	Get(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	List(ctx context.Context, actorID string) ([]domain.ContentItem, error)
 	Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error)
+	ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error)
 	Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error)
 	ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error)

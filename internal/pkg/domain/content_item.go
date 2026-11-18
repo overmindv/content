@@ -110,11 +110,18 @@ type UpdateContentItemInput struct {
 }
 
 type CreateContentRevisionInput struct {
-	ContentItemID string
-	Format        ContentFormat
-	Source        string
-	Message       string
-	CreatedBy     string
+	ContentItemID      string
+	ExpectedRevisionID string
+	Format             ContentFormat
+	Source             string
+	Message            string
+	CreatedBy          string
+}
+
+type ChangeContentItemStateInput struct {
+	ID                 string
+	ExpectedRevisionID string
+	ActorID            string
 }
 
 type CreateContentAssetInput struct {

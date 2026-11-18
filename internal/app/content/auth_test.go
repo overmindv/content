@@ -68,7 +68,7 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 		return input.UpdatedBy == testActor
 	})).Return(domain.ContentItem{UpdatedBy: testActor}, nil)
 	store.EXPECT().CreateRevision(gomock.Any(), gomock.Cond(func(input domain.CreateContentRevisionInput) bool {
-		return input.CreatedBy == testActor
+		return input.CreatedBy == testActor && input.ExpectedRevisionID == testActor
 	})).Return(domain.ContentRevision{CreatedBy: testActor}, nil)
 
 	created, err := client.CreateContentItem(ctx, &contentpb.CreateContentItemRequest{
@@ -84,10 +84,45 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 		t.Errorf("UpdateContentItem did not use the verified actor: %v", err)
 	}
 	revision, err := client.CreateContentRevision(ctx, &contentpb.CreateContentRevisionRequest{
-		ContentItemId: testActor, Source: "# Go", CreatedBy: testOtherActor,
+		ContentItemId: testActor, Source: "# Go", CreatedBy: testOtherActor, ExpectedRevisionId: testActor,
 	})
 	if err != nil || revision.GetRevision().GetCreatedBy() != testActor {
 		t.Errorf("CreateContentRevision did not use the verified actor: %v", err)
+	}
+}
+
+func TestGRPCRevisionState(t *testing.T) {
+	ctx, client, store := newAuthTestClient(t, testServiceToken)
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	state := domain.ChangeContentItemStateInput{ID: testOtherActor, ActorID: testActor, ExpectedRevisionID: testActor}
+	store.EXPECT().ChangeState(gomock.Any(), state, domain.ContentStatusPublished).
+		Return(domain.ContentItem{}, service.ErrRevisionConflict)
+	store.EXPECT().ChangeState(gomock.Any(), state, domain.ContentStatusArchived).
+		Return(domain.ContentItem{Status: domain.ContentStatusArchived}, nil)
+
+	_, err := client.CreateContentItem(ctx, &contentpb.CreateContentItemRequest{
+		Type: "article", Status: "published", Title: "Go", Slug: "go", Source: "# Go",
+	})
+	if status.Code(err) != codes.InvalidArgument {
+		t.Errorf("CreateContentItem with published status: %v", err)
+	}
+	_, err = client.UpdateContentItem(ctx, &contentpb.UpdateContentItemRequest{
+		Id: testOtherActor, Type: "article", Status: "published", Title: "Go", Slug: "go",
+	})
+	if status.Code(err) != codes.InvalidArgument {
+		t.Errorf("UpdateContentItem with published status: %v", err)
+	}
+	_, err = client.CreateContentRevision(ctx, &contentpb.CreateContentRevisionRequest{ContentItemId: testOtherActor, Source: "# Go"})
+	if status.Code(err) != codes.InvalidArgument {
+		t.Errorf("CreateContentRevision without expected revision: %v", err)
+	}
+	_, err = client.PublishContentItem(ctx, &contentpb.PublishContentItemRequest{Id: testOtherActor, ExpectedRevisionId: testActor})
+	if status.Code(err) != codes.Aborted {
+		t.Errorf("PublishContentItem with stale revision: %v", err)
+	}
+	archived, err := client.ArchiveContentItem(ctx, &contentpb.ArchiveContentItemRequest{Id: testOtherActor, ExpectedRevisionId: testActor})
+	if err != nil || archived.GetItem().GetStatus() != "archived" {
+		t.Errorf("ArchiveContentItem with current revision: %v", err)
 	}
 }
 
