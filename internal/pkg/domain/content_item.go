@@ -69,6 +69,13 @@ type ContentRevision struct {
 	RestoredFromRevisionID string `json:",omitempty"`
 }
 
+type RevisionHistoryInput struct {
+	ContentItemID  string
+	ActorID        string
+	PageSize       int32
+	BeforeRevision int32
+}
+
 type Tag struct {
 	ID        string
 	Name      string

@@ -80,6 +80,10 @@ func (s *storeStub) ListRevisions(context.Context, string, string) ([]domain.Con
 	return nil, nil
 }
 
+func (s *storeStub) ListRevisionHistory(context.Context, domain.RevisionHistoryInput) ([]domain.ContentRevision, error) {
+	return nil, nil
+}
+
 func (s *storeStub) RestorePublishedRevision(context.Context, domain.RestorePublishedRevisionInput) (domain.ContentRevision, error) {
 	return domain.ContentRevision{}, nil
 }
