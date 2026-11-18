@@ -303,6 +303,12 @@ message ReviewDecision {
   string decision = 2;
   string reason = 3;
   google.protobuf.Timestamp created_at = 4;
+  bool legacy = 5;
+}
+
+message ReviewAssignment {
+  string reviewer_id = 1;
+  int32 slot = 2;
 }
 
 message CreateReviewThreadRequest {
@@ -379,6 +385,10 @@ message GetReviewRevisionStatusResponse {
   string revision_id = 1;
   bool current = 2;
   repeated ReviewDecision decisions = 3;
+  repeated ReviewAssignment assignments = 4;
+  string outcome = 5;
+  string wait_reason = 6;
+  string topic_id = 7;
 }
 
 service ContentService {

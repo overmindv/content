@@ -30,7 +30,11 @@ func TestGRPCChangeReview(t *testing.T) {
 		ReviewRevisionRef: ref, Decision: domain.ReviewApprove,
 	}).Return(domain.ReviewDecision{}, service.ErrReviewNotAllowed)
 	store.EXPECT().GetReviewRevisionStatus(gomock.Any(), ref).
-		Return(domain.ReviewRevisionStatus{RevisionID: testOtherActor, Decisions: []domain.ReviewDecision{{ReviewerID: testActor, Decision: domain.ReviewApprove}}}, nil)
+		Return(domain.ReviewRevisionStatus{
+			RevisionID: testOtherActor, TopicID: testOtherActor,
+			Assignments: []domain.ReviewAssignment{{Slot: 1, ReviewerID: testActor, Decision: domain.ReviewApprove}},
+			Decisions:   []domain.ReviewDecision{{ReviewerID: testActor, Decision: domain.ReviewApprove}},
+		}, nil)
 
 	response, err := client.CreateReviewThread(ctx, thread)
 	if err != nil || response.GetThread().GetId() != 5 || response.GetThread().GetAuthorId() != testActor || response.GetThread().GetResolved() {
@@ -50,5 +54,9 @@ func TestGRPCChangeReview(t *testing.T) {
 	review, err := client.GetReviewRevisionStatus(ctx, &contentpb.GetReviewRevisionStatusRequest{ProposalId: testOtherActor, RevisionId: testOtherActor})
 	if err != nil || review.GetCurrent() || len(review.GetDecisions()) != 1 {
 		t.Errorf("historical review: %+v, %v", review, err)
+	}
+	if review.GetOutcome() != "waiting_candidates" || review.GetWaitReason() != "initial_reviewers" ||
+		review.GetTopicId() != testOtherActor || len(review.GetAssignments()) != 1 || review.GetAssignments()[0].GetReviewerId() != testActor {
+		t.Errorf("review assignments: %+v", review)
 	}
 }
