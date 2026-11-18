@@ -48,8 +48,11 @@ func ValidateCreateContentItem(input domain.CreateContentItemInput) error {
 	if !isAllowedContentFormat(input.Format) {
 		return Error{Message: "format must be one of: markdown, typst"}
 	}
-	if strings.TrimSpace(input.Source) == "" {
-		return Error{Message: "source is required"}
+	if err := validateSource(input.Format, input.Source); err != nil {
+		return err
+	}
+	if err := ValidateAssetCount(len(input.Assets)); err != nil {
+		return err
 	}
 	for _, tag := range input.Tags {
 		if strings.TrimSpace(tag) == "" {
@@ -98,11 +101,7 @@ func ValidateCreateContentRevision(input domain.CreateContentRevisionInput) erro
 	if !isAllowedContentFormat(input.Format) {
 		return Error{Message: "format must be one of: markdown, typst"}
 	}
-	if strings.TrimSpace(input.Source) == "" {
-		return Error{Message: "source is required"}
-	}
-
-	return nil
+	return validateSource(input.Format, input.Source)
 }
 
 func ValidateExpectedRevisionID(value string) error {

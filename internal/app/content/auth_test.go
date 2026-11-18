@@ -3,6 +3,7 @@ package content
 import (
 	"context"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/validator"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -123,6 +125,26 @@ func TestGRPCRevisionState(t *testing.T) {
 	archived, err := client.ArchiveContentItem(ctx, &contentpb.ArchiveContentItemRequest{Id: testOtherActor, ExpectedRevisionId: testActor})
 	if err != nil || archived.GetItem().GetStatus() != "archived" {
 		t.Errorf("ArchiveContentItem with current revision: %v", err)
+	}
+}
+
+func TestGRPCRejectsUnsupportedSource(t *testing.T) {
+	ctx, client, _ := newAuthTestClient(t, testServiceToken)
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	for _, tt := range []struct {
+		source string
+		code   codes.Code
+	}{
+		{"<p>Example</p>", codes.InvalidArgument},
+		{strings.Repeat(" ", validator.MaxSourceBytes) + "# Go", codes.InvalidArgument},
+		{strings.Repeat("x", 512*1024), codes.ResourceExhausted},
+	} {
+		_, err := client.CreateContentItem(ctx, &contentpb.CreateContentItemRequest{
+			Type: "article", Title: "Go", Slug: "go", Source: tt.source,
+		})
+		if got := status.Code(err); got != tt.code {
+			t.Errorf("CreateContentItem status = %v, want %v", got, tt.code)
+		}
 	}
 }
 

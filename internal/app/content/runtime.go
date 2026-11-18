@@ -71,7 +71,10 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, itemService *service.Co
 }
 
 func newGRPCServer(itemService *service.ContentItemService, serviceToken string) *grpc.Server {
-	server := grpc.NewServer(grpc.UnaryInterceptor(requireServiceActor(serviceToken)))
+	server := grpc.NewServer(
+		grpc.MaxRecvMsgSize(512*1024),
+		grpc.UnaryInterceptor(requireServiceActor(serviceToken)),
+	)
 	contentpb.RegisterContentServiceServer(server, NewServer(itemService))
 	reflection.Register(server)
 	return server
