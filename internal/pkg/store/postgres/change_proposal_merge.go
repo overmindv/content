@@ -70,7 +70,8 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 		if state != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished {
 			return service.ErrInvalidState
 		}
-		if err = validateMergeReview(ctx, tx, input, material, originalBase); err != nil {
+		review, err := validateMergeReview(ctx, tx, input, material, originalBase)
+		if err != nil {
 			return err
 		}
 		revisionID, err := insertMergedRevision(ctx, tx, input, material, author)
@@ -80,14 +81,19 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 		if err = publishMergedRevision(ctx, tx, input, material.id, revisionID); err != nil {
 			return err
 		}
-		if s.outboxEnabled && s.outboxTopic != "" {
-			item, err := s.get(ctx, tx, material.id, "")
-			if err != nil {
-				return err
-			}
-			if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
-				return err
-			}
+		item, err := s.get(ctx, tx, material.id, "")
+		if err != nil {
+			return err
+		}
+		if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
+			return err
+		}
+		version, err := s.recordMaterialState(ctx, tx, item, false)
+		if err != nil {
+			return err
+		}
+		if err = s.enqueueEditorialActivity(ctx, tx, item, version, input, author, review); err != nil {
+			return err
 		}
 		result = domain.MergeChangeProposalResult{ContentItemID: material.id, PublishedRevisionID: revisionID}
 		return nil
@@ -98,29 +104,35 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 	return result, nil
 }
 
-func validateMergeReview(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, originalBase string) error {
+type mergeReview struct {
+	topicID     string
+	assignments []domain.ReviewAssignment
+}
+
+func validateMergeReview(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, originalBase string) (mergeReview, error) {
 	const query = `
-		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false)
+		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false), review_topic_id
 		FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
 	var base string
 	var verified bool
-	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).Scan(&base, &verified); err != nil {
-		return err
+	var topic *string
+	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).Scan(&base, &verified, &topic); err != nil {
+		return mergeReview{}, err
 	}
 	if base != material.publishedRevisionID {
-		return service.ErrMergeConflict
+		return mergeReview{}, service.ErrMergeConflict
 	}
-	if !verified {
-		return service.ErrReviewRequired
+	if !verified || topic == nil {
+		return mergeReview{}, service.ErrReviewRequired
 	}
 	assignments, err := loadActiveAssignments(ctx, tx, input.ProposalID, input.ExpectedHeadID)
 	if err != nil {
-		return err
+		return mergeReview{}, err
 	}
 	if outcome, _ := (domain.ReviewRevisionStatus{Assignments: assignments}).Outcome(); outcome != domain.ReviewApproved {
-		return service.ErrReviewRequired
+		return mergeReview{}, service.ErrReviewRequired
 	}
-	return nil
+	return mergeReview{topicID: *topic, assignments: assignments}, nil
 }
 
 func insertMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, author string) (string, error) {

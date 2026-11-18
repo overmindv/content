@@ -45,6 +45,14 @@ func (s *storeStub) ListCatalog(context.Context, domain.CatalogFilter, *domain.C
 	return nil, nil
 }
 
+func (s *storeStub) SnapshotMaterials(context.Context, domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error) {
+	return domain.MaterialSnapshot{}, nil
+}
+
+func (s *storeStub) ConfirmMaterialRead(context.Context, domain.ConfirmMaterialReadInput) error {
+	return nil
+}
+
 func (s *storeStub) Update(context.Context, domain.UpdateContentItemInput) (domain.ContentItem, error) {
 	return s.item, nil
 }

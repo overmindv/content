@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net"
+	"strings"
 
 	"github.com/overmindv/content/internal/config"
 	"github.com/overmindv/content/internal/pkg/service"
@@ -37,8 +38,18 @@ func Build(app *parker.App) error {
 	}
 
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
-	store := postgres.NewContentItemStore(pool,
-		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic))
+	options := []postgres.StoreOption{postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic)}
+	if cfg.Kafka.Enabled && cfg.Kafka.ActivityEnabled {
+		seen := map[string]bool{cfg.Kafka.Topic: true}
+		for _, topic := range []string{cfg.Kafka.MaterialTopic, cfg.Kafka.ContributionTopic, cfg.Kafka.LearningTopic} {
+			if !validActivityTopic(topic) || seen[topic] {
+				return errors.New("content activity requires distinct valid Kafka topics")
+			}
+			seen[topic] = true
+		}
+		options = append(options, postgres.WithActivityOutbox(cfg.Kafka.MaterialTopic, cfg.Kafka.ContributionTopic, cfg.Kafka.LearningTopic))
+	}
+	store := postgres.NewContentItemStore(pool, options...)
 
 	if cfg.ReviewCandidatesURL != "" || cfg.ReviewCandidatesToken != "" {
 		if cfg.ReviewCandidatesToken == cfg.GRPC.ServiceToken && cfg.ReviewCandidatesToken != "" {
@@ -75,6 +86,13 @@ func Build(app *parker.App) error {
 	})
 
 	return nil
+}
+
+func validActivityTopic(topic string) bool {
+	return len(topic) > 0 && len(topic) <= 249 && topic != "." && topic != ".." &&
+		strings.IndexFunc(topic, func(r rune) bool {
+			return !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '.' || r == '_' || r == '-')
+		}) < 0
 }
 
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {

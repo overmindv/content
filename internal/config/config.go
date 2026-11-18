@@ -4,6 +4,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/overmindv/content/pkg/api/activity"
 )
 
 const ServiceName = "content"
@@ -22,8 +24,12 @@ type GRPCConfig struct {
 }
 
 type KafkaConfig struct {
-	Enabled bool
-	Topic   string
+	Enabled           bool
+	Topic             string
+	ActivityEnabled   bool
+	MaterialTopic     string
+	ContributionTopic string
+	LearningTopic     string
 	// PollInterval — период опроса transaction outbox диспетчером.
 	PollInterval time.Duration
 }
@@ -38,9 +44,13 @@ func Load() Config {
 			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),
 		},
 		Kafka: KafkaConfig{
-			Enabled:      envBool("KAFKA_ENABLED", true),
-			Topic:        env("KAFKA_TOPIC", "content.content-item-events"),
-			PollInterval: envDuration("KAFKA_OUTBOX_POLL_INTERVAL", 500*time.Millisecond),
+			Enabled:           envBool("KAFKA_ENABLED", true),
+			Topic:             env("KAFKA_TOPIC", "content.content-item-events"),
+			ActivityEnabled:   envBool("CONTENT_ACTIVITY_ENABLED", false),
+			MaterialTopic:     env("KAFKA_CONTENT_MATERIAL_TOPIC", activity.DefaultMaterialTopic),
+			ContributionTopic: env("KAFKA_CONTENT_CONTRIBUTION_TOPIC", activity.DefaultContributionTopic),
+			LearningTopic:     env("KAFKA_CONTENT_LEARNING_TOPIC", activity.DefaultLearningTopic),
+			PollInterval:      envDuration("KAFKA_OUTBOX_POLL_INTERVAL", 500*time.Millisecond),
 		},
 	}
 }
