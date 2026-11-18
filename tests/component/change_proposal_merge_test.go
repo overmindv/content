@@ -185,6 +185,13 @@ func TestMergeProposalConflictAndRebase(t *testing.T) {
 	}
 
 	stale := conflict.proposal
+	actor := domain.ReviewActor{ProposalID: stale.ID, ActorID: owner}
+	thread, err := store.CreateReviewThread(ctx, domain.CreateReviewThreadInput{
+		ReviewActor: actor, RevisionID: stale.Head.ID, Body: "Check the example",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	staleState, err := store.GetChangeProposal(ctx, stale.ID, stale.AuthorID)
 	if err != nil || !staleState.BaseOutdated || staleState.Status != domain.ChangeProposalOpen {
 		t.Fatalf("conflict missing from proposal: %+v, %v", staleState, err)
@@ -228,12 +235,32 @@ func TestMergeProposalConflictAndRebase(t *testing.T) {
 	if _, err = store.MergeChangeProposal(ctx, mergeInput(stale)); !errors.Is(err, service.ErrRevisionConflict) {
 		t.Errorf("stale head merged: %v", err)
 	}
-	if _, err = store.MergeChangeProposal(ctx, mergeInput(next)); !errors.Is(err, service.ErrReviewRequired) {
-		t.Errorf("previous approvals carried into rebase: %v", err)
+	ref := domain.ReviewRevisionRef{ReviewActor: actor, RevisionID: next.Head.ID}
+	status, err := store.GetReviewRevisionStatus(ctx, ref)
+	if err != nil || !status.HasUnresolvedDiscussions {
+		t.Errorf("open discussion on an older revision was not reported: %v", err)
+	}
+	if outcome, _ := status.Outcome(); outcome == domain.ReviewApproved {
+		t.Error("previous approvals carried into rebase")
+	}
+	if _, err = store.MergeChangeProposal(ctx, mergeInput(next)); !errors.Is(err, service.ErrUnresolvedDiscussions) {
+		t.Errorf("merge with unresolved discussion: %v", err)
 	}
 	assign(next)
 	vote(next, owner)
 	vote(next, peer)
+	if _, err = store.MergeChangeProposal(ctx, mergeInput(next)); !errors.Is(err, service.ErrUnresolvedDiscussions) {
+		t.Errorf("quorum bypassed the discussion: %v", err)
+	}
+	assertPublication(publishedID, 3, 4)
+	threadRef := domain.ReviewThreadRef{ReviewActor: actor, ThreadID: thread.ID}
+	if _, err = store.SetReviewThreadResolved(ctx, threadRef, true); err != nil {
+		t.Fatal(err)
+	}
+	status, err = store.GetReviewRevisionStatus(ctx, ref)
+	if err != nil || status.HasUnresolvedDiscussions {
+		t.Errorf("resolved discussion still reported as open: %v", err)
+	}
 	last, err := store.MergeChangeProposal(ctx, mergeInput(next))
 	if err != nil {
 		t.Fatal(err)
@@ -243,4 +270,7 @@ func TestMergeProposalConflictAndRebase(t *testing.T) {
 		t.Errorf("repeat merge did not return its original publication: %+v, %v", repeated, err)
 	}
 	assertPublication(last.PublishedRevisionID, 4, 5)
+	if _, err = store.SetReviewThreadResolved(ctx, threadRef, false); !errors.Is(err, service.ErrInvalidState) {
+		t.Errorf("discussion was reopened after merge: %v", err)
+	}
 }

@@ -123,17 +123,22 @@ type mergeReview struct {
 
 func validateMergeReview(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput, material proposalMaterial, originalBase string) (mergeReview, error) {
 	const query = `
-		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false), review_topic_id, attachments_snapshot
+		SELECT COALESCE(base_revision_id, $3), COALESCE(review_verified_until > statement_timestamp(), false),
+		       review_topic_id, attachments_snapshot, ` + unresolvedDiscussions + `
 		FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
 	var base string
-	var verified bool
+	var verified, unresolved bool
 	var topic *string
 	var attachmentsSnapshot bool
-	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).Scan(&base, &verified, &topic, &attachmentsSnapshot); err != nil {
+	if err := tx.QueryRow(ctx, query, input.ProposalID, input.ExpectedHeadID, originalBase).
+		Scan(&base, &verified, &topic, &attachmentsSnapshot, &unresolved); err != nil {
 		return mergeReview{}, err
 	}
 	if base != material.publishedRevisionID {
 		return mergeReview{}, service.ErrMergeConflict
+	}
+	if unresolved {
+		return mergeReview{}, service.ErrUnresolvedDiscussions
 	}
 	if !verified || topic == nil {
 		return mergeReview{}, service.ErrReviewRequired

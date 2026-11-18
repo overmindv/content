@@ -454,6 +454,7 @@ message GetReviewRevisionStatusResponse {
   string outcome = 5;
   string wait_reason = 6;
   string topic_id = 7;
+  optional bool has_unresolved_discussions = 8;
 }
 
 message RebaseChangeProposalRequest {

@@ -13,6 +13,9 @@ import (
 
 const reviewThreadColumns = `id, revision_id, line_number, author_id, body, created_at, resolved_at, resolved_by`
 const reviewReplyColumns = `id, author_id, body, created_at`
+const unresolvedDiscussions = `EXISTS (
+	SELECT 1 FROM content_change_review_threads WHERE proposal_id = $1 AND resolved_at IS NULL
+)`
 
 func (s *ContentItemStore) CreateReviewThread(ctx context.Context, input domain.CreateReviewThreadInput) (domain.ReviewThread, error) {
 	return writeReview(ctx, s, input.ReviewActor, func(tx pgx.Tx, _ reviewScope) (domain.ReviewThread, error) {

@@ -117,6 +117,7 @@ func (s *Server) GetReviewRevisionStatus(ctx context.Context, req *contentpb.Get
 	return &contentpb.GetReviewRevisionStatusResponse{
 		RevisionId: status.RevisionID, Current: status.Current, Decisions: decisions, Assignments: assignments,
 		Outcome: string(outcome), WaitReason: string(wait), TopicId: status.TopicID,
+		HasUnresolvedDiscussions: &status.HasUnresolvedDiscussions,
 	}, nil
 }
 

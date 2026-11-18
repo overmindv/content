@@ -4440,16 +4440,17 @@ func (x *GetReviewRevisionStatusRequest) GetRevisionId() string {
 }
 
 type GetReviewRevisionStatusResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RevisionId    string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
-	Current       bool                   `protobuf:"varint,2,opt,name=current,proto3" json:"current,omitempty"`
-	Decisions     []*ReviewDecision      `protobuf:"bytes,3,rep,name=decisions,proto3" json:"decisions,omitempty"`
-	Assignments   []*ReviewAssignment    `protobuf:"bytes,4,rep,name=assignments,proto3" json:"assignments,omitempty"`
-	Outcome       string                 `protobuf:"bytes,5,opt,name=outcome,proto3" json:"outcome,omitempty"`
-	WaitReason    string                 `protobuf:"bytes,6,opt,name=wait_reason,json=waitReason,proto3" json:"wait_reason,omitempty"`
-	TopicId       string                 `protobuf:"bytes,7,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	RevisionId               string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	Current                  bool                   `protobuf:"varint,2,opt,name=current,proto3" json:"current,omitempty"`
+	Decisions                []*ReviewDecision      `protobuf:"bytes,3,rep,name=decisions,proto3" json:"decisions,omitempty"`
+	Assignments              []*ReviewAssignment    `protobuf:"bytes,4,rep,name=assignments,proto3" json:"assignments,omitempty"`
+	Outcome                  string                 `protobuf:"bytes,5,opt,name=outcome,proto3" json:"outcome,omitempty"`
+	WaitReason               string                 `protobuf:"bytes,6,opt,name=wait_reason,json=waitReason,proto3" json:"wait_reason,omitempty"`
+	TopicId                  string                 `protobuf:"bytes,7,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	HasUnresolvedDiscussions *bool                  `protobuf:"varint,8,opt,name=has_unresolved_discussions,json=hasUnresolvedDiscussions,proto3,oneof" json:"has_unresolved_discussions,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *GetReviewRevisionStatusResponse) Reset() {
@@ -4529,6 +4530,13 @@ func (x *GetReviewRevisionStatusResponse) GetTopicId() string {
 		return x.TopicId
 	}
 	return ""
+}
+
+func (x *GetReviewRevisionStatusResponse) GetHasUnresolvedDiscussions() bool {
+	if x != nil && x.HasUnresolvedDiscussions != nil {
+		return *x.HasUnresolvedDiscussions
+	}
+	return false
 }
 
 type RebaseChangeProposalRequest struct {
@@ -5669,7 +5677,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12\x1f\n" +
 	"\vrevision_id\x18\x02 \x01(\tR\n" +
-	"revisionId\"\xba\x02\n" +
+	"revisionId\"\x9c\x03\n" +
 	"\x1fGetReviewRevisionStatusResponse\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\x12\x18\n" +
@@ -5679,7 +5687,9 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\aoutcome\x18\x05 \x01(\tR\aoutcome\x12\x1f\n" +
 	"\vwait_reason\x18\x06 \x01(\tR\n" +
 	"waitReason\x12\x19\n" +
-	"\btopic_id\x18\a \x01(\tR\atopicId\"\x88\x02\n" +
+	"\btopic_id\x18\a \x01(\tR\atopicId\x12A\n" +
+	"\x1ahas_unresolved_discussions\x18\b \x01(\bH\x00R\x18hasUnresolvedDiscussions\x88\x01\x01B\x1d\n" +
+	"\x1b_has_unresolved_discussions\"\x88\x02\n" +
 	"\x1bRebaseChangeProposalRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12(\n" +
@@ -6029,6 +6039,7 @@ func file_api_content_content_proto_init() {
 	if File_api_content_content_proto != nil {
 		return
 	}
+	file_api_content_content_proto_msgTypes[70].OneofWrappers = []any{}
 	file_api_content_content_proto_msgTypes[77].OneofWrappers = []any{}
 	file_api_content_content_proto_msgTypes[83].OneofWrappers = []any{}
 	type x struct{}

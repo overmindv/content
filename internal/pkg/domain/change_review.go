@@ -80,12 +80,13 @@ type ReviewDecision struct {
 }
 
 type ReviewRevisionStatus struct {
-	RevisionID       string
-	Current          bool
-	TopicID          string
-	Assignments      []ReviewAssignment
-	Decisions        []ReviewDecision
-	EligibilityStale bool
+	RevisionID               string
+	Current                  bool
+	TopicID                  string
+	Assignments              []ReviewAssignment
+	Decisions                []ReviewDecision
+	EligibilityStale         bool
+	HasUnresolvedDiscussions bool
 }
 
 type ReviewAssignment struct {

@@ -137,6 +137,7 @@ func (s *ContentItemStore) GetReviewRevisionStatus(ctx context.Context, ref doma
 	query := `
 		SELECT r.id, (p.status = 'open' AND r.id = p.head_revision_id), r.review_topic_id,
 		       COALESCE(r.review_verified_until > statement_timestamp(), false),
+		       ` + unresolvedDiscussions + `,
 		       vote.reviewer_id, vote.slot, vote.decision, vote.reason, vote.decided_at
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
@@ -162,7 +163,8 @@ func (s *ContentItemStore) GetReviewRevisionStatus(ctx context.Context, ref doma
 		var verified bool
 		var slot *int16
 		var createdAt *time.Time
-		if err = rows.Scan(&revisionID, &current, &topicID, &verified, &reviewer, &slot, &kind, &reason, &createdAt); err != nil {
+		if err = rows.Scan(&revisionID, &current, &topicID, &verified, &status.HasUnresolvedDiscussions,
+			&reviewer, &slot, &kind, &reason, &createdAt); err != nil {
 			return domain.ReviewRevisionStatus{}, err
 		}
 		if revisionID == nil {

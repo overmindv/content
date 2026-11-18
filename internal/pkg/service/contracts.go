@@ -20,6 +20,7 @@ var (
 	ErrProposalRevisionNotFound  = errors.New("change proposal revision not found")
 	ErrMergeConflict             = errors.New("MERGE_CONFLICT")
 	ErrReviewRequired            = errors.New("current revision requires an active review approval")
+	ErrUnresolvedDiscussions     = errors.New("UNRESOLVED_DISCUSSIONS")
 	ErrProposalDiffBusy          = errors.New("too many proposal diff requests")
 	ErrReviewThreadNotFound      = errors.New("review thread not found")
 	ErrReviewNotAllowed          = errors.New("only an assigned reviewer can submit a decision")
