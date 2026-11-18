@@ -60,6 +60,22 @@ func TestGRPCRequiresServiceActor(t *testing.T) {
 	})
 }
 
+func TestGRPCPublishedReadRequiresActorButDoesNotSelectDraft(t *testing.T) {
+	store := mock.NewMockContentItemStore(gomock.NewController(t))
+	handler := NewServer(service.NewContentItemService(store, nil), nil, nil)
+	ctx, client := newGRPCTestClient(t, testServiceToken, handler)
+	req := &contentpb.GetContentItemRequest{Id: testOtherActor}
+	if _, err := client.GetPublishedContentItem(ctx, req); status.Code(err) != codes.Unauthenticated {
+		t.Errorf("published read without actor: %v", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	store.EXPECT().Get(gomock.Any(), testOtherActor, "").Return(domain.ContentItem{ID: testOtherActor}, nil)
+	result, err := client.GetPublishedContentItem(ctx, req)
+	if err != nil || result.GetItem().GetId() != testOtherActor {
+		t.Errorf("published response: %v", err)
+	}
+}
+
 func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 	ctx, client, store := newAuthTestClient(t, testServiceToken)
 	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
