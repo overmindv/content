@@ -48,6 +48,26 @@ func (s *ChangeProposalService) Append(ctx context.Context, input domain.AppendC
 	return s.store.AppendChangeProposalRevision(ctx, input)
 }
 
+func (s *ChangeProposalService) Rebase(ctx context.Context, input domain.RebaseChangeProposalInput) (domain.ChangeProposal, error) {
+	if !validProposalID(input.ProposalID) || !validProposalID(input.ExpectedHeadID) || !validProposalID(input.BaseRevisionID) {
+		return domain.ChangeProposal{}, validator.Error{Message: "proposal_id, expected_head_id and base_revision_id must be UUIDs"}
+	}
+	if err := validateProposalRevision(input.Source, input.Message); err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	input.ExpectedHeadID = strings.ToLower(input.ExpectedHeadID)
+	input.BaseRevisionID = strings.ToLower(input.BaseRevisionID)
+	return s.store.RebaseChangeProposal(ctx, input)
+}
+
+func (s *ChangeProposalService) Merge(ctx context.Context, input domain.MergeChangeProposalInput) (domain.MergeChangeProposalResult, error) {
+	if !validProposalID(input.ProposalID) || !validProposalID(input.ExpectedHeadID) {
+		return domain.MergeChangeProposalResult{}, validator.Error{Message: "proposal_id and expected_head_id must be UUIDs"}
+	}
+	input.ExpectedHeadID = strings.ToLower(input.ExpectedHeadID)
+	return s.store.MergeChangeProposal(ctx, input)
+}
+
 func (s *ChangeProposalService) Close(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {
 	if !validProposalID(id) {
 		return domain.ChangeProposal{}, validator.Error{Message: "proposal_id must be a UUID"}

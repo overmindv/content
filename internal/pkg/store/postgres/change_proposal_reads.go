@@ -24,11 +24,11 @@ const proposalReader = `(p.author_id = $2 OR i.created_by = $2 OR (
 
 func (s *ContentItemStore) ListChangeProposalHistory(ctx context.Context, input domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
 	const query = `
-		SELECT p.author_id, r.id, r.parent_revision_id, r.ordinal, r.message, r.created_at
+		SELECT p.author_id, r.id, r.parent_revision_id, COALESCE(r.base_revision_id, p.base_revision_id), r.ordinal, r.message, r.created_at
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
 		LEFT JOIN LATERAL (
-		    SELECT id, parent_revision_id, ordinal, message, created_at
+		    SELECT id, parent_revision_id, base_revision_id, ordinal, message, created_at
 		    FROM content_change_proposal_revisions
 		    WHERE proposal_id = p.id AND ordinal <= $3
 		    ORDER BY ordinal DESC LIMIT $4
@@ -52,7 +52,7 @@ func (s *ContentItemStore) ListChangeProposalHistory(ctx context.Context, input 
 		var id, parentID, message *string
 		var ordinal *int32
 		var createdAt *time.Time
-		if err = rows.Scan(&entry.AuthorID, &id, &parentID, &ordinal, &message, &createdAt); err != nil {
+		if err = rows.Scan(&entry.AuthorID, &id, &parentID, &entry.BaseRevisionID, &ordinal, &message, &createdAt); err != nil {
 			return domain.ChangeProposalHistory{}, err
 		}
 		if id == nil {
@@ -82,8 +82,8 @@ func (s *ContentItemStore) GetChangeProposalDiffSources(ctx context.Context, inp
 		       CASE WHEN octet_length(r.source) <= $4 THEN r.source END
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
-		LEFT JOIN content_revisions AS b ON b.id = p.base_revision_id AND b.content_item_id = p.content_item_id
 		LEFT JOIN content_change_proposal_revisions AS r ON r.proposal_id = p.id AND r.id = COALESCE($3, p.head_revision_id)
+		LEFT JOIN content_revisions AS b ON b.id = COALESCE(r.base_revision_id, p.base_revision_id) AND b.content_item_id = p.content_item_id
 		WHERE p.id = $1 AND ` + proposalReader
 	var baseID, revisionID, base, source *string
 	err := s.db.QueryRow(ctx, query, input.ProposalID, input.ActorID, nullableString(input.RevisionID), validator.MaxSourceBytes).

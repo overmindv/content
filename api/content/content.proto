@@ -198,6 +198,8 @@ message ChangeProposal {
   ChangeProposalRevision head = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp closed_at = 8;
+  bool base_outdated = 9;
+  string merged_revision_id = 10;
 }
 
 message ChangeProposalRevision {
@@ -254,6 +256,7 @@ message ChangeProposalHistoryEntry {
   string author_id = 4;
   string message = 5;
   google.protobuf.Timestamp created_at = 6;
+  string base_revision_id = 7;
 }
 
 message ListChangeProposalHistoryRequest {
@@ -391,6 +394,28 @@ message GetReviewRevisionStatusResponse {
   string topic_id = 7;
 }
 
+message RebaseChangeProposalRequest {
+  string proposal_id = 1;
+  string expected_head_id = 2;
+  string base_revision_id = 3;
+  string source = 4;
+  string message = 5;
+}
+
+message RebaseChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
+message MergeChangeProposalRequest {
+  string proposal_id = 1;
+  string expected_head_id = 2;
+}
+
+message MergeChangeProposalResponse {
+  string content_item_id = 1;
+  string published_revision_id = 2;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -415,4 +440,6 @@ service ContentService {
   rpc ListReviewReplies(ListReviewRepliesRequest) returns (ListReviewRepliesResponse);
   rpc SubmitReviewDecision(SubmitReviewDecisionRequest) returns (SubmitReviewDecisionResponse);
   rpc GetReviewRevisionStatus(GetReviewRevisionStatusRequest) returns (GetReviewRevisionStatusResponse);
+  rpc RebaseChangeProposal(RebaseChangeProposalRequest) returns (RebaseChangeProposalResponse);
+  rpc MergeChangeProposal(MergeChangeProposalRequest) returns (MergeChangeProposalResponse);
 }

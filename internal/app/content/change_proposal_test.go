@@ -86,3 +86,44 @@ func TestGRPCChangeProposalHistoryAndDiff(t *testing.T) {
 		t.Errorf("diff with missing revision: %v", err)
 	}
 }
+
+func TestGRPCMergeAndRebase(t *testing.T) {
+	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
+	merge := &contentpb.MergeChangeProposalRequest{ProposalId: testOtherActor, ExpectedHeadId: strings.ToUpper(testOtherActor)}
+	if _, err := client.MergeChangeProposal(ctx, merge); status.Code(err) != codes.Unauthenticated {
+		t.Errorf("merge without service credentials: %v", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	input := domain.MergeChangeProposalInput{ProposalID: testOtherActor, ExpectedHeadID: testOtherActor, ActorID: testActor}
+	gomock.InOrder(
+		store.EXPECT().MergeChangeProposal(gomock.Any(), input).Return(domain.MergeChangeProposalResult{}, service.ErrMergeConflict),
+		store.EXPECT().MergeChangeProposal(gomock.Any(), input).Return(domain.MergeChangeProposalResult{}, service.ErrReviewRequired),
+		store.EXPECT().MergeChangeProposal(gomock.Any(), input).Return(domain.MergeChangeProposalResult{PublishedRevisionID: testOtherActor}, nil),
+	)
+	if _, err := client.MergeChangeProposal(ctx, merge); status.Code(err) != codes.Aborted || status.Convert(err).Message() != "MERGE_CONFLICT" {
+		t.Errorf("merge conflict: %v", err)
+	}
+	if _, err := client.MergeChangeProposal(ctx, merge); status.Code(err) != codes.FailedPrecondition {
+		t.Errorf("merge without review: %v", err)
+	}
+	if got, err := client.MergeChangeProposal(ctx, merge); err != nil || got.GetPublishedRevisionId() != testOtherActor {
+		t.Errorf("published revision: %+v, %v", got, err)
+	}
+	req := &contentpb.RebaseChangeProposalRequest{
+		ProposalId: testOtherActor, ExpectedHeadId: testOtherActor, BaseRevisionId: "invalid", Source: "# Updated change",
+	}
+	if _, err := client.RebaseChangeProposal(ctx, req); status.Code(err) != codes.InvalidArgument {
+		t.Errorf("rebase with invalid base: %v", err)
+	}
+	req.BaseRevisionId = strings.ToUpper(testOtherActor)
+	store.EXPECT().RebaseChangeProposal(gomock.Any(), domain.RebaseChangeProposalInput{
+		AppendChangeProposalRevisionInput: domain.AppendChangeProposalRevisionInput{
+			ProposalID: testOtherActor, ExpectedHeadID: testOtherActor, AuthorID: testActor, Source: req.Source,
+		},
+		BaseRevisionID: testOtherActor,
+	}).Return(domain.ChangeProposal{ID: testOtherActor, BaseRevisionID: testOtherActor}, nil)
+	if got, err := client.RebaseChangeProposal(ctx, req); err != nil || got.GetProposal().GetBaseRevisionId() != testOtherActor {
+		t.Errorf("rebase result: %+v, %v", got, err)
+	}
+}

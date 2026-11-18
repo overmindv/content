@@ -366,6 +366,9 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 		return domain.ContentItem{}, err
 	}
 	if target == domain.ContentStatusPublished {
+		if current.publishedRevisionID != "" && current.publishedRevisionID != current.revisionID {
+			return domain.ContentItem{}, service.ErrReviewRequired
+		}
 		if err = validatePublication(ctx, tx, input.ID, current.revisionID); err != nil {
 			return domain.ContentItem{}, err
 		}

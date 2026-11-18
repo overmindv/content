@@ -42,6 +42,8 @@ const (
 	ContentService_ListReviewReplies_FullMethodName            = "/overmindv.content.ContentService/ListReviewReplies"
 	ContentService_SubmitReviewDecision_FullMethodName         = "/overmindv.content.ContentService/SubmitReviewDecision"
 	ContentService_GetReviewRevisionStatus_FullMethodName      = "/overmindv.content.ContentService/GetReviewRevisionStatus"
+	ContentService_RebaseChangeProposal_FullMethodName         = "/overmindv.content.ContentService/RebaseChangeProposal"
+	ContentService_MergeChangeProposal_FullMethodName          = "/overmindv.content.ContentService/MergeChangeProposal"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -71,6 +73,8 @@ type ContentServiceClient interface {
 	ListReviewReplies(ctx context.Context, in *ListReviewRepliesRequest, opts ...grpc.CallOption) (*ListReviewRepliesResponse, error)
 	SubmitReviewDecision(ctx context.Context, in *SubmitReviewDecisionRequest, opts ...grpc.CallOption) (*SubmitReviewDecisionResponse, error)
 	GetReviewRevisionStatus(ctx context.Context, in *GetReviewRevisionStatusRequest, opts ...grpc.CallOption) (*GetReviewRevisionStatusResponse, error)
+	RebaseChangeProposal(ctx context.Context, in *RebaseChangeProposalRequest, opts ...grpc.CallOption) (*RebaseChangeProposalResponse, error)
+	MergeChangeProposal(ctx context.Context, in *MergeChangeProposalRequest, opts ...grpc.CallOption) (*MergeChangeProposalResponse, error)
 }
 
 type contentServiceClient struct {
@@ -311,6 +315,26 @@ func (c *contentServiceClient) GetReviewRevisionStatus(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *contentServiceClient) RebaseChangeProposal(ctx context.Context, in *RebaseChangeProposalRequest, opts ...grpc.CallOption) (*RebaseChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RebaseChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_RebaseChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) MergeChangeProposal(ctx context.Context, in *MergeChangeProposalRequest, opts ...grpc.CallOption) (*MergeChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MergeChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_MergeChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -338,6 +362,8 @@ type ContentServiceServer interface {
 	ListReviewReplies(context.Context, *ListReviewRepliesRequest) (*ListReviewRepliesResponse, error)
 	SubmitReviewDecision(context.Context, *SubmitReviewDecisionRequest) (*SubmitReviewDecisionResponse, error)
 	GetReviewRevisionStatus(context.Context, *GetReviewRevisionStatusRequest) (*GetReviewRevisionStatusResponse, error)
+	RebaseChangeProposal(context.Context, *RebaseChangeProposalRequest) (*RebaseChangeProposalResponse, error)
+	MergeChangeProposal(context.Context, *MergeChangeProposalRequest) (*MergeChangeProposalResponse, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -416,6 +442,12 @@ func (UnimplementedContentServiceServer) SubmitReviewDecision(context.Context, *
 }
 func (UnimplementedContentServiceServer) GetReviewRevisionStatus(context.Context, *GetReviewRevisionStatusRequest) (*GetReviewRevisionStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReviewRevisionStatus not implemented")
+}
+func (UnimplementedContentServiceServer) RebaseChangeProposal(context.Context, *RebaseChangeProposalRequest) (*RebaseChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RebaseChangeProposal not implemented")
+}
+func (UnimplementedContentServiceServer) MergeChangeProposal(context.Context, *MergeChangeProposalRequest) (*MergeChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MergeChangeProposal not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -852,6 +884,42 @@ func _ContentService_GetReviewRevisionStatus_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_RebaseChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RebaseChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).RebaseChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_RebaseChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).RebaseChangeProposal(ctx, req.(*RebaseChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_MergeChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MergeChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).MergeChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_MergeChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).MergeChangeProposal(ctx, req.(*MergeChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -950,6 +1018,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReviewRevisionStatus",
 			Handler:    _ContentService_GetReviewRevisionStatus_Handler,
+		},
+		{
+			MethodName: "RebaseChangeProposal",
+			Handler:    _ContentService_RebaseChangeProposal_Handler,
+		},
+		{
+			MethodName: "MergeChangeProposal",
+			Handler:    _ContentService_MergeChangeProposal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

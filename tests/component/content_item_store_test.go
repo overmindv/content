@@ -287,14 +287,14 @@ func TestContentItemStoreAccess(t *testing.T) {
 	assertPublishedView(view)
 
 	state.ExpectedRevisionID = next.ID
-	republished, err := store.ChangeState(ctx, state, domain.ContentStatusPublished)
-	if err != nil || republished.PublishedRevisionID != next.ID {
-		t.Fatalf("publish with current revision: %v", err)
+	if _, err = store.ChangeState(ctx, state, domain.ContentStatusPublished); !errors.Is(err, service.ErrReviewRequired) {
+		t.Fatalf("publish without review: %v", err)
 	}
 	view, err = store.Get(ctx, item.ID, reader)
-	if err != nil || view.CurrentRevision == nil || view.CurrentRevision.Source != changed.Source {
-		t.Errorf("new published revision not visible: %v", err)
+	if err != nil {
+		t.Fatal(err)
 	}
+	assertPublishedView(view)
 	archived, err := store.ChangeState(ctx, state, domain.ContentStatusArchived)
 	if err != nil || archived.Status != domain.ContentStatusArchived || archived.ArchivedAt == nil {
 		t.Fatalf("archive with current revision: %v", err)
@@ -313,8 +313,8 @@ func TestContentItemStoreAccess(t *testing.T) {
 	if !errors.Is(err, service.ErrInvalidState) {
 		t.Errorf("write archived item: %v", err)
 	}
-	if n := pendingOutboxRows(t, ctx, pool, item.ID); n != 5 {
-		t.Errorf("outbox rows after retries and conflicts = %d, want 5", n)
+	if n := pendingOutboxRows(t, ctx, pool, item.ID); n != 4 {
+		t.Errorf("outbox rows after retries and conflicts = %d, want 4", n)
 	}
 	if _, err = store.Delete(ctx, item.ID, owner); err != nil {
 		t.Fatal(err)

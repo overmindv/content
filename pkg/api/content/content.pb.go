@@ -1819,17 +1819,19 @@ func (x *ArchiveContentItemResponse) GetItem() *ContentItem {
 }
 
 type ChangeProposal struct {
-	state          protoimpl.MessageState  `protogen:"open.v1"`
-	Id             string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ContentItemId  string                  `protobuf:"bytes,2,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
-	BaseRevisionId string                  `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
-	AuthorId       string                  `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
-	Status         string                  `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	Head           *ChangeProposalRevision `protobuf:"bytes,6,opt,name=head,proto3" json:"head,omitempty"`
-	CreatedAt      *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	ClosedAt       *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState  `protogen:"open.v1"`
+	Id               string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ContentItemId    string                  `protobuf:"bytes,2,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
+	BaseRevisionId   string                  `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
+	AuthorId         string                  `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Status           string                  `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Head             *ChangeProposalRevision `protobuf:"bytes,6,opt,name=head,proto3" json:"head,omitempty"`
+	CreatedAt        *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ClosedAt         *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
+	BaseOutdated     bool                    `protobuf:"varint,9,opt,name=base_outdated,json=baseOutdated,proto3" json:"base_outdated,omitempty"`
+	MergedRevisionId string                  `protobuf:"bytes,10,opt,name=merged_revision_id,json=mergedRevisionId,proto3" json:"merged_revision_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ChangeProposal) Reset() {
@@ -1916,6 +1918,20 @@ func (x *ChangeProposal) GetClosedAt() *timestamppb.Timestamp {
 		return x.ClosedAt
 	}
 	return nil
+}
+
+func (x *ChangeProposal) GetBaseOutdated() bool {
+	if x != nil {
+		return x.BaseOutdated
+	}
+	return false
+}
+
+func (x *ChangeProposal) GetMergedRevisionId() string {
+	if x != nil {
+		return x.MergedRevisionId
+	}
+	return ""
 }
 
 type ChangeProposalRevision struct {
@@ -2410,6 +2426,7 @@ type ChangeProposalHistoryEntry struct {
 	AuthorId         string                 `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
 	Message          string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	BaseRevisionId   string                 `protobuf:"bytes,7,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2484,6 +2501,13 @@ func (x *ChangeProposalHistoryEntry) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *ChangeProposalHistoryEntry) GetBaseRevisionId() string {
+	if x != nil {
+		return x.BaseRevisionId
+	}
+	return ""
 }
 
 type ListChangeProposalHistoryRequest struct {
@@ -3830,6 +3854,230 @@ func (x *GetReviewRevisionStatusResponse) GetTopicId() string {
 	return ""
 }
 
+type RebaseChangeProposalRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ProposalId     string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	ExpectedHeadId string                 `protobuf:"bytes,2,opt,name=expected_head_id,json=expectedHeadId,proto3" json:"expected_head_id,omitempty"`
+	BaseRevisionId string                 `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
+	Source         string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
+	Message        string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *RebaseChangeProposalRequest) Reset() {
+	*x = RebaseChangeProposalRequest{}
+	mi := &file_api_content_content_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RebaseChangeProposalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RebaseChangeProposalRequest) ProtoMessage() {}
+
+func (x *RebaseChangeProposalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RebaseChangeProposalRequest.ProtoReflect.Descriptor instead.
+func (*RebaseChangeProposalRequest) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *RebaseChangeProposalRequest) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *RebaseChangeProposalRequest) GetExpectedHeadId() string {
+	if x != nil {
+		return x.ExpectedHeadId
+	}
+	return ""
+}
+
+func (x *RebaseChangeProposalRequest) GetBaseRevisionId() string {
+	if x != nil {
+		return x.BaseRevisionId
+	}
+	return ""
+}
+
+func (x *RebaseChangeProposalRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *RebaseChangeProposalRequest) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type RebaseChangeProposalResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Proposal      *ChangeProposal        `protobuf:"bytes,1,opt,name=proposal,proto3" json:"proposal,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RebaseChangeProposalResponse) Reset() {
+	*x = RebaseChangeProposalResponse{}
+	mi := &file_api_content_content_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RebaseChangeProposalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RebaseChangeProposalResponse) ProtoMessage() {}
+
+func (x *RebaseChangeProposalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RebaseChangeProposalResponse.ProtoReflect.Descriptor instead.
+func (*RebaseChangeProposalResponse) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *RebaseChangeProposalResponse) GetProposal() *ChangeProposal {
+	if x != nil {
+		return x.Proposal
+	}
+	return nil
+}
+
+type MergeChangeProposalRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ProposalId     string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	ExpectedHeadId string                 `protobuf:"bytes,2,opt,name=expected_head_id,json=expectedHeadId,proto3" json:"expected_head_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *MergeChangeProposalRequest) Reset() {
+	*x = MergeChangeProposalRequest{}
+	mi := &file_api_content_content_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeChangeProposalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeChangeProposalRequest) ProtoMessage() {}
+
+func (x *MergeChangeProposalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeChangeProposalRequest.ProtoReflect.Descriptor instead.
+func (*MergeChangeProposalRequest) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *MergeChangeProposalRequest) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *MergeChangeProposalRequest) GetExpectedHeadId() string {
+	if x != nil {
+		return x.ExpectedHeadId
+	}
+	return ""
+}
+
+type MergeChangeProposalResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ContentItemId       string                 `protobuf:"bytes,1,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
+	PublishedRevisionId string                 `protobuf:"bytes,2,opt,name=published_revision_id,json=publishedRevisionId,proto3" json:"published_revision_id,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *MergeChangeProposalResponse) Reset() {
+	*x = MergeChangeProposalResponse{}
+	mi := &file_api_content_content_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeChangeProposalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeChangeProposalResponse) ProtoMessage() {}
+
+func (x *MergeChangeProposalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeChangeProposalResponse.ProtoReflect.Descriptor instead.
+func (*MergeChangeProposalResponse) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *MergeChangeProposalResponse) GetContentItemId() string {
+	if x != nil {
+		return x.ContentItemId
+	}
+	return ""
+}
+
+func (x *MergeChangeProposalResponse) GetPublishedRevisionId() string {
+	if x != nil {
+		return x.PublishedRevisionId
+	}
+	return ""
+}
+
 var File_api_content_content_proto protoreflect.FileDescriptor
 
 const file_api_content_content_proto_rawDesc = "" +
@@ -3983,7 +4231,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
 	"\x14expected_revision_id\x18\x02 \x01(\tR\x12expectedRevisionId\"P\n" +
 	"\x1aArchiveContentItemResponse\x122\n" +
-	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xda\x02\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xad\x03\n" +
 	"\x0eChangeProposal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0fcontent_item_id\x18\x02 \x01(\tR\rcontentItemId\x12(\n" +
@@ -3993,7 +4241,10 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x04head\x18\x06 \x01(\v2).overmindv.content.ChangeProposalRevisionR\x04head\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
-	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\"\xdd\x01\n" +
+	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12#\n" +
+	"\rbase_outdated\x18\t \x01(\bR\fbaseOutdated\x12,\n" +
+	"\x12merged_revision_id\x18\n" +
+	" \x01(\tR\x10mergedRevisionId\"\xdd\x01\n" +
 	"\x16ChangeProposalRevision\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -4026,7 +4277,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\"\\\n" +
 	"\x1bCloseChangeProposalResponse\x12=\n" +
-	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\xe6\x01\n" +
+	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\x90\x02\n" +
 	"\x1aChangeProposalHistoryEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -4034,7 +4285,8 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\tauthor_id\x18\x04 \x01(\tR\bauthorId\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x87\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12(\n" +
+	"\x10base_revision_id\x18\a \x01(\tR\x0ebaseRevisionId\"\x87\x01\n" +
 	" ListChangeProposalHistoryRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12%\n" +
@@ -4151,7 +4403,23 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\aoutcome\x18\x05 \x01(\tR\aoutcome\x12\x1f\n" +
 	"\vwait_reason\x18\x06 \x01(\tR\n" +
 	"waitReason\x12\x19\n" +
-	"\btopic_id\x18\a \x01(\tR\atopicId2\xba\x15\n" +
+	"\btopic_id\x18\a \x01(\tR\atopicId\"\xc4\x01\n" +
+	"\x1bRebaseChangeProposalRequest\x12\x1f\n" +
+	"\vproposal_id\x18\x01 \x01(\tR\n" +
+	"proposalId\x12(\n" +
+	"\x10expected_head_id\x18\x02 \x01(\tR\x0eexpectedHeadId\x12(\n" +
+	"\x10base_revision_id\x18\x03 \x01(\tR\x0ebaseRevisionId\x12\x16\n" +
+	"\x06source\x18\x04 \x01(\tR\x06source\x12\x18\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage\"]\n" +
+	"\x1cRebaseChangeProposalResponse\x12=\n" +
+	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"g\n" +
+	"\x1aMergeChangeProposalRequest\x12\x1f\n" +
+	"\vproposal_id\x18\x01 \x01(\tR\n" +
+	"proposalId\x12(\n" +
+	"\x10expected_head_id\x18\x02 \x01(\tR\x0eexpectedHeadId\"y\n" +
+	"\x1bMergeChangeProposalResponse\x12&\n" +
+	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\x122\n" +
+	"\x15published_revision_id\x18\x02 \x01(\tR\x13publishedRevisionId2\xa9\x17\n" +
 	"\x0eContentService\x12n\n" +
 	"\x11CreateContentItem\x12+.overmindv.content.CreateContentItemRequest\x1a,.overmindv.content.CreateContentItemResponse\x12e\n" +
 	"\x0eGetContentItem\x12(.overmindv.content.GetContentItemRequest\x1a).overmindv.content.GetContentItemResponse\x12k\n" +
@@ -4175,7 +4443,9 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x11ListReviewThreads\x12+.overmindv.content.ListReviewThreadsRequest\x1a,.overmindv.content.ListReviewThreadsResponse\x12n\n" +
 	"\x11ListReviewReplies\x12+.overmindv.content.ListReviewRepliesRequest\x1a,.overmindv.content.ListReviewRepliesResponse\x12w\n" +
 	"\x14SubmitReviewDecision\x12..overmindv.content.SubmitReviewDecisionRequest\x1a/.overmindv.content.SubmitReviewDecisionResponse\x12\x80\x01\n" +
-	"\x17GetReviewRevisionStatus\x121.overmindv.content.GetReviewRevisionStatusRequest\x1a2.overmindv.content.GetReviewRevisionStatusResponseB6Z4github.com/overmindv/content/pkg/api/content;contentb\x06proto3"
+	"\x17GetReviewRevisionStatus\x121.overmindv.content.GetReviewRevisionStatusRequest\x1a2.overmindv.content.GetReviewRevisionStatusResponse\x12w\n" +
+	"\x14RebaseChangeProposal\x12..overmindv.content.RebaseChangeProposalRequest\x1a/.overmindv.content.RebaseChangeProposalResponse\x12t\n" +
+	"\x13MergeChangeProposal\x12-.overmindv.content.MergeChangeProposalRequest\x1a..overmindv.content.MergeChangeProposalResponseB6Z4github.com/overmindv/content/pkg/api/content;contentb\x06proto3"
 
 var (
 	file_api_content_content_proto_rawDescOnce sync.Once
@@ -4189,7 +4459,7 @@ func file_api_content_content_proto_rawDescGZIP() []byte {
 	return file_api_content_content_proto_rawDescData
 }
 
-var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
 var file_api_content_content_proto_goTypes = []any{
 	(*ContentLearningMetadata)(nil),              // 0: overmindv.content.ContentLearningMetadata
 	(*ContentItem)(nil),                          // 1: overmindv.content.ContentItem
@@ -4251,27 +4521,31 @@ var file_api_content_content_proto_goTypes = []any{
 	(*SubmitReviewDecisionResponse)(nil),         // 57: overmindv.content.SubmitReviewDecisionResponse
 	(*GetReviewRevisionStatusRequest)(nil),       // 58: overmindv.content.GetReviewRevisionStatusRequest
 	(*GetReviewRevisionStatusResponse)(nil),      // 59: overmindv.content.GetReviewRevisionStatusResponse
-	(*timestamppb.Timestamp)(nil),                // 60: google.protobuf.Timestamp
+	(*RebaseChangeProposalRequest)(nil),          // 60: overmindv.content.RebaseChangeProposalRequest
+	(*RebaseChangeProposalResponse)(nil),         // 61: overmindv.content.RebaseChangeProposalResponse
+	(*MergeChangeProposalRequest)(nil),           // 62: overmindv.content.MergeChangeProposalRequest
+	(*MergeChangeProposalResponse)(nil),          // 63: overmindv.content.MergeChangeProposalResponse
+	(*timestamppb.Timestamp)(nil),                // 64: google.protobuf.Timestamp
 }
 var file_api_content_content_proto_depIdxs = []int32{
-	60, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
-	60, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
-	60, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
-	60, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
+	64, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
+	64, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
+	64, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
+	64, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
 	2,  // 4: overmindv.content.ContentItem.current_revision:type_name -> overmindv.content.ContentRevision
 	3,  // 5: overmindv.content.ContentItem.tags:type_name -> overmindv.content.Tag
 	4,  // 6: overmindv.content.ContentItem.assets:type_name -> overmindv.content.ContentAsset
 	0,  // 7: overmindv.content.ContentItem.learning:type_name -> overmindv.content.ContentLearningMetadata
-	60, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
-	60, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
-	60, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
+	64, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
+	64, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
+	64, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
 	5,  // 11: overmindv.content.CreateContentItemRequest.assets:type_name -> overmindv.content.CreateContentAsset
 	0,  // 12: overmindv.content.CreateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
 	1,  // 13: overmindv.content.CreateContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 14: overmindv.content.GetContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 15: overmindv.content.ListContentItemsResponse.items:type_name -> overmindv.content.ContentItem
 	0,  // 16: overmindv.content.UpdateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
-	60, // 17: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
+	64, // 17: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 18: overmindv.content.ContentCatalogEntry.learning:type_name -> overmindv.content.ContentLearningMetadata
 	13, // 19: overmindv.content.ListContentCatalogResponse.entries:type_name -> overmindv.content.ContentCatalogEntry
 	1,  // 20: overmindv.content.UpdateContentItemResponse.item:type_name -> overmindv.content.ContentItem
@@ -4281,19 +4555,19 @@ var file_api_content_content_proto_depIdxs = []int32{
 	1,  // 24: overmindv.content.PublishContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 25: overmindv.content.ArchiveContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	28, // 26: overmindv.content.ChangeProposal.head:type_name -> overmindv.content.ChangeProposalRevision
-	60, // 27: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
-	60, // 28: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
-	60, // 29: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
+	64, // 27: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
+	64, // 28: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
+	64, // 29: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
 	27, // 30: overmindv.content.OpenChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
 	27, // 31: overmindv.content.GetChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
 	27, // 32: overmindv.content.AppendChangeProposalRevisionResponse.proposal:type_name -> overmindv.content.ChangeProposal
 	27, // 33: overmindv.content.CloseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	60, // 34: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	64, // 34: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
 	37, // 35: overmindv.content.ListChangeProposalHistoryResponse.entries:type_name -> overmindv.content.ChangeProposalHistoryEntry
-	60, // 36: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
-	60, // 37: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
-	60, // 38: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
-	60, // 39: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
+	64, // 36: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
+	64, // 37: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
+	64, // 38: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
+	64, // 39: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
 	42, // 40: overmindv.content.CreateReviewThreadResponse.thread:type_name -> overmindv.content.ReviewThread
 	43, // 41: overmindv.content.ReplyToReviewThreadResponse.reply:type_name -> overmindv.content.ReviewReply
 	42, // 42: overmindv.content.SetReviewThreadResolvedResponse.thread:type_name -> overmindv.content.ReviewThread
@@ -4302,57 +4576,62 @@ var file_api_content_content_proto_depIdxs = []int32{
 	44, // 45: overmindv.content.SubmitReviewDecisionResponse.decision:type_name -> overmindv.content.ReviewDecision
 	44, // 46: overmindv.content.GetReviewRevisionStatusResponse.decisions:type_name -> overmindv.content.ReviewDecision
 	45, // 47: overmindv.content.GetReviewRevisionStatusResponse.assignments:type_name -> overmindv.content.ReviewAssignment
-	6,  // 48: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
-	8,  // 49: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
-	10, // 50: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
-	14, // 51: overmindv.content.ContentService.ListContentCatalog:input_type -> overmindv.content.ListContentCatalogRequest
-	12, // 52: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
-	17, // 53: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
-	19, // 54: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
-	21, // 55: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
-	23, // 56: overmindv.content.ContentService.PublishContentItem:input_type -> overmindv.content.PublishContentItemRequest
-	25, // 57: overmindv.content.ContentService.ArchiveContentItem:input_type -> overmindv.content.ArchiveContentItemRequest
-	29, // 58: overmindv.content.ContentService.OpenChangeProposal:input_type -> overmindv.content.OpenChangeProposalRequest
-	31, // 59: overmindv.content.ContentService.GetChangeProposal:input_type -> overmindv.content.GetChangeProposalRequest
-	33, // 60: overmindv.content.ContentService.AppendChangeProposalRevision:input_type -> overmindv.content.AppendChangeProposalRevisionRequest
-	35, // 61: overmindv.content.ContentService.CloseChangeProposal:input_type -> overmindv.content.CloseChangeProposalRequest
-	38, // 62: overmindv.content.ContentService.ListChangeProposalHistory:input_type -> overmindv.content.ListChangeProposalHistoryRequest
-	40, // 63: overmindv.content.ContentService.GetChangeProposalDiff:input_type -> overmindv.content.GetChangeProposalDiffRequest
-	46, // 64: overmindv.content.ContentService.CreateReviewThread:input_type -> overmindv.content.CreateReviewThreadRequest
-	48, // 65: overmindv.content.ContentService.ReplyToReviewThread:input_type -> overmindv.content.ReplyToReviewThreadRequest
-	50, // 66: overmindv.content.ContentService.SetReviewThreadResolved:input_type -> overmindv.content.SetReviewThreadResolvedRequest
-	52, // 67: overmindv.content.ContentService.ListReviewThreads:input_type -> overmindv.content.ListReviewThreadsRequest
-	54, // 68: overmindv.content.ContentService.ListReviewReplies:input_type -> overmindv.content.ListReviewRepliesRequest
-	56, // 69: overmindv.content.ContentService.SubmitReviewDecision:input_type -> overmindv.content.SubmitReviewDecisionRequest
-	58, // 70: overmindv.content.ContentService.GetReviewRevisionStatus:input_type -> overmindv.content.GetReviewRevisionStatusRequest
-	7,  // 71: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
-	9,  // 72: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
-	11, // 73: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
-	15, // 74: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
-	16, // 75: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
-	18, // 76: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
-	20, // 77: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
-	22, // 78: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
-	24, // 79: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
-	26, // 80: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
-	30, // 81: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
-	32, // 82: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
-	34, // 83: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
-	36, // 84: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
-	39, // 85: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
-	41, // 86: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
-	47, // 87: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
-	49, // 88: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
-	51, // 89: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
-	53, // 90: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
-	55, // 91: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
-	57, // 92: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
-	59, // 93: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
-	71, // [71:94] is the sub-list for method output_type
-	48, // [48:71] is the sub-list for method input_type
-	48, // [48:48] is the sub-list for extension type_name
-	48, // [48:48] is the sub-list for extension extendee
-	0,  // [0:48] is the sub-list for field type_name
+	27, // 48: overmindv.content.RebaseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
+	6,  // 49: overmindv.content.ContentService.CreateContentItem:input_type -> overmindv.content.CreateContentItemRequest
+	8,  // 50: overmindv.content.ContentService.GetContentItem:input_type -> overmindv.content.GetContentItemRequest
+	10, // 51: overmindv.content.ContentService.ListContentItems:input_type -> overmindv.content.ListContentItemsRequest
+	14, // 52: overmindv.content.ContentService.ListContentCatalog:input_type -> overmindv.content.ListContentCatalogRequest
+	12, // 53: overmindv.content.ContentService.UpdateContentItem:input_type -> overmindv.content.UpdateContentItemRequest
+	17, // 54: overmindv.content.ContentService.DeleteContentItem:input_type -> overmindv.content.DeleteContentItemRequest
+	19, // 55: overmindv.content.ContentService.CreateContentRevision:input_type -> overmindv.content.CreateContentRevisionRequest
+	21, // 56: overmindv.content.ContentService.ListContentRevisions:input_type -> overmindv.content.ListContentRevisionsRequest
+	23, // 57: overmindv.content.ContentService.PublishContentItem:input_type -> overmindv.content.PublishContentItemRequest
+	25, // 58: overmindv.content.ContentService.ArchiveContentItem:input_type -> overmindv.content.ArchiveContentItemRequest
+	29, // 59: overmindv.content.ContentService.OpenChangeProposal:input_type -> overmindv.content.OpenChangeProposalRequest
+	31, // 60: overmindv.content.ContentService.GetChangeProposal:input_type -> overmindv.content.GetChangeProposalRequest
+	33, // 61: overmindv.content.ContentService.AppendChangeProposalRevision:input_type -> overmindv.content.AppendChangeProposalRevisionRequest
+	35, // 62: overmindv.content.ContentService.CloseChangeProposal:input_type -> overmindv.content.CloseChangeProposalRequest
+	38, // 63: overmindv.content.ContentService.ListChangeProposalHistory:input_type -> overmindv.content.ListChangeProposalHistoryRequest
+	40, // 64: overmindv.content.ContentService.GetChangeProposalDiff:input_type -> overmindv.content.GetChangeProposalDiffRequest
+	46, // 65: overmindv.content.ContentService.CreateReviewThread:input_type -> overmindv.content.CreateReviewThreadRequest
+	48, // 66: overmindv.content.ContentService.ReplyToReviewThread:input_type -> overmindv.content.ReplyToReviewThreadRequest
+	50, // 67: overmindv.content.ContentService.SetReviewThreadResolved:input_type -> overmindv.content.SetReviewThreadResolvedRequest
+	52, // 68: overmindv.content.ContentService.ListReviewThreads:input_type -> overmindv.content.ListReviewThreadsRequest
+	54, // 69: overmindv.content.ContentService.ListReviewReplies:input_type -> overmindv.content.ListReviewRepliesRequest
+	56, // 70: overmindv.content.ContentService.SubmitReviewDecision:input_type -> overmindv.content.SubmitReviewDecisionRequest
+	58, // 71: overmindv.content.ContentService.GetReviewRevisionStatus:input_type -> overmindv.content.GetReviewRevisionStatusRequest
+	60, // 72: overmindv.content.ContentService.RebaseChangeProposal:input_type -> overmindv.content.RebaseChangeProposalRequest
+	62, // 73: overmindv.content.ContentService.MergeChangeProposal:input_type -> overmindv.content.MergeChangeProposalRequest
+	7,  // 74: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
+	9,  // 75: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
+	11, // 76: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
+	15, // 77: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
+	16, // 78: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
+	18, // 79: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
+	20, // 80: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
+	22, // 81: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
+	24, // 82: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
+	26, // 83: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
+	30, // 84: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
+	32, // 85: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
+	34, // 86: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
+	36, // 87: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
+	39, // 88: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
+	41, // 89: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
+	47, // 90: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
+	49, // 91: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
+	51, // 92: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
+	53, // 93: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
+	55, // 94: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
+	57, // 95: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
+	59, // 96: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
+	61, // 97: overmindv.content.ContentService.RebaseChangeProposal:output_type -> overmindv.content.RebaseChangeProposalResponse
+	63, // 98: overmindv.content.ContentService.MergeChangeProposal:output_type -> overmindv.content.MergeChangeProposalResponse
+	74, // [74:99] is the sub-list for method output_type
+	49, // [49:74] is the sub-list for method input_type
+	49, // [49:49] is the sub-list for extension type_name
+	49, // [49:49] is the sub-list for extension extendee
+	0,  // [0:49] is the sub-list for field type_name
 }
 
 func init() { file_api_content_content_proto_init() }
@@ -4366,7 +4645,7 @@ func file_api_content_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_content_content_proto_rawDesc), len(file_api_content_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   60,
+			NumMessages:   64,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

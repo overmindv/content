@@ -8,13 +8,15 @@ import (
 
 func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProposal {
 	return &contentpb.ChangeProposal{
-		Id:             proposal.ID,
-		ContentItemId:  proposal.ContentItemID,
-		BaseRevisionId: proposal.BaseRevisionID,
-		AuthorId:       proposal.AuthorID,
-		Status:         string(proposal.Status),
-		CreatedAt:      timestamppb.New(proposal.CreatedAt),
-		ClosedAt:       timestampOrNil(proposal.ClosedAt),
+		Id:               proposal.ID,
+		ContentItemId:    proposal.ContentItemID,
+		BaseRevisionId:   proposal.BaseRevisionID,
+		BaseOutdated:     proposal.BaseOutdated,
+		MergedRevisionId: proposal.MergedRevisionID,
+		AuthorId:         proposal.AuthorID,
+		Status:           string(proposal.Status),
+		CreatedAt:        timestamppb.New(proposal.CreatedAt),
+		ClosedAt:         timestampOrNil(proposal.ClosedAt),
 		Head: &contentpb.ChangeProposalRevision{
 			Id:               proposal.Head.ID,
 			ParentRevisionId: proposal.Head.ParentRevisionID,
@@ -31,7 +33,7 @@ func ToProtoChangeProposalHistory(page domain.ChangeProposalHistory) *contentpb.
 	for _, entry := range page.Entries {
 		entries = append(entries, &contentpb.ChangeProposalHistoryEntry{
 			Id: entry.ID, ParentRevisionId: entry.ParentRevisionID, Ordinal: entry.Ordinal,
-			AuthorId: entry.AuthorID, Message: entry.Message, CreatedAt: timestamppb.New(entry.CreatedAt),
+			AuthorId: entry.AuthorID, Message: entry.Message, CreatedAt: timestamppb.New(entry.CreatedAt), BaseRevisionId: entry.BaseRevisionID,
 		})
 	}
 	return &contentpb.ListChangeProposalHistoryResponse{Entries: entries, NextBeforeOrdinal: page.NextBeforeOrdinal}
