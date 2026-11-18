@@ -47,27 +47,32 @@ func Build(app *parker.App) error {
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {
-		return runGRPC(ctx, cfg.GRPC.Addr, itemService, app.Logger())
+		return runGRPC(ctx, cfg.GRPC, itemService, app.Logger())
 	})
 
 	return nil
 }
 
-func runGRPC(ctx context.Context, addr string, itemService *service.ContentItemService, logger *slog.Logger) error {
-	listener, err := net.Listen("tcp", addr)
+func runGRPC(ctx context.Context, cfg config.GRPCConfig, itemService *service.ContentItemService, logger *slog.Logger) error {
+	listener, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return err
 	}
 
-	grpcServer := grpc.NewServer()
-	contentpb.RegisterContentServiceServer(grpcServer, NewServer(itemService))
-	reflection.Register(grpcServer)
+	grpcServer := newGRPCServer(itemService, cfg.ServiceToken)
 
 	go func() {
 		<-ctx.Done()
 		grpcServer.GracefulStop()
 	}()
 
-	logger.Info("grpc server listening", "addr", addr)
+	logger.Info("grpc server listening", "addr", cfg.Addr)
 	return grpcServer.Serve(listener)
+}
+
+func newGRPCServer(itemService *service.ContentItemService, serviceToken string) *grpc.Server {
+	server := grpc.NewServer(grpc.UnaryInterceptor(requireServiceActor(serviceToken)))
+	contentpb.RegisterContentServiceServer(server, NewServer(itemService))
+	reflection.Register(server)
+	return server
 }
