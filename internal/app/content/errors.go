@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"errors"
 
 	"github.com/overmindv/content/internal/pkg/service"
@@ -13,8 +14,12 @@ func toStatusError(err error) error {
 	switch {
 	case err == nil:
 		return nil
-	case errors.Is(err, service.ErrNotFound), errors.Is(err, service.ErrProposalNotFound):
+	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+		return status.FromContextError(err).Err()
+	case errors.Is(err, service.ErrNotFound), errors.Is(err, service.ErrProposalNotFound), errors.Is(err, service.ErrProposalRevisionNotFound):
 		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, service.ErrProposalDiffBusy):
+		return status.Error(codes.ResourceExhausted, err.Error())
 	case errors.Is(err, service.ErrProposalExists):
 		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):

@@ -12,11 +12,13 @@ import (
 // собственного publisher-контракта.
 
 var (
-	ErrNotFound         = errors.New("content item not found")
-	ErrRevisionConflict = errors.New("current revision changed")
-	ErrInvalidState     = errors.New("operation is not allowed in this content state")
-	ErrProposalNotFound = errors.New("change proposal not found")
-	ErrProposalExists   = errors.New("an open proposal already exists for this material and author")
+	ErrNotFound                 = errors.New("content item not found")
+	ErrRevisionConflict         = errors.New("current revision changed")
+	ErrInvalidState             = errors.New("operation is not allowed in this content state")
+	ErrProposalNotFound         = errors.New("change proposal not found")
+	ErrProposalExists           = errors.New("an open proposal already exists for this material and author")
+	ErrProposalRevisionNotFound = errors.New("change proposal revision not found")
+	ErrProposalDiffBusy         = errors.New("too many proposal diff requests")
 )
 
 type ContentItemStore interface {
@@ -36,4 +38,6 @@ type ChangeProposalStore interface {
 	GetChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
 	AppendChangeProposalRevision(context.Context, domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error)
 	CloseChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
+	ListChangeProposalHistory(context.Context, domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error)
+	GetChangeProposalDiffSources(context.Context, domain.ChangeProposalDiffInput) (domain.ChangeProposalDiffSources, error)
 }

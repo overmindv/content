@@ -11,11 +11,12 @@ import (
 )
 
 type ChangeProposalService struct {
-	store ChangeProposalStore
+	store     ChangeProposalStore
+	diffSlots chan struct{}
 }
 
 func NewChangeProposalService(store ChangeProposalStore) *ChangeProposalService {
-	return &ChangeProposalService{store: store}
+	return &ChangeProposalService{store: store, diffSlots: make(chan struct{}, 4)}
 }
 
 func (s *ChangeProposalService) Open(ctx context.Context, input domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
@@ -52,6 +53,42 @@ func (s *ChangeProposalService) Close(ctx context.Context, id, actorID string) (
 		return domain.ChangeProposal{}, validator.Error{Message: "proposal_id must be a UUID"}
 	}
 	return s.store.CloseChangeProposal(ctx, id, actorID)
+}
+
+func (s *ChangeProposalService) History(ctx context.Context, input domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
+	if !validProposalID(input.ProposalID) {
+		return domain.ChangeProposalHistory{}, validator.Error{Message: "proposal_id must be a UUID"}
+	}
+	if input.BeforeOrdinal < 0 || input.PageSize < 0 || input.PageSize > 50 {
+		return domain.ChangeProposalHistory{}, validator.Error{Message: "invalid history cursor or page size (maximum 50)"}
+	}
+	if input.PageSize == 0 {
+		input.PageSize = 20
+	}
+	return s.store.ListChangeProposalHistory(ctx, input)
+}
+
+func (s *ChangeProposalService) Diff(ctx context.Context, input domain.ChangeProposalDiffInput) (domain.ChangeProposalDiff, error) {
+	if !validProposalID(input.ProposalID) || input.RevisionID != "" && !validProposalID(input.RevisionID) {
+		return domain.ChangeProposalDiff{}, validator.Error{Message: "proposal_id and optional revision_id must be UUIDs"}
+	}
+	select {
+	case <-ctx.Done():
+		return domain.ChangeProposalDiff{}, ctx.Err()
+	case s.diffSlots <- struct{}{}:
+		defer func() { <-s.diffSlots }()
+	default:
+		return domain.ChangeProposalDiff{}, ErrProposalDiffBusy
+	}
+	sources, err := s.store.GetChangeProposalDiffSources(ctx, input)
+	if err != nil {
+		return domain.ChangeProposalDiff{}, err
+	}
+	result := domain.ChangeProposalDiff{BaseRevisionID: sources.BaseRevisionID, RevisionID: sources.RevisionID, Truncated: sources.Oversized}
+	if !sources.Oversized {
+		result.UnifiedDiff, result.Truncated, err = makeUnifiedDiff(ctx, sources.BaseSource, sources.Source, proposalDiffBudget)
+	}
+	return result, err
 }
 
 func validProposalID(id string) bool {

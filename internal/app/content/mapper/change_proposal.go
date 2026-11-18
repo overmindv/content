@@ -25,3 +25,14 @@ func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProp
 		},
 	}
 }
+
+func ToProtoChangeProposalHistory(page domain.ChangeProposalHistory) *contentpb.ListChangeProposalHistoryResponse {
+	entries := make([]*contentpb.ChangeProposalHistoryEntry, 0, len(page.Entries))
+	for _, entry := range page.Entries {
+		entries = append(entries, &contentpb.ChangeProposalHistoryEntry{
+			Id: entry.ID, ParentRevisionId: entry.ParentRevisionID, Ordinal: entry.Ordinal,
+			AuthorId: entry.AuthorID, Message: entry.Message, CreatedAt: timestamppb.New(entry.CreatedAt),
+		})
+	}
+	return &contentpb.ListChangeProposalHistoryResponse{Entries: entries, NextBeforeOrdinal: page.NextBeforeOrdinal}
+}

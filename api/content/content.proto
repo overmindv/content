@@ -214,6 +214,38 @@ message CloseChangeProposalResponse {
   ChangeProposal proposal = 1;
 }
 
+message ChangeProposalHistoryEntry {
+  string id = 1;
+  string parent_revision_id = 2;
+  int32 ordinal = 3;
+  string author_id = 4;
+  string message = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message ListChangeProposalHistoryRequest {
+  string proposal_id = 1;
+  int32 before_ordinal = 2;
+  int32 page_size = 3;
+}
+
+message ListChangeProposalHistoryResponse {
+  repeated ChangeProposalHistoryEntry entries = 1;
+  int32 next_before_ordinal = 2;
+}
+
+message GetChangeProposalDiffRequest {
+  string proposal_id = 1;
+  string revision_id = 2;
+}
+
+message GetChangeProposalDiffResponse {
+  string base_revision_id = 1;
+  string revision_id = 2;
+  string unified_diff = 3;
+  bool truncated = 4;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -228,4 +260,6 @@ service ContentService {
   rpc GetChangeProposal(GetChangeProposalRequest) returns (GetChangeProposalResponse);
   rpc AppendChangeProposalRevision(AppendChangeProposalRevisionRequest) returns (AppendChangeProposalRevisionResponse);
   rpc CloseChangeProposal(CloseChangeProposalRequest) returns (CloseChangeProposalResponse);
+  rpc ListChangeProposalHistory(ListChangeProposalHistoryRequest) returns (ListChangeProposalHistoryResponse);
+  rpc GetChangeProposalDiff(GetChangeProposalDiffRequest) returns (GetChangeProposalDiffResponse);
 }

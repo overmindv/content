@@ -1,6 +1,7 @@
 package content
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/overmindv/content/internal/mock"
@@ -53,5 +54,35 @@ func TestGRPCChangeProposal(t *testing.T) {
 		ContentItemId: testOtherActor, BaseRevisionId: testOtherActor, Source: "<p>Example</p>",
 	}); status.Code(err) != codes.InvalidArgument {
 		t.Errorf("OpenChangeProposal with raw HTML: %v", err)
+	}
+}
+
+func TestGRPCChangeProposalHistoryAndDiff(t *testing.T) {
+	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store)))
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	store.EXPECT().ListChangeProposalHistory(gomock.Any(), domain.ChangeProposalHistoryInput{
+		ProposalID: testOtherActor, ActorID: testActor, PageSize: 20,
+	}).Return(domain.ChangeProposalHistory{Entries: []domain.ChangeProposalHistoryEntry{{ID: testActor, Ordinal: 3}}, NextBeforeOrdinal: 3}, nil)
+	store.EXPECT().GetChangeProposalDiffSources(gomock.Any(), domain.ChangeProposalDiffInput{
+		ProposalID: testOtherActor, ActorID: testActor,
+	}).Return(domain.ChangeProposalDiffSources{BaseRevisionID: testOtherActor, RevisionID: testActor, BaseSource: "old\n", Source: "new\n"}, nil)
+	store.EXPECT().GetChangeProposalDiffSources(gomock.Any(), domain.ChangeProposalDiffInput{
+		ProposalID: testOtherActor, RevisionID: testOtherActor, ActorID: testActor,
+	}).Return(domain.ChangeProposalDiffSources{}, service.ErrProposalRevisionNotFound)
+
+	page, err := client.ListChangeProposalHistory(ctx, &contentpb.ListChangeProposalHistoryRequest{ProposalId: testOtherActor})
+	if err != nil || page.GetNextBeforeOrdinal() != 3 || len(page.GetEntries()) != 1 || page.GetEntries()[0].GetOrdinal() != 3 {
+		t.Errorf("unexpected history page: %v", err)
+	}
+	if _, err = client.ListChangeProposalHistory(ctx, &contentpb.ListChangeProposalHistoryRequest{ProposalId: testOtherActor, PageSize: 51}); status.Code(err) != codes.InvalidArgument {
+		t.Errorf("history larger than max page size: %v", err)
+	}
+	diff, err := client.GetChangeProposalDiff(ctx, &contentpb.GetChangeProposalDiffRequest{ProposalId: testOtherActor})
+	if err != nil || diff.GetTruncated() || diff.GetRevisionId() != testActor || !strings.Contains(diff.GetUnifiedDiff(), "-old\n+new\n") {
+		t.Errorf("unexpected diff: %v", err)
+	}
+	if _, err = client.GetChangeProposalDiff(ctx, &contentpb.GetChangeProposalDiffRequest{ProposalId: testOtherActor, RevisionId: testOtherActor}); status.Code(err) != codes.NotFound {
+		t.Errorf("diff with missing revision: %v", err)
 	}
 }
