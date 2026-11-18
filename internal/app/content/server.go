@@ -87,7 +87,7 @@ func (s *Server) ListContentItems(ctx context.Context, _ *contentpb.ListContentI
 	return &contentpb.ListContentItemsResponse{Items: mapper.ToProtoList(items)}, nil
 }
 
-func (s *Server) GetPublishedContentItem(ctx context.Context, req *contentpb.GetContentItemRequest) (*contentpb.GetContentItemResponse, error) {
+func (s *Server) GetPublishedContentItem(ctx context.Context, req *contentpb.GetPublishedContentItemRequest) (*contentpb.GetPublishedContentItemResponse, error) {
 	if _, err := actorID(ctx); err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (s *Server) GetPublishedContentItem(ctx context.Context, req *contentpb.Get
 	if err != nil {
 		return nil, toStatusError(err)
 	}
-	return &contentpb.GetContentItemResponse{Item: mapper.ToProto(item)}, nil
+	return &contentpb.GetPublishedContentItemResponse{Item: mapper.ToProto(item)}, nil
 }
 
 func (s *Server) UpdateContentItem(ctx context.Context, req *contentpb.UpdateContentItemRequest) (*contentpb.UpdateContentItemResponse, error) {

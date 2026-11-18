@@ -64,7 +64,7 @@ func TestGRPCPublishedReadRequiresActorButDoesNotSelectDraft(t *testing.T) {
 	store := mock.NewMockContentItemStore(gomock.NewController(t))
 	handler := NewServer(service.NewContentItemService(store, nil), nil, nil)
 	ctx, client := newGRPCTestClient(t, testServiceToken, handler)
-	req := &contentpb.GetContentItemRequest{Id: testOtherActor}
+	req := &contentpb.GetPublishedContentItemRequest{Id: testOtherActor}
 	if _, err := client.GetPublishedContentItem(ctx, req); status.Code(err) != codes.Unauthenticated {
 		t.Errorf("published read without actor: %v", err)
 	}
