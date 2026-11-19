@@ -29,7 +29,7 @@ func NewReviewCandidateClient(address, token string) (*ReviewCandidateClient, er
 	if err != nil || base.Hostname() == "" || base.User != nil || base.RawQuery != "" || base.ForceQuery || base.Fragment != "" {
 		return nil, errors.New("CONTENT_REVIEW_CANDIDATES_URL must be an absolute URL without credentials, query or fragment")
 	}
-	if base.Scheme != "https" && !(base.Scheme == "http" && net.ParseIP(base.Hostname()).IsLoopback()) {
+	if base.Scheme != "https" && (base.Scheme != "http" || !net.ParseIP(base.Hostname()).IsLoopback()) {
 		return nil, errors.New("CONTENT_REVIEW_CANDIDATES_URL requires HTTPS outside loopback")
 	}
 	if token == "" || strings.IndexFunc(token, func(r rune) bool { return r <= 32 || r >= 127 }) >= 0 {

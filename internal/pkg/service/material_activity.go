@@ -24,6 +24,27 @@ func (s *ContentItemService) SnapshotMaterials(ctx context.Context, input domain
 	return s.store.SnapshotMaterials(ctx, input)
 }
 
+func (s *ContentItemService) CheckMaterialAvailability(ctx context.Context, keys []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error) {
+	if len(keys) == 0 || len(keys) > domain.MaxMaterialAvailabilityBatch {
+		return nil, validator.Error{Message: "provide 1-100 material versions"}
+	}
+	normalized := make([]domain.MaterialVersionKey, 0, len(keys))
+	seen := make(map[domain.MaterialVersionKey]struct{}, len(keys))
+	for _, key := range keys {
+		if !validProposalID(key.MaterialID) || !validProposalID(key.RevisionID) {
+			return nil, validator.Error{Message: "material_id and revision_id must be UUIDs"}
+		}
+		key.MaterialID, key.RevisionID = strings.ToLower(key.MaterialID), strings.ToLower(key.RevisionID)
+		if _, ok := seen[key]; ok {
+			return nil, validator.Error{Message: "duplicate material version"}
+		}
+		seen[key] = struct{}{}
+		normalized = append(normalized, key)
+	}
+
+	return s.store.AvailableMaterialVersions(ctx, normalized)
+}
+
 func (s *ContentItemService) ConfirmMaterialRead(ctx context.Context, input domain.ConfirmMaterialReadInput) error {
 	if !validProposalID(input.MaterialID) || !validProposalID(input.RevisionID) {
 		return validator.Error{Message: "material_id and revision_id must be UUIDs"}

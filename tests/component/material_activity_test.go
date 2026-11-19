@@ -29,7 +29,7 @@ type activityFixture struct {
 	owner, topic                  string
 }
 
-func newActivityFixture(t *testing.T) activityFixture {
+func newActivityFixture(t testing.TB) activityFixture {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
 	t.Cleanup(cancel)
@@ -51,7 +51,7 @@ func newActivityFixture(t *testing.T) activityFixture {
 	return f
 }
 
-func (f activityFixture) create(t *testing.T) domain.ContentItem {
+func (f activityFixture) create(t testing.TB) domain.ContentItem {
 	t.Helper()
 	input := builders.ContentItem()
 	input.CreatedBy, input.Slug = f.owner, input.Slug+"-"+uuid.NewString()
@@ -64,7 +64,7 @@ func (f activityFixture) create(t *testing.T) domain.ContentItem {
 	return item
 }
 
-func (f activityFixture) state(t *testing.T, item domain.ContentItem, status domain.ContentStatus) domain.ContentItem {
+func (f activityFixture) state(t testing.TB, item domain.ContentItem, status domain.ContentStatus) domain.ContentItem {
 	t.Helper()
 	changed, err := f.store.ChangeState(f.ctx, domain.ChangeContentItemStateInput{
 		ID: item.ID, ExpectedRevisionID: item.CurrentRevisionID, ActorID: f.owner,

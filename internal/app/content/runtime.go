@@ -26,6 +26,9 @@ func Build(app *parker.App) error {
 	if err := validateModerationConfig(cfg); err != nil {
 		return err
 	}
+	if err := validateCatalogConfig(cfg); err != nil {
+		return err
+	}
 	var topics service.TopicChecker
 	if cfg.EntitiesURL != "" {
 		client, err := external.NewTopicClient(cfg.EntitiesURL)
@@ -84,7 +87,7 @@ func Build(app *parker.App) error {
 	items, proposals := service.NewContentItemService(store, topics), service.NewChangeProposalService(store)
 	if cfg.MediaURL != "" || cfg.MediaToken != "" {
 		if cfg.MediaToken != "" && (cfg.MediaToken == cfg.GRPC.ServiceToken || cfg.MediaToken == cfg.ReviewCandidatesToken) {
-			return errors.New("Media bindings require a separate service token")
+			return errors.New("media bindings require a separate service token")
 		}
 		media, err := external.NewMediaClient(cfg.MediaURL, cfg.MediaToken)
 		if err != nil {
@@ -106,10 +109,17 @@ func Build(app *parker.App) error {
 }
 
 func validActivityTopic(topic string) bool {
-	return len(topic) > 0 && len(topic) <= 249 && topic != "." && topic != ".." &&
-		strings.IndexFunc(topic, func(r rune) bool {
-			return !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '.' || r == '_' || r == '-')
-		}) < 0
+	if len(topic) == 0 || len(topic) > 249 || topic == "." || topic == ".." {
+		return false
+	}
+	for _, r := range topic {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '.', r == '_', r == '-':
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 func validateModerationConfig(cfg config.Config) error {
@@ -128,13 +138,26 @@ func validateModerationConfig(cfg config.Config) error {
 	return nil
 }
 
+func validateCatalogConfig(cfg config.Config) error {
+	token := cfg.GRPC.CatalogToken
+	if token == "" {
+		return nil
+	}
+	if len(token) < 32 || len(token) > 256 || token == cfg.GRPC.ServiceToken ||
+		token == cfg.GRPC.ModerationToken || token == cfg.MediaToken || token == cfg.ReviewCandidatesToken ||
+		strings.ContainsFunc(token, func(r rune) bool { return r <= 32 || r >= 127 }) {
+		return errors.New("CONTENT_GRPC_CATALOG_TOKEN must be a separate printable service token")
+	}
+	return nil
+}
+
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
 	listener, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return err
 	}
 
-	grpcServer := newGRPCServer(handler, cfg.ServiceToken, cfg.ModerationToken)
+	grpcServer := newGRPCServer(handler, cfg)
 
 	go func() {
 		<-ctx.Done()
@@ -145,12 +168,13 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(handler *Server, serviceToken, moderationToken string) *grpc.Server {
+func newGRPCServer(handler *Server, cfg config.GRPCConfig) *grpc.Server {
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(512*1024),
-		grpc.UnaryInterceptor(requireServiceActor(serviceToken, moderationToken)),
+		grpc.UnaryInterceptor(requireServiceActor(cfg)),
 	)
 	contentpb.RegisterContentServiceServer(server, handler)
+	contentpb.RegisterMaterialCatalogServiceServer(server, &materialCatalogServer{items: handler.itemService})
 	reflection.Register(server)
 	return server
 }

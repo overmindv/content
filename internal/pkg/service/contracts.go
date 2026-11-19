@@ -41,6 +41,7 @@ type ContentItemStore interface {
 	List(ctx context.Context, actorID string) ([]domain.ContentItem, error)
 	ListCatalog(context.Context, domain.CatalogFilter, *domain.CatalogCursor) ([]domain.CatalogEntry, error)
 	SnapshotMaterials(context.Context, domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error)
+	AvailableMaterialVersions(context.Context, []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error)
 	ConfirmMaterialRead(context.Context, domain.ConfirmMaterialReadInput) error
 	Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error)
 	ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error)

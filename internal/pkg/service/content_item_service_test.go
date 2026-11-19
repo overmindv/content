@@ -51,6 +51,10 @@ func (s *storeStub) SnapshotMaterials(context.Context, domain.MaterialSnapshotIn
 	return domain.MaterialSnapshot{}, nil
 }
 
+func (s *storeStub) AvailableMaterialVersions(context.Context, []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error) {
+	return nil, nil
+}
+
 func (s *storeStub) ConfirmMaterialRead(context.Context, domain.ConfirmMaterialReadInput) error {
 	return nil
 }

@@ -72,16 +72,6 @@ func writeReview[T any](ctx context.Context, store *ContentItemStore, actor doma
 	return value, nil
 }
 
-func checkReviewRevision(ctx context.Context, q queryer, ref domain.ReviewRevisionRef) error {
-	const query = `SELECT 1 FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
-	var found int
-	err := q.QueryRow(ctx, query, ref.ProposalID, ref.RevisionID).Scan(&found)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return service.ErrProposalRevisionNotFound
-	}
-	return err
-}
-
 func (s *ContentItemStore) SubmitReviewDecision(ctx context.Context, input domain.SubmitReviewDecisionInput) (domain.ReviewDecision, error) {
 	return writeReview(ctx, s, input.ReviewActor, func(tx pgx.Tx, scope reviewScope) (domain.ReviewDecision, error) {
 		if input.ActorID == scope.author {

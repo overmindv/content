@@ -41,6 +41,21 @@ func (m *MockContentItemStore) EXPECT() *MockContentItemStoreMockRecorder {
 	return m.recorder
 }
 
+// AvailableMaterialVersions mocks base method.
+func (m *MockContentItemStore) AvailableMaterialVersions(arg0 context.Context, arg1 []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AvailableMaterialVersions", arg0, arg1)
+	ret0, _ := ret[0].([]domain.MaterialVersionKey)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AvailableMaterialVersions indicates an expected call of AvailableMaterialVersions.
+func (mr *MockContentItemStoreMockRecorder) AvailableMaterialVersions(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AvailableMaterialVersions", reflect.TypeOf((*MockContentItemStore)(nil).AvailableMaterialVersions), arg0, arg1)
+}
+
 // ChangeState mocks base method.
 func (m *MockContentItemStore) ChangeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()
