@@ -145,9 +145,11 @@ func normalizeTags(tags []string) []string {
 		normalized := strings.ToLower(strings.TrimSpace(tag))
 		if normalized == "" {
 			result = append(result, normalized)
+
 			continue
 		}
 		if _, ok := seen[normalized]; ok {
+
 			continue
 		}
 
