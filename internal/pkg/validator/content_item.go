@@ -17,6 +17,7 @@ func (e Error) Error() string {
 
 func IsValidationError(err error) bool {
 	var validationErr Error
+
 	return errors.As(err, &validationErr)
 }
 
@@ -151,10 +152,12 @@ func isSlug(value string) bool {
 		isDigit := char >= '0' && char <= '9'
 		if isAlpha || isDigit {
 			previousHyphen = false
+
 			continue
 		}
 		if char == '-' && !previousHyphen {
 			previousHyphen = true
+
 			continue
 		}
 

@@ -69,5 +69,6 @@ func runGRPC(ctx context.Context, addr string, itemService *service.ContentItemS
 	}()
 
 	logger.Info("grpc server listening", "addr", addr)
+
 	return grpcServer.Serve(listener)
 }

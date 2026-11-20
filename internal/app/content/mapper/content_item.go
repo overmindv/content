@@ -141,10 +141,13 @@ func ToProtoList(items []domain.ContentItem) []*content.ContentItem {
 }
 
 func ToProtoRevision(revision domain.ContentRevision) *content.ContentRevision {
+	// PostgreSQL INTEGER и protobuf int32 задают одинаковый диапазон ревизии.
+	revisionNumber := int32(revision.Revision) //nolint:gosec // значение получено из INTEGER
+
 	return &content.ContentRevision{
 		Id:            revision.ID,
 		ContentItemId: revision.ContentItemID,
-		Revision:      int32(revision.Revision),
+		Revision:      revisionNumber,
 		Format:        string(revision.Format),
 		Source:        revision.Source,
 		SourceHash:    revision.SourceHash,
@@ -180,6 +183,8 @@ func ToProtoTags(tags []domain.Tag) []*content.Tag {
 func ToProtoAssets(assets []domain.ContentAsset) []*content.ContentAsset {
 	result := make([]*content.ContentAsset, 0, len(assets))
 	for _, asset := range assets {
+		// Position приходит из protobuf int32 или PostgreSQL INTEGER.
+		position := int32(asset.Position) //nolint:gosec // источники ограничены int32
 		result = append(result, &content.ContentAsset{
 			Id:            asset.ID,
 			ContentItemId: asset.ContentItemID,
@@ -187,7 +192,7 @@ func ToProtoAssets(assets []domain.ContentAsset) []*content.ContentAsset {
 			AssetId:       asset.AssetID,
 			Kind:          string(asset.Kind),
 			Title:         asset.Title,
-			Position:      int32(asset.Position),
+			Position:      position,
 			CreatedAt:     timestamppb.New(asset.CreatedAt),
 		})
 	}

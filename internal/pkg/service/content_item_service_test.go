@@ -65,6 +65,8 @@ func (s *storeStub) ListRevisions(context.Context, string) ([]domain.ContentRevi
 }
 
 func TestCreateAppliesDefaults(t *testing.T) {
+	t.Parallel()
+
 	store := &storeStub{}
 	svc := NewContentItemService(store)
 

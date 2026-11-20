@@ -502,9 +502,9 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 
 	revisions := make([]domain.ContentRevision, 0)
 	for rows.Next() {
-		revision, err := scanContentRevision(rows)
-		if err != nil {
-			return nil, err
+		revision, scanErr := scanContentRevision(rows)
+		if scanErr != nil {
+			return nil, scanErr
 		}
 
 		revisions = append(revisions, revision)
@@ -849,6 +849,7 @@ func scanContentAsset(row scanner) (domain.ContentAsset, error) {
 
 func hashSource(source string) string {
 	sum := sha256.Sum256([]byte(source))
+
 	return hex.EncodeToString(sum[:])
 }
 
