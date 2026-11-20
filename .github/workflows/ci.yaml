@@ -91,23 +91,23 @@ jobs:
   component-test:
     name: Component tests
     runs-on: ubuntu-latest
-    continue-on-error: true
     services:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_DB: content
+          POSTGRES_DB: content_test
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d content"
+          --health-cmd "pg_isready -U postgres -d content_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DB_DSN: postgres://postgres@localhost:5432/content?sslmode=disable
+      DB_DSN: postgres://postgres@localhost:5432/content_test?sslmode=disable
+      COMPONENT_TEST_DSN: postgres://postgres@localhost:5432/content_test?sslmode=disable
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

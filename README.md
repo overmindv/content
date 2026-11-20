@@ -86,7 +86,7 @@ curl http://localhost:8080/readyz
 ```bash
 make help
 make test
-make ctest
+make ctest COMPONENT_TEST_DSN="$CONTENT_TEST_DSN"
 make generate
 make mocks
 make db-status

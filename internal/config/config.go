@@ -14,7 +14,8 @@ type Config struct {
 }
 
 type GRPCConfig struct {
-	Addr string
+	Addr         string
+	ServiceToken string
 }
 
 type KafkaConfig struct {
@@ -27,7 +28,8 @@ type KafkaConfig struct {
 func Load() Config {
 	return Config{
 		GRPC: GRPCConfig{
-			Addr: env("GRPC_ADDR", ":9090"),
+			Addr:         env("GRPC_ADDR", ":9090"),
+			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),
 		},
 		Kafka: KafkaConfig{
 			Enabled:      envBool("KAFKA_ENABLED", true),

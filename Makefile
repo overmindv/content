@@ -5,7 +5,7 @@ MOCKGEN := $(LOCAL_BIN)/mockgen
 GOOSE := $(LOCAL_BIN)/goose
 SERVICE_NAME := content
 DB_DSN ?= postgres://postgres:change-me@localhost:5432/content?sslmode=disable
-COMPONENT_TEST_DSN ?= $(DB_DSN)
+COMPONENT_TEST_DSN ?=
 MIGRATION_NAME ?= content_change
 PROTO_INCLUDE ?= /usr/include
 
@@ -18,7 +18,7 @@ test: ## Run unit tests
 	go test ./...
 
 ctest: ## Run component tests against a running PostgreSQL
-	COMPONENT_TEST_DSN="$(COMPONENT_TEST_DSN)" go test -tags=component ./tests/component/...
+	COMPONENT_TEST_DSN="$(COMPONENT_TEST_DSN)" go test -tags=component ./internal/app/content ./tests/component/...
 
 build: ## Build the service binary
 	go build ./...

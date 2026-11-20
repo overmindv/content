@@ -18,7 +18,11 @@ func NewServer(itemService *service.ContentItemService) *Server {
 }
 
 func (s *Server) CreateContentItem(ctx context.Context, req *contentpb.CreateContentItemRequest) (*contentpb.CreateContentItemResponse, error) {
-	item, err := s.itemService.Create(ctx, mapper.ToCreateInput(mapper.CreateContentItemFromProto(req)))
+	id, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Create(ctx, mapper.ToCreateInput(mapper.CreateContentItemFromProto(req, id)))
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -27,7 +31,11 @@ func (s *Server) CreateContentItem(ctx context.Context, req *contentpb.CreateCon
 }
 
 func (s *Server) GetContentItem(ctx context.Context, req *contentpb.GetContentItemRequest) (*contentpb.GetContentItemResponse, error) {
-	item, err := s.itemService.Get(ctx, req.GetId())
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Get(ctx, req.GetId(), actor)
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -36,7 +44,11 @@ func (s *Server) GetContentItem(ctx context.Context, req *contentpb.GetContentIt
 }
 
 func (s *Server) ListContentItems(ctx context.Context, _ *contentpb.ListContentItemsRequest) (*contentpb.ListContentItemsResponse, error) {
-	items, err := s.itemService.List(ctx)
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	items, err := s.itemService.List(ctx, actor)
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -45,7 +57,11 @@ func (s *Server) ListContentItems(ctx context.Context, _ *contentpb.ListContentI
 }
 
 func (s *Server) UpdateContentItem(ctx context.Context, req *contentpb.UpdateContentItemRequest) (*contentpb.UpdateContentItemResponse, error) {
-	item, err := s.itemService.Update(ctx, mapper.ToUpdateInput(mapper.UpdateContentItemFromProto(req)))
+	id, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Update(ctx, mapper.ToUpdateInput(mapper.UpdateContentItemFromProto(req, id)))
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -54,7 +70,11 @@ func (s *Server) UpdateContentItem(ctx context.Context, req *contentpb.UpdateCon
 }
 
 func (s *Server) DeleteContentItem(ctx context.Context, req *contentpb.DeleteContentItemRequest) (*contentpb.DeleteContentItemResponse, error) {
-	item, err := s.itemService.Delete(ctx, req.GetId())
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.itemService.Delete(ctx, req.GetId(), actor)
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -63,7 +83,11 @@ func (s *Server) DeleteContentItem(ctx context.Context, req *contentpb.DeleteCon
 }
 
 func (s *Server) CreateContentRevision(ctx context.Context, req *contentpb.CreateContentRevisionRequest) (*contentpb.CreateContentRevisionResponse, error) {
-	revision, err := s.itemService.CreateRevision(ctx, mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req)))
+	id, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	revision, err := s.itemService.CreateRevision(ctx, mapper.ToCreateRevisionInput(mapper.CreateContentRevisionFromProto(req, id)))
 	if err != nil {
 		return nil, toStatusError(err)
 	}
@@ -72,7 +96,11 @@ func (s *Server) CreateContentRevision(ctx context.Context, req *contentpb.Creat
 }
 
 func (s *Server) ListContentRevisions(ctx context.Context, req *contentpb.ListContentRevisionsRequest) (*contentpb.ListContentRevisionsResponse, error) {
-	revisions, err := s.itemService.ListRevisions(ctx, req.GetContentItemId())
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	revisions, err := s.itemService.ListRevisions(ctx, req.GetContentItemId(), actor)
 	if err != nil {
 		return nil, toStatusError(err)
 	}

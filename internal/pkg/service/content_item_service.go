@@ -33,16 +33,16 @@ func (s *ContentItemService) Create(ctx context.Context, input domain.CreateCont
 	return item, err
 }
 
-func (s *ContentItemService) Get(ctx context.Context, id string) (item domain.ContentItem, err error) {
+func (s *ContentItemService) Get(ctx context.Context, id, actorID string) (item domain.ContentItem, err error) {
 	if err = validator.ValidateID(id); err != nil {
 		return domain.ContentItem{}, err
 	}
 
-	return s.store.Get(ctx, strings.TrimSpace(id))
+	return s.store.Get(ctx, strings.TrimSpace(id), actorID)
 }
 
-func (s *ContentItemService) List(ctx context.Context) (items []domain.ContentItem, err error) {
-	return s.store.List(ctx)
+func (s *ContentItemService) List(ctx context.Context, actorID string) (items []domain.ContentItem, err error) {
+	return s.store.List(ctx, actorID)
 }
 
 func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateContentItemInput) (item domain.ContentItem, err error) {
@@ -56,12 +56,12 @@ func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateCont
 	return item, err
 }
 
-func (s *ContentItemService) Delete(ctx context.Context, id string) (item domain.ContentItem, err error) {
+func (s *ContentItemService) Delete(ctx context.Context, id, actorID string) (item domain.ContentItem, err error) {
 	if err = validator.ValidateID(id); err != nil {
 		return domain.ContentItem{}, err
 	}
 
-	item, err = s.store.Delete(ctx, strings.TrimSpace(id))
+	item, err = s.store.Delete(ctx, strings.TrimSpace(id), actorID)
 
 	return item, err
 }
@@ -77,12 +77,12 @@ func (s *ContentItemService) CreateRevision(ctx context.Context, input domain.Cr
 	return revision, err
 }
 
-func (s *ContentItemService) ListRevisions(ctx context.Context, contentItemID string) (revisions []domain.ContentRevision, err error) {
+func (s *ContentItemService) ListRevisions(ctx context.Context, contentItemID, actorID string) (revisions []domain.ContentRevision, err error) {
 	if err = validator.ValidateID(contentItemID); err != nil {
 		return nil, err
 	}
 
-	return s.store.ListRevisions(ctx, strings.TrimSpace(contentItemID))
+	return s.store.ListRevisions(ctx, strings.TrimSpace(contentItemID), actorID)
 }
 
 func normalizeCreateInput(input domain.CreateContentItemInput) domain.CreateContentItemInput {

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func CreateContentItemFromProto(req *content.CreateContentItemRequest) dto.CreateContentItem {
+func CreateContentItemFromProto(req *content.CreateContentItemRequest, actorID string) dto.CreateContentItem {
 	assets := make([]dto.CreateContentAsset, 0, len(req.GetAssets()))
 	for _, asset := range req.GetAssets() {
 		assets = append(assets, dto.CreateContentAsset{
@@ -29,13 +29,13 @@ func CreateContentItemFromProto(req *content.CreateContentItemRequest) dto.Creat
 		Format:      req.GetFormat(),
 		Source:      req.GetSource(),
 		Message:     req.GetMessage(),
-		CreatedBy:   req.GetCreatedBy(),
+		CreatedBy:   actorID,
 		Tags:        req.GetTags(),
 		Assets:      assets,
 	}
 }
 
-func UpdateContentItemFromProto(req *content.UpdateContentItemRequest) dto.UpdateContentItem {
+func UpdateContentItemFromProto(req *content.UpdateContentItemRequest, actorID string) dto.UpdateContentItem {
 	return dto.UpdateContentItem{
 		ID:          req.GetId(),
 		Type:        req.GetType(),
@@ -43,17 +43,17 @@ func UpdateContentItemFromProto(req *content.UpdateContentItemRequest) dto.Updat
 		Title:       req.GetTitle(),
 		Slug:        req.GetSlug(),
 		Description: req.GetDescription(),
-		UpdatedBy:   req.GetUpdatedBy(),
+		UpdatedBy:   actorID,
 	}
 }
 
-func CreateContentRevisionFromProto(req *content.CreateContentRevisionRequest) dto.CreateContentRevision {
+func CreateContentRevisionFromProto(req *content.CreateContentRevisionRequest, actorID string) dto.CreateContentRevision {
 	return dto.CreateContentRevision{
 		ContentItemID: req.GetContentItemId(),
 		Format:        req.GetFormat(),
 		Source:        req.GetSource(),
 		Message:       req.GetMessage(),
-		CreatedBy:     req.GetCreatedBy(),
+		CreatedBy:     actorID,
 	}
 }
 

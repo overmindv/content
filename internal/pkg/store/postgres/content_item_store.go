@@ -172,7 +172,7 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	}
 
 	// Событие пишется в outbox атомарно с созданием контент-айтема.
-	item, err := s.get(ctx, tx, itemID)
+	item, err := s.get(ctx, tx, itemID, input.CreatedBy)
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
@@ -224,17 +224,11 @@ func (s *ContentItemStore) enqueueContentRevision(ctx context.Context, execer ex
 	return nil
 }
 
-func (s *ContentItemStore) Get(ctx context.Context, id string) (domain.ContentItem, error) {
-	item, err := s.get(ctx, s.db, id)
-	if err != nil {
-		return domain.ContentItem{}, err
-	}
-
-	return item, nil
+func (s *ContentItemStore) Get(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
+	return s.get(ctx, s.db, id, actorID)
 }
 
-func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, error) {
-	const query = `
+const visibleContentItems = `
 		SELECT
 			i.id,
 			i.type,
@@ -242,12 +236,13 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 			i.title,
 			i.slug,
 			i.description,
-			i.current_revision_id,
+			r.id,
 			i.published_revision_id,
 			i.created_by,
-			i.updated_by,
+			CASE WHEN i.created_by = $1 THEN i.updated_by ELSE r.created_by END,
 			i.created_at,
-			i.updated_at,
+			CASE WHEN i.created_by = $1 THEN i.updated_at
+			     ELSE COALESCE(GREATEST(i.published_at, r.created_at), i.created_at) END,
 			i.published_at,
 			i.archived_at,
 			r.id,
@@ -260,11 +255,13 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 			r.created_by,
 			r.created_at
 		FROM content_items i
-		LEFT JOIN content_revisions r ON r.id = i.current_revision_id
-		ORDER BY i.created_at DESC
+		LEFT JOIN content_revisions r ON r.content_item_id = i.id
+		    AND r.id = CASE WHEN i.created_by = $1 THEN i.current_revision_id ELSE i.published_revision_id END
+		WHERE (i.created_by = $1 OR (i.status = 'published' AND r.id IS NOT NULL))
 	`
 
-	rows, err := s.db.Query(ctx, query)
+func (s *ContentItemStore) List(ctx context.Context, actorID string) ([]domain.ContentItem, error) {
+	rows, err := s.db.Query(ctx, visibleContentItems+` ORDER BY i.created_at DESC`, nullableString(actorID))
 	if err != nil {
 		return nil, err
 	}
@@ -276,14 +273,19 @@ func (s *ContentItemStore) List(ctx context.Context) ([]domain.ContentItem, erro
 		if err != nil {
 			return nil, err
 		}
-		if err = s.loadItemRelations(ctx, s.db, &item); err != nil {
-			return nil, err
-		}
-
 		items = append(items, item)
 	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	rows.Close()
 
-	return items, rows.Err()
+	for i := range items {
+		if err = s.loadItemRelations(ctx, s.db, &items[i], actorID); err != nil {
+			return nil, err
+		}
+	}
+	return items, nil
 }
 
 func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error) {
@@ -319,7 +321,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 		        WHEN $3 IN ('draft', 'published') THEN NULL
 		        ELSE archived_at
 		    END
-		WHERE id = $1
+		WHERE id = $1 AND created_by = $7
 		RETURNING id
 	`
 
@@ -343,7 +345,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	}
 
 	// Событие пишется в outbox атомарно с обновлением айтема.
-	item, err := s.get(ctx, tx, id)
+	item, err := s.get(ctx, tx, id, input.UpdatedBy)
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
@@ -357,12 +359,7 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 	return item, nil
 }
 
-func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.ContentItem, error) {
-	item, err := s.Get(ctx, id)
-	if err != nil {
-		return domain.ContentItem{}, err
-	}
-
+func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ContentItem{}, err
@@ -370,6 +367,13 @@ func (s *ContentItemStore) Delete(ctx context.Context, id string) (domain.Conten
 	defer func() {
 		_ = tx.Rollback(ctx)
 	}()
+	if err = lockOwnedContentItem(ctx, tx, id, actorID); err != nil {
+		return domain.ContentItem{}, err
+	}
+	item, err := s.get(ctx, tx, id, actorID)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
 
 	const query = `
 		DELETE FROM content_items
@@ -404,19 +408,8 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		_ = tx.Rollback(ctx)
 	}()
 
-	const lockItem = `
-		SELECT id
-		FROM content_items
-		WHERE id = $1
-		FOR UPDATE
-	`
-
-	var itemID string
-	err = tx.QueryRow(ctx, lockItem, input.ContentItemID).Scan(&itemID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.ContentRevision{}, service.ErrNotFound
-	}
-	if err != nil {
+	itemID := input.ContentItemID
+	if err = lockOwnedContentItem(ctx, tx, itemID, input.CreatedBy); err != nil {
 		return domain.ContentRevision{}, err
 	}
 
@@ -486,15 +479,16 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 	return revision, nil
 }
 
-func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID string) ([]domain.ContentRevision, error) {
+func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error) {
 	const query = `
 		SELECT id, content_item_id, revision, format, source, source_hash, message, created_by, created_at
 		FROM content_revisions
 		WHERE content_item_id = $1
+		  AND EXISTS (SELECT 1 FROM content_items WHERE id = $1 AND created_by = $2)
 		ORDER BY revision DESC
 	`
 
-	rows, err := s.db.Query(ctx, query, contentItemID)
+	rows, err := s.db.Query(ctx, query, contentItemID, nullableString(actorID))
 	if err != nil {
 		return nil, err
 	}
@@ -521,10 +515,10 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 		SELECT EXISTS (
 			SELECT 1
 			FROM content_items
-			WHERE id = $1
+			WHERE id = $1 AND created_by = $2
 		)
 	`
-	if err = s.db.QueryRow(ctx, existsQuery, contentItemID).Scan(&exists); err != nil {
+	if err = s.db.QueryRow(ctx, existsQuery, contentItemID, nullableString(actorID)).Scan(&exists); err != nil {
 		return nil, err
 	}
 	if !exists {
@@ -534,45 +528,31 @@ func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID stri
 	return revisions, nil
 }
 
-func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id string) (domain.ContentItem, error) {
+func lockOwnedContentItem(ctx context.Context, tx pgx.Tx, id, actorID string) error {
 	const query = `
-		SELECT
-			i.id,
-			i.type,
-			i.status,
-			i.title,
-			i.slug,
-			i.description,
-			i.current_revision_id,
-			i.published_revision_id,
-			i.created_by,
-			i.updated_by,
-			i.created_at,
-			i.updated_at,
-			i.published_at,
-			i.archived_at,
-			r.id,
-			r.content_item_id,
-			r.revision,
-			r.format,
-			r.source,
-			r.source_hash,
-			r.message,
-			r.created_by,
-			r.created_at
-		FROM content_items i
-		LEFT JOIN content_revisions r ON r.id = i.current_revision_id
-		WHERE i.id = $1
+		SELECT id
+		FROM content_items
+		WHERE id = $1 AND created_by = $2
+		FOR UPDATE
 	`
+	var itemID string
+	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&itemID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return service.ErrNotFound
+	}
+	return err
+}
 
-	item, err := scanContentItem(queryer.QueryRow(ctx, query, id))
+func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id, actorID string) (domain.ContentItem, error) {
+	const query = visibleContentItems + ` AND i.id = $2`
+	item, err := scanContentItem(queryer.QueryRow(ctx, query, nullableString(actorID), id))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ContentItem{}, service.ErrNotFound
 	}
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
-	if err = s.loadItemRelations(ctx, queryer, &item); err != nil {
+	if err = s.loadItemRelations(ctx, queryer, &item, actorID); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -641,12 +621,13 @@ func (s *ContentItemStore) attachAssets(ctx context.Context, tx pgx.Tx, contentI
 	return nil
 }
 
-func (s *ContentItemStore) loadItemRelations(ctx context.Context, queryer queryer, item *domain.ContentItem) error {
+func (s *ContentItemStore) loadItemRelations(ctx context.Context, queryer queryer, item *domain.ContentItem, actorID string) error {
 	tags, err := s.listTags(ctx, queryer, item.ID)
 	if err != nil {
 		return err
 	}
-	assets, err := s.listAssets(ctx, queryer, item.ID)
+	owner := actorID != "" && item.CreatedBy == actorID
+	assets, err := s.listAssets(ctx, queryer, item.ID, item.CurrentRevisionID, owner)
 	if err != nil {
 		return err
 	}
@@ -685,15 +666,16 @@ func (s *ContentItemStore) listTags(ctx context.Context, queryer queryer, conten
 	return tags, rows.Err()
 }
 
-func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, contentItemID string) ([]domain.ContentAsset, error) {
+func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, contentItemID, revisionID string, owner bool) ([]domain.ContentAsset, error) {
 	const query = `
 		SELECT id, content_item_id, revision_id, asset_id, kind, title, position, created_at
 		FROM content_assets
 		WHERE content_item_id = $1
+		  AND ($3::boolean OR revision_id = $2)
 		ORDER BY position, id
 	`
 
-	rows, err := queryer.Query(ctx, query, contentItemID)
+	rows, err := queryer.Query(ctx, query, contentItemID, nullableString(revisionID), owner)
 	if err != nil {
 		return nil, err
 	}
