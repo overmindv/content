@@ -19,6 +19,9 @@ var (
 	ErrProposalExists           = errors.New("an open proposal already exists for this material and author")
 	ErrProposalRevisionNotFound = errors.New("change proposal revision not found")
 	ErrProposalDiffBusy         = errors.New("too many proposal diff requests")
+	ErrReviewThreadNotFound     = errors.New("review thread not found")
+	ErrReviewNotAllowed         = errors.New("only a reviewer other than the proposal author can submit a decision")
+	ErrReviewDecisionExists     = errors.New("a different decision already exists for this revision")
 )
 
 type ContentItemStore interface {
@@ -40,4 +43,14 @@ type ChangeProposalStore interface {
 	CloseChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
 	ListChangeProposalHistory(context.Context, domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error)
 	GetChangeProposalDiffSources(context.Context, domain.ChangeProposalDiffInput) (domain.ChangeProposalDiffSources, error)
+}
+
+type ChangeReviewStore interface {
+	CreateReviewThread(context.Context, domain.CreateReviewThreadInput) (domain.ReviewThread, error)
+	ReplyToReviewThread(context.Context, domain.ReviewThreadRef, string) (domain.ReviewReply, error)
+	SetReviewThreadResolved(context.Context, domain.ReviewThreadRef, bool) (domain.ReviewThread, error)
+	ListReviewThreads(context.Context, domain.ReviewPageInput) (domain.ReviewPage[domain.ReviewThread], error)
+	ListReviewReplies(context.Context, domain.ReviewReplyPageInput) (domain.ReviewPage[domain.ReviewReply], error)
+	SubmitReviewDecision(context.Context, domain.SubmitReviewDecisionInput) (domain.ReviewDecision, error)
+	GetReviewRevisionStatus(context.Context, domain.ReviewRevisionRef) (domain.ReviewRevisionStatus, error)
 }

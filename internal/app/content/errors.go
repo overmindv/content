@@ -16,12 +16,14 @@ func toStatusError(err error) error {
 		return nil
 	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
 		return status.FromContextError(err).Err()
-	case errors.Is(err, service.ErrNotFound), errors.Is(err, service.ErrProposalNotFound), errors.Is(err, service.ErrProposalRevisionNotFound):
+	case errors.Is(err, service.ErrNotFound), errors.Is(err, service.ErrProposalNotFound), errors.Is(err, service.ErrProposalRevisionNotFound), errors.Is(err, service.ErrReviewThreadNotFound):
 		return status.Error(codes.NotFound, err.Error())
 	case errors.Is(err, service.ErrProposalDiffBusy):
 		return status.Error(codes.ResourceExhausted, err.Error())
-	case errors.Is(err, service.ErrProposalExists):
+	case errors.Is(err, service.ErrProposalExists), errors.Is(err, service.ErrReviewDecisionExists):
 		return status.Error(codes.AlreadyExists, err.Error())
+	case errors.Is(err, service.ErrReviewNotAllowed):
+		return status.Error(codes.PermissionDenied, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):
 		return status.Error(codes.Aborted, err.Error())
 	case errors.Is(err, service.ErrInvalidState):

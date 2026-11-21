@@ -35,7 +35,9 @@ func startPostgresContentClient(t *testing.T) (context.Context, contentpb.Conten
 	t.Cleanup(pool.Close)
 
 	store := postgres.NewContentItemStore(pool)
-	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store))
+	handler := NewServer(
+		service.NewContentItemService(store), service.NewChangeProposalService(store), service.NewChangeReviewService(store),
+	)
 
 	return newGRPCTestClient(t, testServiceToken, handler)
 }

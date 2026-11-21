@@ -288,3 +288,132 @@ func (mr *MockChangeProposalStoreMockRecorder) OpenChangeProposal(arg0, arg1 any
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).OpenChangeProposal), arg0, arg1)
 }
+
+// MockChangeReviewStore is a mock of ChangeReviewStore interface.
+type MockChangeReviewStore struct {
+	ctrl     *gomock.Controller
+	recorder *MockChangeReviewStoreMockRecorder
+	isgomock struct{}
+}
+
+// MockChangeReviewStoreMockRecorder is the mock recorder for MockChangeReviewStore.
+type MockChangeReviewStoreMockRecorder struct {
+	mock *MockChangeReviewStore
+}
+
+// NewMockChangeReviewStore creates a new mock instance.
+func NewMockChangeReviewStore(ctrl *gomock.Controller) *MockChangeReviewStore {
+	mock := &MockChangeReviewStore{ctrl: ctrl}
+	mock.recorder = &MockChangeReviewStoreMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChangeReviewStore) EXPECT() *MockChangeReviewStoreMockRecorder {
+	return m.recorder
+}
+
+// CreateReviewThread mocks base method.
+func (m *MockChangeReviewStore) CreateReviewThread(arg0 context.Context, arg1 domain.CreateReviewThreadInput) (domain.ReviewThread, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateReviewThread", arg0, arg1)
+	ret0, _ := ret[0].(domain.ReviewThread)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateReviewThread indicates an expected call of CreateReviewThread.
+func (mr *MockChangeReviewStoreMockRecorder) CreateReviewThread(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateReviewThread", reflect.TypeOf((*MockChangeReviewStore)(nil).CreateReviewThread), arg0, arg1)
+}
+
+// GetReviewRevisionStatus mocks base method.
+func (m *MockChangeReviewStore) GetReviewRevisionStatus(arg0 context.Context, arg1 domain.ReviewRevisionRef) (domain.ReviewRevisionStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReviewRevisionStatus", arg0, arg1)
+	ret0, _ := ret[0].(domain.ReviewRevisionStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetReviewRevisionStatus indicates an expected call of GetReviewRevisionStatus.
+func (mr *MockChangeReviewStoreMockRecorder) GetReviewRevisionStatus(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReviewRevisionStatus", reflect.TypeOf((*MockChangeReviewStore)(nil).GetReviewRevisionStatus), arg0, arg1)
+}
+
+// ListReviewReplies mocks base method.
+func (m *MockChangeReviewStore) ListReviewReplies(arg0 context.Context, arg1 domain.ReviewReplyPageInput) (domain.ReviewPage[domain.ReviewReply], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListReviewReplies", arg0, arg1)
+	ret0, _ := ret[0].(domain.ReviewPage[domain.ReviewReply])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListReviewReplies indicates an expected call of ListReviewReplies.
+func (mr *MockChangeReviewStoreMockRecorder) ListReviewReplies(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListReviewReplies", reflect.TypeOf((*MockChangeReviewStore)(nil).ListReviewReplies), arg0, arg1)
+}
+
+// ListReviewThreads mocks base method.
+func (m *MockChangeReviewStore) ListReviewThreads(arg0 context.Context, arg1 domain.ReviewPageInput) (domain.ReviewPage[domain.ReviewThread], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListReviewThreads", arg0, arg1)
+	ret0, _ := ret[0].(domain.ReviewPage[domain.ReviewThread])
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListReviewThreads indicates an expected call of ListReviewThreads.
+func (mr *MockChangeReviewStoreMockRecorder) ListReviewThreads(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListReviewThreads", reflect.TypeOf((*MockChangeReviewStore)(nil).ListReviewThreads), arg0, arg1)
+}
+
+// ReplyToReviewThread mocks base method.
+func (m *MockChangeReviewStore) ReplyToReviewThread(arg0 context.Context, arg1 domain.ReviewThreadRef, arg2 string) (domain.ReviewReply, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReplyToReviewThread", arg0, arg1, arg2)
+	ret0, _ := ret[0].(domain.ReviewReply)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReplyToReviewThread indicates an expected call of ReplyToReviewThread.
+func (mr *MockChangeReviewStoreMockRecorder) ReplyToReviewThread(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyToReviewThread", reflect.TypeOf((*MockChangeReviewStore)(nil).ReplyToReviewThread), arg0, arg1, arg2)
+}
+
+// SetReviewThreadResolved mocks base method.
+func (m *MockChangeReviewStore) SetReviewThreadResolved(arg0 context.Context, arg1 domain.ReviewThreadRef, arg2 bool) (domain.ReviewThread, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetReviewThreadResolved", arg0, arg1, arg2)
+	ret0, _ := ret[0].(domain.ReviewThread)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetReviewThreadResolved indicates an expected call of SetReviewThreadResolved.
+func (mr *MockChangeReviewStoreMockRecorder) SetReviewThreadResolved(arg0, arg1, arg2 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetReviewThreadResolved", reflect.TypeOf((*MockChangeReviewStore)(nil).SetReviewThreadResolved), arg0, arg1, arg2)
+}
+
+// SubmitReviewDecision mocks base method.
+func (m *MockChangeReviewStore) SubmitReviewDecision(arg0 context.Context, arg1 domain.SubmitReviewDecisionInput) (domain.ReviewDecision, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubmitReviewDecision", arg0, arg1)
+	ret0, _ := ret[0].(domain.ReviewDecision)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SubmitReviewDecision indicates an expected call of SubmitReviewDecision.
+func (mr *MockChangeReviewStoreMockRecorder) SubmitReviewDecision(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitReviewDecision", reflect.TypeOf((*MockChangeReviewStore)(nil).SubmitReviewDecision), arg0, arg1)
+}

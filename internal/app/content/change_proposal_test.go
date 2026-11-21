@@ -18,7 +18,7 @@ func TestGRPCChangeProposal(t *testing.T) {
 	t.Parallel()
 
 	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
-	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store)))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
 	req := &contentpb.OpenChangeProposalRequest{ContentItemId: testOtherActor, BaseRevisionId: testOtherActor, Source: "# Proposal"}
 	if _, err := client.OpenChangeProposal(ctx, req); status.Code(err) != codes.Unauthenticated {
 		t.Errorf("OpenChangeProposal without service credentials: %v", err)
@@ -63,7 +63,7 @@ func TestGRPCChangeProposalHistoryAndDiff(t *testing.T) {
 	t.Parallel()
 
 	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
-	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store)))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
 	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
 	store.EXPECT().ListChangeProposalHistory(gomock.Any(), domain.ChangeProposalHistoryInput{
 		ProposalID: testOtherActor, ActorID: testActor, PageSize: 20,

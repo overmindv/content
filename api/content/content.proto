@@ -246,6 +246,108 @@ message GetChangeProposalDiffResponse {
   bool truncated = 4;
 }
 
+message ReviewThread {
+  int64 id = 1;
+  string revision_id = 2;
+  int32 line_number = 3;
+  string author_id = 4;
+  string body = 5;
+  google.protobuf.Timestamp created_at = 6;
+  bool resolved = 7;
+  google.protobuf.Timestamp resolved_at = 8;
+  string resolved_by = 9;
+}
+
+message ReviewReply {
+  int64 id = 1;
+  string author_id = 2;
+  string body = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message ReviewDecision {
+  string reviewer_id = 1;
+  string decision = 2;
+  string reason = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message CreateReviewThreadRequest {
+  string proposal_id = 1;
+  string revision_id = 2;
+  int32 line_number = 3;
+  string body = 4;
+}
+
+message CreateReviewThreadResponse {
+  ReviewThread thread = 1;
+}
+
+message ReplyToReviewThreadRequest {
+  string proposal_id = 1;
+  int64 thread_id = 2;
+  string body = 3;
+}
+
+message ReplyToReviewThreadResponse {
+  ReviewReply reply = 1;
+}
+
+message SetReviewThreadResolvedRequest {
+  string proposal_id = 1;
+  int64 thread_id = 2;
+  bool resolved = 3;
+}
+
+message SetReviewThreadResolvedResponse {
+  ReviewThread thread = 1;
+}
+
+message ListReviewThreadsRequest {
+  string proposal_id = 1;
+  int64 after_id = 2;
+  int32 page_size = 3;
+}
+
+message ListReviewThreadsResponse {
+  repeated ReviewThread threads = 1;
+  int64 next_after_id = 2;
+}
+
+message ListReviewRepliesRequest {
+  string proposal_id = 1;
+  int64 thread_id = 2;
+  int64 after_id = 3;
+  int32 page_size = 4;
+}
+
+message ListReviewRepliesResponse {
+  repeated ReviewReply replies = 1;
+  int64 next_after_id = 2;
+}
+
+message SubmitReviewDecisionRequest {
+  string proposal_id = 1;
+  string revision_id = 2;
+  string decision = 3;
+  string reason = 4;
+}
+
+message SubmitReviewDecisionResponse {
+  ReviewDecision decision = 1;
+}
+
+message GetReviewRevisionStatusRequest {
+  string proposal_id = 1;
+  string revision_id = 2;
+}
+
+message GetReviewRevisionStatusResponse {
+  string revision_id = 1;
+  bool current = 2;
+  repeated ReviewDecision decisions = 3;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -262,4 +364,11 @@ service ContentService {
   rpc CloseChangeProposal(CloseChangeProposalRequest) returns (CloseChangeProposalResponse);
   rpc ListChangeProposalHistory(ListChangeProposalHistoryRequest) returns (ListChangeProposalHistoryResponse);
   rpc GetChangeProposalDiff(GetChangeProposalDiffRequest) returns (GetChangeProposalDiffResponse);
+  rpc CreateReviewThread(CreateReviewThreadRequest) returns (CreateReviewThreadResponse);
+  rpc ReplyToReviewThread(ReplyToReviewThreadRequest) returns (ReplyToReviewThreadResponse);
+  rpc SetReviewThreadResolved(SetReviewThreadResolvedRequest) returns (SetReviewThreadResolvedResponse);
+  rpc ListReviewThreads(ListReviewThreadsRequest) returns (ListReviewThreadsResponse);
+  rpc ListReviewReplies(ListReviewRepliesRequest) returns (ListReviewRepliesResponse);
+  rpc SubmitReviewDecision(SubmitReviewDecisionRequest) returns (SubmitReviewDecisionResponse);
+  rpc GetReviewRevisionStatus(GetReviewRevisionStatusRequest) returns (GetReviewRevisionStatusResponse);
 }

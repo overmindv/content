@@ -218,7 +218,7 @@ func BenchmarkServiceActor(b *testing.B) {
 func newAuthTestClient(t *testing.T, token string) (context.Context, contentpb.ContentServiceClient, *mock.MockContentItemStore) {
 	t.Helper()
 	store := mock.NewMockContentItemStore(gomock.NewController(t))
-	handler := NewServer(service.NewContentItemService(store), nil)
+	handler := NewServer(service.NewContentItemService(store), nil, nil)
 	ctx, client := newGRPCTestClient(t, token, handler)
 
 	return ctx, client, store
