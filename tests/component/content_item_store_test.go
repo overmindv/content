@@ -361,7 +361,7 @@ func TestConcurrentContentRevisionsRequireCurrentBase(t *testing.T) {
 	}
 }
 
-func testDatabaseConfig(t *testing.T) *pgxpool.Config {
+func testDatabaseConfig(t testing.TB) *pgxpool.Config {
 	t.Helper()
 	dsn := os.Getenv("COMPONENT_TEST_DSN")
 	if dsn == "" {

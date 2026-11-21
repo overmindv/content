@@ -146,6 +146,21 @@ func (mr *MockContentItemStoreMockRecorder) ListCatalog(arg0, arg1, arg2 any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCatalog", reflect.TypeOf((*MockContentItemStore)(nil).ListCatalog), arg0, arg1, arg2)
 }
 
+// ListRevisionHistory mocks base method.
+func (m *MockContentItemStore) ListRevisionHistory(arg0 context.Context, arg1 domain.RevisionHistoryInput) ([]domain.RevisionSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRevisionHistory", arg0, arg1)
+	ret0, _ := ret[0].([]domain.RevisionSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRevisionHistory indicates an expected call of ListRevisionHistory.
+func (mr *MockContentItemStoreMockRecorder) ListRevisionHistory(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRevisionHistory", reflect.TypeOf((*MockContentItemStore)(nil).ListRevisionHistory), arg0, arg1)
+}
+
 // ListRevisions mocks base method.
 func (m *MockContentItemStore) ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error) {
 	m.ctrl.T.Helper()

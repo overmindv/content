@@ -37,6 +37,7 @@ type ContentItemStore interface {
 	Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error)
 	ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error)
+	ListRevisionHistory(context.Context, domain.RevisionHistoryInput) ([]domain.RevisionSummary, error)
 }
 
 type TopicChecker interface {

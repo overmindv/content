@@ -171,6 +171,27 @@ message ListContentRevisionsResponse {
   repeated ContentRevision revisions = 1;
 }
 
+message ListContentRevisionHistoryRequest {
+  string content_item_id = 1;
+  int32 page_size = 2;
+  int32 before_revision = 3;
+}
+
+message ContentRevisionSummary {
+  string id = 1;
+  int32 revision = 2;
+  string format = 3;
+  string message = 4;
+  string created_by = 5;
+  google.protobuf.Timestamp created_at = 6;
+  string restored_from_revision_id = 7;
+}
+
+message ListContentRevisionHistoryResponse {
+  repeated ContentRevisionSummary items = 1;
+  int32 next_before_revision = 2;
+}
+
 message PublishContentItemRequest {
   string id = 1;
   string expected_revision_id = 2;
@@ -400,6 +421,7 @@ service ContentService {
   rpc DeleteContentItem(DeleteContentItemRequest) returns (DeleteContentItemResponse);
   rpc CreateContentRevision(CreateContentRevisionRequest) returns (CreateContentRevisionResponse);
   rpc ListContentRevisions(ListContentRevisionsRequest) returns (ListContentRevisionsResponse);
+  rpc ListContentRevisionHistory(ListContentRevisionHistoryRequest) returns (ListContentRevisionHistoryResponse);
   rpc PublishContentItem(PublishContentItemRequest) returns (PublishContentItemResponse);
   rpc ArchiveContentItem(ArchiveContentItemRequest) returns (ArchiveContentItemResponse);
   rpc OpenChangeProposal(OpenChangeProposalRequest) returns (OpenChangeProposalResponse);

@@ -68,6 +68,22 @@ type ContentRevision struct {
 	CreatedAt     time.Time
 }
 
+type RevisionHistoryInput struct {
+	ContentItemID  string
+	ActorID        string
+	PageSize       int32
+	BeforeRevision int32
+}
+
+type RevisionSummary struct {
+	ID        string
+	Revision  int32
+	Format    ContentFormat
+	Message   string
+	CreatedBy string
+	CreatedAt time.Time
+}
+
 type Tag struct {
 	ID        string
 	Name      string
