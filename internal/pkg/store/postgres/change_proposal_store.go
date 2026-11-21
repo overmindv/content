@@ -11,6 +11,10 @@ import (
 )
 
 func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
+	photos, err := draftPhotoIDs(domain.ContentFormatMarkdown, input.Source)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ChangeProposal{}, err
@@ -56,8 +60,12 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 	if err = insertProposalRevision(ctx, tx, proposalID, headID, "", nil, 1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
 	}
+	target := attachmentRevision{revisionID: headID, proposalID: proposalID}
 	if err = s.saveRevisionAttachments(ctx, tx, input.ContentItemID, input.AuthorID,
-		attachmentRevision{revisionID: headID, proposalID: proposalID}, attachmentRevision{revisionID: publishedRevisionID}, input.Attachments); err != nil {
+		target, attachmentRevision{revisionID: publishedRevisionID}, input.Attachments); err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	if err = requireRevisionPhotos(ctx, tx, input.ContentItemID, target, photos); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 
@@ -81,6 +89,10 @@ func (s *ContentItemStore) RebaseChangeProposal(ctx context.Context, input domai
 }
 
 func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input domain.AppendChangeProposalRevisionInput, newBaseID string) (domain.ChangeProposal, error) {
+	photos, err := draftPhotoIDs(domain.ContentFormatMarkdown, input.Source)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ChangeProposal{}, err
@@ -148,8 +160,11 @@ func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input dom
 	if hasSnapshot {
 		source = attachmentRevision{revisionID: headID, proposalID: input.ProposalID}
 	}
-	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.AuthorID,
-		attachmentRevision{revisionID: nextID, proposalID: input.ProposalID}, source, input.Attachments); err != nil {
+	target := attachmentRevision{revisionID: nextID, proposalID: input.ProposalID}
+	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.AuthorID, target, source, input.Attachments); err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	if err = requireRevisionPhotos(ctx, tx, itemID, target, photos); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	if _, err = tx.Exec(ctx, `UPDATE content_change_proposals SET head_revision_id = $2 WHERE id = $1`, input.ProposalID, nextID); err != nil {

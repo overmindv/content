@@ -140,13 +140,17 @@ func loadMergeSource(ctx context.Context, tx pgx.Tx, proposalID string, proposal
 	if text == nil {
 		return result, validator.ValidateSourceSize(validator.MaxSourceBytes + 1)
 	}
-	if err = validator.ValidatePublishableSource(domain.ContentFormatMarkdown, *text); err != nil {
+	photos, err := validator.PublishablePhotoIDs(domain.ContentFormatMarkdown, *text)
+	if err != nil {
 		return result, err
 	}
 	result.text = *text
 	result.attachments = attachmentRevision{revisionID: proposal.baseID}
 	if snapshot {
 		result.attachments = attachmentRevision{proposalID: proposalID, revisionID: proposal.headID}
+	}
+	if err = requireRevisionPhotos(ctx, tx, proposal.itemID, result.attachments, photos); err != nil {
+		return result, err
 	}
 
 	return result, nil

@@ -40,32 +40,45 @@ func ValidateAssetCount(count int) error {
 }
 
 func ValidatePublishableSource(format domain.ContentFormat, source string) error {
+	_, err := PublishablePhotoIDs(format, source)
+
+	return err
+}
+
+func PublishablePhotoIDs(format domain.ContentFormat, source string) ([]string, error) {
 	if format != domain.ContentFormatMarkdown {
-		return Error{Message: "only markdown can be published"}
+		return nil, Error{Message: "only markdown can be published"}
 	}
 
-	return validateSource(format, source)
+	return sourcePhotoIDs(format, source)
 }
 
 func validateSource(format domain.ContentFormat, source string) error {
+	_, err := sourcePhotoIDs(format, source)
+
+	return err
+}
+
+func sourcePhotoIDs(format domain.ContentFormat, source string) ([]string, error) {
 	if err := ValidateSourceSize(len(source)); err != nil {
-		return err
+		return nil, err
 	}
 	if !utf8.ValidString(source) || strings.IndexByte(source, 0) >= 0 {
-		return Error{Message: "source must be UTF-8 text without NUL"}
+		return nil, Error{Message: "source must be UTF-8 text without NUL"}
 	}
 	if strings.TrimSpace(source) == "" {
-		return Error{Message: "source is required"}
+		return nil, Error{Message: "source is required"}
 	}
 	if format != domain.ContentFormatMarkdown {
-		return nil
+		return nil, nil
 	}
 
 	input := []byte(source)
 	root := markdownParser.Parse(text.NewReader(input))
 	links := 0
+	var photos photoReferences
 
-	return ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+	err := ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
 		}
@@ -75,6 +88,14 @@ func validateSource(format domain.ContentFormat, source string) error {
 			return ast.WalkStop, Error{Message: "raw HTML is not allowed"}
 		case *ast.Image:
 			return ast.WalkStop, Error{Message: "inline images are not allowed"}
+		case *ast.FencedCodeBlock:
+			if string(node.Language(input)) == PhotoBlockLanguage {
+				if err := photos.addBlock(node, input); err != nil {
+					return ast.WalkStop, err
+				}
+			}
+
+			return ast.WalkContinue, nil
 		case *ast.Link:
 			target = node.Destination
 		case *ast.AutoLink:
@@ -93,6 +114,11 @@ func validateSource(format domain.ContentFormat, source string) error {
 
 		return ast.WalkContinue, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return photos.ids, nil
 }
 
 func isAllowedLink(target string) bool {
