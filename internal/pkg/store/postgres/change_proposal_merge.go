@@ -22,6 +22,7 @@ type proposalMerge struct {
 type mergeSource struct {
 	text, message string
 	attachments   attachmentRevision
+	review        domain.ReviewRevisionStatus
 }
 
 func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain.MergeChangeProposalInput) (domain.MergeChangeProposalResult, error) {
@@ -111,25 +112,26 @@ func lockProposalMerge(ctx context.Context, tx pgx.Tx, input domain.MergeChangeP
 func loadMergeSource(ctx context.Context, tx pgx.Tx, proposalID string, proposal proposalMerge) (mergeSource, error) {
 	const query = `
 		SELECT CASE WHEN octet_length(r.source) <= $4 THEN r.source END, r.message, r.attachments_snapshot,
-		       EXISTS (SELECT 1 FROM content_item_topics t WHERE t.content_item_id = $3 AND t.topic_id = r.review_topic_id),
+		       (SELECT t.topic_id FROM content_item_topics t WHERE t.content_item_id = $3 AND t.topic_id = r.review_topic_id),
 		       EXISTS (SELECT 1 FROM content_change_review_threads t
 		               WHERE t.proposal_id = $1 AND t.revision_id = $2 AND t.resolved_at IS NULL)
 		FROM content_change_proposal_revisions r WHERE r.proposal_id = $1 AND r.id = $2`
 	var result mergeSource
-	var text *string
-	var snapshot, eligibleTopic, unresolved bool
+	var text, topicID *string
+	var snapshot, unresolved bool
 	if err := tx.QueryRow(ctx, query, proposalID, proposal.headID, proposal.itemID, validator.MaxSourceBytes).
-		Scan(&text, &result.message, &snapshot, &eligibleTopic, &unresolved); err != nil {
+		Scan(&text, &result.message, &snapshot, &topicID, &unresolved); err != nil {
 		return result, err
 	}
-	if !eligibleTopic {
+	if topicID == nil {
 		return result, service.ErrReviewRequired
 	}
 	assignments, err := loadActiveAssignments(ctx, tx, proposalID, proposal.headID)
 	if err != nil {
 		return result, err
 	}
-	if outcome, _ := (domain.ReviewRevisionStatus{Assignments: assignments}).Outcome(); outcome != domain.ReviewApproved {
+	result.review = domain.ReviewRevisionStatus{TopicID: *topicID, Assignments: assignments}
+	if outcome, _ := result.review.Outcome(); outcome != domain.ReviewApproved {
 		return result, service.ErrReviewRequired
 	}
 	if unresolved {
@@ -191,18 +193,21 @@ func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx,
 		return err
 	}
 
-	return s.recordMergePublication(ctx, tx, p.itemID)
+	return s.recordMergePublication(ctx, tx, input.ProposalID, p, source.review)
 }
 
-func (s *ContentItemStore) recordMergePublication(ctx context.Context, tx pgx.Tx, itemID string) error {
-	item, err := s.get(ctx, tx, itemID, "")
+func (s *ContentItemStore) recordMergePublication(ctx context.Context, tx pgx.Tx, proposalID string, p proposalMerge, review domain.ReviewRevisionStatus) error {
+	item, err := s.get(ctx, tx, p.itemID, "")
 	if err != nil {
 		return err
 	}
 	if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
 		return err
 	}
-	_, err = s.recordMaterialState(ctx, tx, item, false)
+	version, err := s.recordMaterialState(ctx, tx, item, false)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return s.enqueueEditorialActivity(ctx, tx, item, version, proposalID, p, review)
 }
