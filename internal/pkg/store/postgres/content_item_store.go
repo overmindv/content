@@ -85,6 +85,10 @@ func (s *ContentItemStore) PingContext(ctx context.Context) error {
 }
 
 func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
+	photos, err := draftPhotoIDs(input.Format, input.Source)
+	if err != nil {
+		return domain.ContentItem{}, err
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ContentItem{}, err
@@ -156,8 +160,12 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	if err = s.attachTags(ctx, tx, itemID, input.Tags); err != nil {
 		return domain.ContentItem{}, err
 	}
+	target := attachmentRevision{revisionID: revisionID}
 	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.CreatedBy,
-		attachmentRevision{revisionID: revisionID}, attachmentRevision{}, &domain.AttachmentSet{Assets: input.Assets}); err != nil {
+		target, attachmentRevision{}, &domain.AttachmentSet{Assets: input.Assets}); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = requireRevisionPhotos(ctx, tx, itemID, target, photos); err != nil {
 		return domain.ContentItem{}, err
 	}
 	if input.Learning != nil {
@@ -446,7 +454,12 @@ func validatePublication(ctx context.Context, tx pgx.Tx, itemID, revisionID stri
 		return validator.ValidateAssetCount(validator.MaxAssets + 1)
 	}
 
-	return validator.ValidatePublishableSource(format, stringFromPtr(source))
+	photos, err := validator.PublishablePhotoIDs(format, stringFromPtr(source))
+	if err != nil {
+		return err
+	}
+
+	return requireRevisionPhotos(ctx, tx, itemID, attachmentRevision{revisionID: revisionID}, photos)
 }
 
 func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error) {
@@ -498,6 +511,10 @@ func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (doma
 }
 
 func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (domain.ContentRevision, error) {
+	photos, err := draftPhotoIDs(input.Format, input.Source)
+	if err != nil {
+		return domain.ContentRevision{}, err
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ContentRevision{}, err
@@ -571,8 +588,12 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		WHERE id = $1
 	`
 
+	target := attachmentRevision{revisionID: revision.ID}
 	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.CreatedBy,
-		attachmentRevision{revisionID: revision.ID}, attachmentRevision{revisionID: current.revisionID}, input.Attachments); err != nil {
+		target, attachmentRevision{revisionID: current.revisionID}, input.Attachments); err != nil {
+		return domain.ContentRevision{}, err
+	}
+	if err = requireRevisionPhotos(ctx, tx, itemID, target, photos); err != nil {
 		return domain.ContentRevision{}, err
 	}
 	var title *string
