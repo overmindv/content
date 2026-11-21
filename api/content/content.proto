@@ -162,6 +162,11 @@ message DeleteContentItemResponse {
   ContentItem item = 1;
 }
 
+message DraftMetadata {
+  string title = 1;
+  repeated string topic_ids = 2;
+}
+
 message CreateContentRevisionRequest {
   string content_item_id = 1;
   string format = 2;
@@ -173,6 +178,15 @@ message CreateContentRevisionRequest {
 }
 
 message CreateContentRevisionResponse {
+  ContentRevision revision = 1;
+}
+
+message SaveContentDraftRequest {
+  CreateContentRevisionRequest revision = 1;
+  DraftMetadata draft_metadata = 2;
+}
+
+message SaveContentDraftResponse {
   ContentRevision revision = 1;
 }
 
@@ -437,6 +451,7 @@ service ContentService {
   rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);
   rpc DeleteContentItem(DeleteContentItemRequest) returns (DeleteContentItemResponse);
   rpc CreateContentRevision(CreateContentRevisionRequest) returns (CreateContentRevisionResponse);
+  rpc SaveContentDraft(SaveContentDraftRequest) returns (SaveContentDraftResponse);
   rpc ListContentRevisions(ListContentRevisionsRequest) returns (ListContentRevisionsResponse);
   rpc ListContentRevisionHistory(ListContentRevisionHistoryRequest) returns (ListContentRevisionHistoryResponse);
   rpc PublishContentItem(PublishContentItemRequest) returns (PublishContentItemResponse);

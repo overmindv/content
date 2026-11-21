@@ -129,6 +129,7 @@ type UpdateContentItemInput struct {
 }
 
 type CreateContentRevisionInput struct {
+	DraftMetadata      *DraftMetadata
 	Attachments        *AttachmentSet
 	ContentItemID      string
 	ExpectedRevisionID string
@@ -142,6 +143,11 @@ type ChangeContentItemStateInput struct {
 	ID                 string
 	ExpectedRevisionID string
 	ActorID            string
+}
+
+type DraftMetadata struct {
+	Title    string
+	TopicIDs []string
 }
 
 type CreateContentAssetInput struct {

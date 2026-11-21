@@ -128,6 +128,17 @@ func (s *ContentItemService) CreateRevision(ctx context.Context, input domain.Cr
 	if err = validator.ValidateCreateContentRevision(normalized); err != nil {
 		return domain.ContentRevision{}, err
 	}
+	if draft := input.DraftMetadata; draft != nil {
+		title := strings.TrimSpace(draft.Title)
+		if err = validator.ValidateContentTitle(title); err != nil {
+			return domain.ContentRevision{}, err
+		}
+		learning, checkErr := s.validateLearningMetadata(ctx, &domain.LearningMetadata{TopicIDs: draft.TopicIDs})
+		if checkErr != nil {
+			return domain.ContentRevision{}, checkErr
+		}
+		normalized.DraftMetadata = &domain.DraftMetadata{Title: title, TopicIDs: learning.TopicIDs}
+	}
 	normalized.Attachments, err = checkAttachmentSet(ctx, s.media, normalized.CreatedBy, input.Attachments)
 	if err != nil {
 		return domain.ContentRevision{}, err
@@ -164,7 +175,7 @@ func normalizeCreateInput(input domain.CreateContentItemInput) domain.CreateCont
 		Slug:        strings.ToLower(strings.TrimSpace(input.Slug)),
 		Description: strings.TrimSpace(input.Description),
 		Format:      domain.ContentFormat(strings.ToLower(strings.TrimSpace(string(format)))),
-		Source:      strings.TrimSpace(input.Source),
+		Source:      input.Source,
 		Message:     strings.TrimSpace(input.Message),
 		CreatedBy:   strings.TrimSpace(input.CreatedBy),
 		Tags:        normalizeTags(input.Tags),
@@ -199,7 +210,7 @@ func normalizeCreateRevisionInput(input domain.CreateContentRevisionInput) domai
 		ContentItemID:      strings.TrimSpace(input.ContentItemID),
 		ExpectedRevisionID: strings.ToLower(strings.TrimSpace(input.ExpectedRevisionID)),
 		Format:             domain.ContentFormat(strings.ToLower(strings.TrimSpace(string(format)))),
-		Source:             strings.TrimSpace(input.Source),
+		Source:             input.Source,
 		Message:            strings.TrimSpace(input.Message),
 		CreatedBy:          strings.TrimSpace(input.CreatedBy),
 	}

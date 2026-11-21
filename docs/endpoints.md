@@ -42,6 +42,10 @@ curl http://localhost:8080/metrics
 - `UpdateContentItem`
 - `DeleteContentItem`
 - `CreateContentRevision`
+- `SaveContentDraft`: сохраняет текст, заголовок, темы и вложения
+  одной транзакцией. Передай `revision.expected_revision_id` и
+  `draft_metadata`. Для устаревшей версии вернется `ABORTED`;
+  метаданные уже опубликованного материала этим методом не меняются.
 - `ListContentRevisions`
 - `PublishContentItem`
 - `ArchiveContentItem`

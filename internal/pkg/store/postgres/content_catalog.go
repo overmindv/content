@@ -12,19 +12,22 @@ const catalogTopicIDs = `ARRAY(
 	SELECT t.topic_id::text FROM content_item_topics AS t WHERE t.content_item_id = i.id ORDER BY t.topic_id
 )`
 
+const replaceContentTopics = `
+		removed AS (
+		    DELETE FROM content_item_topics
+		    WHERE content_item_id = $1 AND NOT (topic_id = ANY(COALESCE($2::uuid[], '{}')))
+		)
+		INSERT INTO content_item_topics (content_item_id, topic_id)
+		SELECT $1, unnest($2::uuid[]) ON CONFLICT DO NOTHING
+	`
+
 func writeLearningMetadata(ctx context.Context, tx pgx.Tx, id string, learning *domain.LearningMetadata) error {
 	const query = `
 		WITH metadata AS (
-		    UPDATE content_items SET estimated_minutes = $2, learning_outcomes = COALESCE($3::text[], '{}')
+		    UPDATE content_items SET estimated_minutes = $3, learning_outcomes = COALESCE($4::text[], '{}')
 		    WHERE id = $1
-		), removed AS (
-		    DELETE FROM content_item_topics
-		    WHERE content_item_id = $1 AND NOT (topic_id = ANY(COALESCE($4::uuid[], '{}')))
-		)
-		INSERT INTO content_item_topics (content_item_id, topic_id)
-		SELECT $1, unnest($4::uuid[]) ON CONFLICT DO NOTHING
-	`
-	_, err := tx.Exec(ctx, query, id, learning.EstimatedMinutes, learning.LearningOutcomes, learning.TopicIDs)
+		), ` + replaceContentTopics
+	_, err := tx.Exec(ctx, query, id, learning.TopicIDs, learning.EstimatedMinutes, learning.LearningOutcomes)
 
 	return err
 }

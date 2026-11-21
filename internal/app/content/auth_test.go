@@ -123,6 +123,36 @@ func TestGRPCUsesActorForAuthorFields(t *testing.T) {
 	}
 }
 
+func TestGRPCSaveDraftUsesVerifiedActorAndExplicitAttachments(t *testing.T) {
+	t.Parallel()
+
+	ctx, client, store := newAuthTestClient(t, testServiceToken)
+	request := &contentpb.SaveContentDraftRequest{
+		Revision: &contentpb.CreateContentRevisionRequest{
+			ContentItemId: testActor, Source: "    Go code\n", CreatedBy: testOtherActor,
+			ExpectedRevisionId: testActor, Attachments: &contentpb.AttachmentSet{},
+		},
+		DraftMetadata: &contentpb.DraftMetadata{Title: " Go basics "},
+	}
+	if _, err := client.SaveContentDraft(ctx, request); status.Code(err) != codes.Unauthenticated {
+		t.Error("save without a verified actor", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	store.EXPECT().CreateRevision(gomock.Any(), gomock.Cond(func(input domain.CreateContentRevisionInput) bool {
+		return input.CreatedBy == testActor && input.Source == request.GetRevision().GetSource() &&
+			input.ExpectedRevisionID == testActor && input.DraftMetadata != nil && input.DraftMetadata.Title == "Go basics" &&
+			input.Attachments != nil && len(input.Attachments.Assets) == 0
+	})).Return(domain.ContentRevision{CreatedBy: testActor}, nil)
+	saved, err := client.SaveContentDraft(ctx, request)
+	if err != nil || saved.GetRevision().GetCreatedBy() != testActor {
+		t.Error("save did not use the verified actor", err)
+	}
+	request.DraftMetadata = nil
+	if _, err = client.SaveContentDraft(ctx, request); status.Code(err) != codes.InvalidArgument {
+		t.Error("save without draft metadata", err)
+	}
+}
+
 func TestGRPCRevisionState(t *testing.T) {
 	t.Parallel()
 
