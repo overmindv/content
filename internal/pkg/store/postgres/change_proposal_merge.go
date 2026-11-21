@@ -113,17 +113,18 @@ func loadMergeSource(ctx context.Context, tx pgx.Tx, proposalID string, proposal
 	const query = `
 		SELECT CASE WHEN octet_length(r.source) <= $4 THEN r.source END, r.message, r.attachments_snapshot,
 		       (SELECT t.topic_id FROM content_item_topics t WHERE t.content_item_id = $3 AND t.topic_id = r.review_topic_id),
+		       COALESCE(r.review_verified_until > statement_timestamp(), false),
 		       EXISTS (SELECT 1 FROM content_change_review_threads t
 		               WHERE t.proposal_id = $1 AND t.revision_id = $2 AND t.resolved_at IS NULL)
 		FROM content_change_proposal_revisions r WHERE r.proposal_id = $1 AND r.id = $2`
 	var result mergeSource
 	var text, topicID *string
-	var snapshot, unresolved bool
+	var snapshot, verified, unresolved bool
 	if err := tx.QueryRow(ctx, query, proposalID, proposal.headID, proposal.itemID, validator.MaxSourceBytes).
-		Scan(&text, &result.message, &snapshot, &topicID, &unresolved); err != nil {
+		Scan(&text, &result.message, &snapshot, &topicID, &verified, &unresolved); err != nil {
 		return result, err
 	}
-	if topicID == nil {
+	if topicID == nil || !verified {
 		return result, service.ErrReviewRequired
 	}
 	assignments, err := loadActiveAssignments(ctx, tx, proposalID, proposal.headID)
@@ -184,8 +185,18 @@ func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx,
 	}
 	const markMerged = `
 		UPDATE content_change_proposals SET status = 'merged', merged_revision_id = $2, closed_at = statement_timestamp()
-		WHERE id = $1`
-	if _, err := tx.Exec(ctx, markMerged, input.ProposalID, revisionID); err != nil {
+		WHERE id = $1 AND EXISTS (
+		    SELECT 1 FROM content_change_proposal_revisions
+		    WHERE proposal_id = $1 AND id = $3 AND review_verified_until > statement_timestamp()
+		)`
+	tag, err := tx.Exec(ctx, markMerged, input.ProposalID, revisionID, p.headID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return service.ErrReviewRequired
+	}
+	if err = cancelReviewCheck(ctx, tx, input.ProposalID, p.headID); err != nil {
 		return err
 	}
 	const publish = `

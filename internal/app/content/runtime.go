@@ -30,6 +30,10 @@ func Build(app *parker.App) error {
 	if activityErr != nil {
 		return activityErr
 	}
+	reviewSource, sourceErr := reviewCandidateSource(cfg)
+	if sourceErr != nil {
+		return sourceErr
+	}
 
 	var topics service.TopicChecker
 	if cfg.EntitiesURL != "" {
@@ -58,10 +62,21 @@ func Build(app *parker.App) error {
 	}
 
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
-	store := postgres.NewContentItemStore(pool,
+	options := []postgres.StoreOption{
 		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments(),
 		postgres.WithMaterialActivity(activityTopics.Material, activityTopics.Learning),
-		postgres.WithEditorialActivity(activityTopics.Contribution))
+		postgres.WithEditorialActivity(activityTopics.Contribution),
+	}
+	if reviewSource != nil {
+		options = append(options, postgres.WithReviewCheckScheduling())
+	}
+	store := postgres.NewContentItemStore(pool, options...)
+	if reviewSource != nil {
+		worker := service.NewReviewCheckWorker(store, reviewSource)
+		app.AddRunnable("review-candidates", func(ctx context.Context) error {
+			return worker.Run(ctx, app.Logger())
+		})
+	}
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer
@@ -92,6 +107,19 @@ func Build(app *parker.App) error {
 	})
 
 	return nil
+}
+
+func reviewCandidateSource(cfg config.Config) (*external.ReviewCandidateClient, error) {
+	source := cfg.ReviewCandidates
+	if source.URL == "" && source.Token == "" {
+		return nil, nil
+	}
+	if source.Token != "" && (source.Token == cfg.GRPC.ServiceToken ||
+		source.Token == cfg.GRPC.ModerationToken || source.Token == cfg.MediaToken) {
+		return nil, errors.New("review candidates require a distinct service token")
+	}
+
+	return external.NewReviewCandidateClient(source.URL, source.Token)
 }
 
 func validateModerationConfig(cfg config.Config) error {

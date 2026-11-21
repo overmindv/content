@@ -9,11 +9,17 @@ import (
 const ServiceName = "content"
 
 type Config struct {
-	GRPC        GRPCConfig
-	Kafka       KafkaConfig
-	EntitiesURL string
-	MediaURL    string
-	MediaToken  string
+	GRPC             GRPCConfig
+	Kafka            KafkaConfig
+	EntitiesURL      string
+	MediaURL         string
+	MediaToken       string
+	ReviewCandidates ReviewCandidatesConfig
+}
+
+type ReviewCandidatesConfig struct {
+	URL   string
+	Token string
 }
 
 type GRPCConfig struct {
@@ -37,6 +43,10 @@ func Load() Config {
 		EntitiesURL: os.Getenv("CONTENT_ENTITIES_URL"),
 		MediaURL:    os.Getenv("CONTENT_MEDIA_URL"),
 		MediaToken:  os.Getenv("CONTENT_MEDIA_TOKEN"),
+		ReviewCandidates: ReviewCandidatesConfig{
+			URL:   os.Getenv("CONTENT_REVIEW_CANDIDATES_URL"),
+			Token: os.Getenv("CONTENT_REVIEW_CANDIDATES_TOKEN"),
+		},
 		GRPC: GRPCConfig{
 			Addr:            env("GRPC_ADDR", ":9090"),
 			ServiceToken:    os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),

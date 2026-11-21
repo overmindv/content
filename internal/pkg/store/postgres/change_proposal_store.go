@@ -57,7 +57,7 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 	if tag.RowsAffected() == 0 {
 		return domain.ChangeProposal{}, service.ErrProposalExists
 	}
-	if err = insertProposalRevision(ctx, tx, proposalID, headID, "", nil, 1, input.Source, input.Message); err != nil {
+	if err = s.insertProposalRevision(ctx, tx, proposalID, headID, "", nil, 1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	target := attachmentRevision{revisionID: headID, proposalID: proposalID}
@@ -153,7 +153,7 @@ func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input dom
 	if err = retireMergeCandidate(ctx, tx, input.ProposalID); err != nil {
 		return domain.ChangeProposal{}, err
 	}
-	if err = insertProposalRevision(ctx, tx, input.ProposalID, nextID, headID, baseOverride, ordinal+1, input.Source, input.Message); err != nil {
+	if err = s.insertProposalRevision(ctx, tx, input.ProposalID, nextID, headID, baseOverride, ordinal+1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	source := attachmentRevision{revisionID: baseID}
@@ -168,6 +168,9 @@ func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input dom
 		return domain.ChangeProposal{}, err
 	}
 	if _, err = tx.Exec(ctx, `UPDATE content_change_proposals SET head_revision_id = $2 WHERE id = $1`, input.ProposalID, nextID); err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	if err = cancelReviewCheck(ctx, tx, input.ProposalID, headID); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 
@@ -222,12 +225,17 @@ func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID 
 	const closeProposal = `
 		UPDATE content_change_proposals SET status = 'closed', closed_at = NOW()
 		WHERE id = $1 AND author_id = $2 AND status = 'open'
+		RETURNING head_revision_id
 	`
-	tag, err := tx.Exec(ctx, closeProposal, id, actorID)
-	if err != nil {
+	var headID string
+	err = tx.QueryRow(ctx, closeProposal, id, actorID).Scan(&headID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return domain.ChangeProposal{}, err
 	}
-	if tag.RowsAffected() == 1 {
+	if headID != "" {
+		if err = cancelReviewCheck(ctx, tx, id, headID); err != nil {
+			return domain.ChangeProposal{}, err
+		}
 		if err = retireMergeCandidate(ctx, tx, id); err != nil {
 			return domain.ChangeProposal{}, err
 		}
@@ -239,12 +247,15 @@ func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID 
 	return finishProposalWrite(ctx, tx, id, actorID)
 }
 
-func insertProposalRevision(ctx context.Context, tx pgx.Tx, proposalID, id, parentID string, baseID *string, ordinal int32, source, message string) error {
+func (s *ContentItemStore) insertProposalRevision(ctx context.Context, tx pgx.Tx, proposalID, id, parentID string, baseID *string,
+	ordinal int32, source, message string) error {
 	const insertRevision = `
-		INSERT INTO content_change_proposal_revisions (proposal_id, id, parent_revision_id, ordinal, source, message, attachments_snapshot, base_revision_id)
-		VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7)
+		INSERT INTO content_change_proposal_revisions (
+		    proposal_id, id, parent_revision_id, ordinal, source, message, attachments_snapshot, base_revision_id, review_due_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7, CASE WHEN $8 THEN statement_timestamp() END)
 	`
-	_, err := tx.Exec(ctx, insertRevision, proposalID, id, nullableString(parentID), ordinal, source, message, baseID)
+	_, err := tx.Exec(ctx, insertRevision, proposalID, id, nullableString(parentID), ordinal, source, message, baseID, s.scheduleReviews)
 
 	return err
 }

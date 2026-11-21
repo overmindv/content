@@ -80,11 +80,12 @@ type ReviewDecision struct {
 }
 
 type ReviewRevisionStatus struct {
-	RevisionID  string
-	Current     bool
-	TopicID     string
-	Assignments []ReviewAssignment
-	Decisions   []ReviewDecision
+	RevisionID       string
+	Current          bool
+	TopicID          string
+	Assignments      []ReviewAssignment
+	Decisions        []ReviewDecision
+	EligibilityStale bool
 }
 
 type ReviewAssignment struct {
@@ -98,6 +99,23 @@ type ReviewAssignmentRequest struct {
 	RevisionID         string
 	TopicID            string
 	RankedCandidateIDs []string
+}
+
+type ReviewCheck struct {
+	ProposalID       string
+	RevisionID       string
+	Token            string
+	TopicID          string
+	ProposalAuthorID string
+	MaterialOwnerID  string
+	AssigneeIDs      []string
+}
+
+const MaxReviewCandidates = 64
+
+type ReviewCandidates struct {
+	RankedIDs   []string
+	EligibleIDs []string
 }
 
 type ReviewOutcome string
@@ -114,9 +132,13 @@ type ReviewWaitReason string
 const (
 	ReviewNeedsInitialReviewers ReviewWaitReason = "initial_reviewers"
 	ReviewNeedsTiebreaker       ReviewWaitReason = "tiebreak_reviewer"
+	ReviewEligibilityUnverified ReviewWaitReason = "eligibility_unverified"
 )
 
 func (s ReviewRevisionStatus) Outcome() (ReviewOutcome, ReviewWaitReason) {
+	if s.EligibilityStale && len(s.Assignments) > 0 {
+		return ReviewWaitingCandidates, ReviewEligibilityUnverified
+	}
 	var slots [3]*ReviewAssignment
 	for i := range s.Assignments {
 		a := &s.Assignments[i]
