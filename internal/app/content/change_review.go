@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/overmindv/content/internal/app/content/mapper"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 )
 
 func (s *Server) CreateReviewThread(ctx context.Context, req *contentpb.CreateReviewThreadRequest) (*contentpb.CreateReviewThreadResponse, error) {

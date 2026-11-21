@@ -48,7 +48,7 @@ jobs:
       - name: Regenerate proto and mocks
         run: make generate
       - name: Verify generated files are committed
-        run: git diff --exit-code internal/pkg/api internal/mock
+        run: git diff --exit-code pkg/api internal/mock
 
   lint:
     name: Lint

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"

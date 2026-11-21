@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/overmindv/content/internal/mock"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/validator"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -218,7 +218,7 @@ func BenchmarkServiceActor(b *testing.B) {
 func newAuthTestClient(t *testing.T, token string) (context.Context, contentpb.ContentServiceClient, *mock.MockContentItemStore) {
 	t.Helper()
 	store := mock.NewMockContentItemStore(gomock.NewController(t))
-	handler := NewServer(service.NewContentItemService(store), nil, nil)
+	handler := NewServer(service.NewContentItemService(store, nil), nil, nil)
 	ctx, client := newGRPCTestClient(t, token, handler)
 
 	return ctx, client, store

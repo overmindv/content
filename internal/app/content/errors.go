@@ -24,6 +24,10 @@ func toStatusError(err error) error {
 		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, service.ErrReviewNotAllowed):
 		return status.Error(codes.PermissionDenied, err.Error())
+	case errors.Is(err, service.ErrTopicCatalogUnavailable):
+		return status.Error(codes.Unavailable, err.Error())
+	case errors.Is(err, service.ErrInactiveTopic):
+		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):
 		return status.Error(codes.Aborted, err.Error())
 	case errors.Is(err, service.ErrInvalidState):

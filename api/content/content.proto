@@ -4,7 +4,13 @@ package overmindv.content;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/overmindv/content/internal/pkg/api/content;content";
+option go_package = "github.com/overmindv/content/pkg/api/content;content";
+
+message ContentLearningMetadata {
+  repeated string topic_ids = 1;
+  int32 estimated_minutes = 2;
+  repeated string learning_outcomes = 3;
+}
 
 message ContentItem {
   string id = 1;
@@ -24,6 +30,7 @@ message ContentItem {
   ContentRevision current_revision = 15;
   repeated Tag tags = 16;
   repeated ContentAsset assets = 17;
+  ContentLearningMetadata learning = 18;
 }
 
 message ContentRevision {
@@ -75,6 +82,7 @@ message CreateContentItemRequest {
   string created_by = 9;
   repeated string tags = 10;
   repeated CreateContentAsset assets = 11;
+  ContentLearningMetadata learning = 12;
 }
 
 message CreateContentItemResponse {
@@ -103,6 +111,31 @@ message UpdateContentItemRequest {
   string slug = 5;
   string description = 6;
   string updated_by = 7;
+  ContentLearningMetadata learning = 8;
+}
+
+message ContentCatalogEntry {
+  string id = 1;
+  string title = 2;
+  string slug = 3;
+  string status = 4;
+  string author_id = 5;
+  google.protobuf.Timestamp created_at = 6;
+  string revision_id = 7;
+  ContentLearningMetadata learning = 8;
+}
+
+message ListContentCatalogRequest {
+  string topic_id = 1;
+  string author_id = 2;
+  string status = 3;
+  int32 page_size = 4;
+  string cursor = 5;
+}
+
+message ListContentCatalogResponse {
+  repeated ContentCatalogEntry entries = 1;
+  string next_cursor = 2;
 }
 
 message UpdateContentItemResponse {
@@ -352,6 +385,7 @@ service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
   rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);
+  rpc ListContentCatalog(ListContentCatalogRequest) returns (ListContentCatalogResponse);
   rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);
   rpc DeleteContentItem(DeleteContentItemRequest) returns (DeleteContentItemResponse);
   rpc CreateContentRevision(CreateContentRevisionRequest) returns (CreateContentRevisionResponse);

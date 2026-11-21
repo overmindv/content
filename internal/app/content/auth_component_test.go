@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	contentpb "github.com/overmindv/content/internal/pkg/api/content"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/store/postgres"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -36,7 +36,7 @@ func startPostgresContentClient(t *testing.T) (context.Context, contentpb.Conten
 
 	store := postgres.NewContentItemStore(pool)
 	handler := NewServer(
-		service.NewContentItemService(store), service.NewChangeProposalService(store), service.NewChangeReviewService(store),
+		service.NewContentItemService(store, nil), service.NewChangeProposalService(store), service.NewChangeReviewService(store),
 	)
 
 	return newGRPCTestClient(t, testServiceToken, handler)

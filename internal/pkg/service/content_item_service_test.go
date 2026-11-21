@@ -41,6 +41,10 @@ func (s *storeStub) List(context.Context, string) ([]domain.ContentItem, error) 
 	return []domain.ContentItem{s.item}, nil
 }
 
+func (s *storeStub) ListCatalog(context.Context, domain.CatalogFilter, *domain.CatalogCursor) ([]domain.CatalogEntry, error) {
+	return nil, nil
+}
+
 func (s *storeStub) Update(context.Context, domain.UpdateContentItemInput) (domain.ContentItem, error) {
 	return s.item, nil
 }
@@ -72,7 +76,7 @@ func TestCreateAppliesDefaults(t *testing.T) {
 	t.Parallel()
 
 	store := &storeStub{}
-	svc := NewContentItemService(store)
+	svc := NewContentItemService(store, nil)
 
 	item, err := svc.Create(context.Background(), domain.CreateContentItemInput{
 		Type:        domain.ContentTypeArticle,

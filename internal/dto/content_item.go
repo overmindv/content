@@ -12,6 +12,7 @@ type CreateContentItem struct {
 	CreatedBy   string
 	Tags        []string
 	Assets      []CreateContentAsset
+	Learning    *LearningMetadata
 }
 
 type UpdateContentItem struct {
@@ -22,6 +23,13 @@ type UpdateContentItem struct {
 	Slug        string
 	Description string
 	UpdatedBy   string
+	Learning    *LearningMetadata
+}
+
+type LearningMetadata struct {
+	TopicIDs         []string
+	EstimatedMinutes int32
+	LearningOutcomes []string
 }
 
 type CreateContentRevision struct {

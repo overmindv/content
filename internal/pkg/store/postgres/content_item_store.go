@@ -157,6 +157,11 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	if err = s.attachAssets(ctx, tx, itemID, revisionID, input.Assets); err != nil {
 		return domain.ContentItem{}, err
 	}
+	if input.Learning != nil {
+		if err = writeLearningMetadata(ctx, tx, itemID, input.Learning); err != nil {
+			return domain.ContentItem{}, err
+		}
+	}
 
 	const updateCurrentRevision = `
 		UPDATE content_items
@@ -243,6 +248,9 @@ const visibleContentItems = `
 			     ELSE COALESCE(GREATEST(i.published_at, r.created_at), i.created_at) END,
 			i.published_at,
 			i.archived_at,
+			i.estimated_minutes,
+			i.learning_outcomes,
+			` + catalogTopicIDs + `,
 			r.id,
 			r.content_item_id,
 			r.revision,
@@ -316,6 +324,11 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 		}
 
 		return domain.ContentItem{}, service.ErrInvalidState
+	}
+	if input.Learning != nil {
+		if err = writeLearningMetadata(ctx, tx, input.ID, input.Learning); err != nil {
+			return domain.ContentItem{}, err
+		}
 	}
 
 	// Событие пишется в outbox атомарно с обновлением айтема.
@@ -810,6 +823,7 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 	var revisionMessage *string
 	var revisionCreatedBy *string
 	var revisionCreatedAt *time.Time
+	var learning domain.LearningMetadata
 
 	err := row.Scan(
 		&item.ID,
@@ -826,6 +840,9 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 		&item.UpdatedAt,
 		&publishedAt,
 		&archivedAt,
+		&learning.EstimatedMinutes,
+		&learning.LearningOutcomes,
+		&learning.TopicIDs,
 		&revisionID,
 		&revisionContentItemID,
 		&revisionNumber,
@@ -848,6 +865,9 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 	item.UpdatedBy = stringFromPtr(updatedBy)
 	item.PublishedAt = publishedAt
 	item.ArchivedAt = archivedAt
+	if learning.EstimatedMinutes != 0 || len(learning.TopicIDs) != 0 || len(learning.LearningOutcomes) != 0 {
+		item.Learning = &learning
+	}
 
 	if revisionID != nil {
 		revision.ID = *revisionID

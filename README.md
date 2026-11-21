@@ -14,7 +14,7 @@
 
 - `cmd/content/main.go` как единая точка входа.
 - `api/content/content.proto` с базовым CRUD-контрактом для content items.
-- `internal/pkg/api/content/` для generated `pb.go` файлов.
+- `pkg/api/content/` содержит сгенерированный Go-клиент.
 - `internal/app/content/` для transport-layer и runtime.
 - `internal/pkg/service/` для бизнес-логики.
 - `internal/pkg/store/postgres/` для работы с PostgreSQL.
@@ -38,7 +38,6 @@
 │   ├── mock/                          # generated mocks
 │   ├── pb/pg/<other-service>/         # proto / generated clients других сервисов
 │   └── pkg/
-│       ├── api/content/          # generated protobuf
 │       ├── domain/                        # доменные структуры
 │       ├── kafka/                         # publisher и event envelope
 │       ├── logger/                        # инициализация логгера
@@ -52,6 +51,7 @@
 ├── migrations/
 │   ├── schema/                        # schema migrations через goose
 │   └── seeds/                         # seed migrations через goose
+├── pkg/api/content/                  # Go-клиент gRPC
 └── tests/
     ├── builders/                      # test builders
     ├── component/                     # component tests
