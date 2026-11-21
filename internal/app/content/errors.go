@@ -32,6 +32,8 @@ func toStatusError(err error) error {
 		return status.Error(codes.Aborted, err.Error())
 	case errors.Is(err, service.ErrInvalidState), errors.Is(err, service.ErrAttachmentNotReady), errors.Is(err, service.ErrAttachmentsPending):
 		return status.Error(codes.FailedPrecondition, err.Error())
+	case errors.Is(err, service.ErrReviewRequired), errors.Is(err, service.ErrUnresolvedReviewThreads):
+		return status.Error(codes.FailedPrecondition, err.Error())
 	case validator.IsValidationError(err):
 		return status.Error(codes.InvalidArgument, err.Error())
 	default:

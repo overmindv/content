@@ -118,3 +118,30 @@ func TestGRPCRebaseChangeProposal(t *testing.T) {
 		t.Error("rebase did not report a moved publication", err)
 	}
 }
+
+func TestGRPCMergeChangeProposal(t *testing.T) {
+	t.Parallel()
+
+	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
+	req := &contentpb.MergeChangeProposalRequest{ProposalId: testOtherActor, ExpectedHeadId: testActor}
+	if _, err := client.MergeChangeProposal(ctx, req); status.Code(err) != codes.Unauthenticated {
+		t.Error("unauthenticated merge", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	input := domain.MergeChangeProposalInput{ProposalID: testOtherActor, ExpectedHeadID: testActor, ActorID: testActor}
+	result := domain.MergeChangeProposalResult{ContentItemID: testActor, PublishedRevisionID: testOtherActor}
+	gomock.InOrder(
+		store.EXPECT().MergeChangeProposal(gomock.Any(), input).Return(domain.MergeChangeProposalResult{}, service.ErrAttachmentsPending),
+		store.EXPECT().MergeChangeProposal(gomock.Any(), input).Return(result, nil),
+	)
+	if _, err := client.MergeChangeProposal(ctx, req); status.Code(err) != codes.FailedPrecondition ||
+		status.Convert(err).Message() != "ATTACHMENTS_PENDING" {
+		t.Error("pending attachments should block publication", err)
+	}
+	response, err := client.MergeChangeProposal(ctx, req)
+	if err != nil || response.GetContentItemId() != result.ContentItemID ||
+		response.GetPublishedRevisionId() != result.PublishedRevisionID {
+		t.Error("merge did not return the published revision", err)
+	}
+}

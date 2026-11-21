@@ -7,18 +7,20 @@ type ChangeProposalStatus string
 const (
 	ChangeProposalOpen   ChangeProposalStatus = "open"
 	ChangeProposalClosed ChangeProposalStatus = "closed"
+	ChangeProposalMerged ChangeProposalStatus = "merged"
 )
 
 type ChangeProposal struct {
-	ID             string
-	ContentItemID  string
-	BaseRevisionID string
-	BaseOutdated   bool
-	AuthorID       string
-	Status         ChangeProposalStatus
-	Head           ChangeProposalRevision
-	CreatedAt      time.Time
-	ClosedAt       *time.Time
+	ID               string
+	ContentItemID    string
+	BaseRevisionID   string
+	MergedRevisionID string
+	BaseOutdated     bool
+	AuthorID         string
+	Status           ChangeProposalStatus
+	Head             ChangeProposalRevision
+	CreatedAt        time.Time
+	ClosedAt         *time.Time
 }
 
 type ChangeProposalRevision struct {
@@ -52,6 +54,17 @@ type AppendChangeProposalRevisionInput struct {
 type RebaseChangeProposalInput struct {
 	AppendChangeProposalRevisionInput
 	BaseRevisionID string
+}
+
+type MergeChangeProposalInput struct {
+	ProposalID     string
+	ExpectedHeadID string
+	ActorID        string
+}
+
+type MergeChangeProposalResult struct {
+	ContentItemID       string
+	PublishedRevisionID string
 }
 
 type ChangeProposalHistoryInput struct {

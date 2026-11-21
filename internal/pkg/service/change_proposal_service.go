@@ -95,6 +95,15 @@ func (s *ChangeProposalService) Close(ctx context.Context, id, actorID string) (
 	return s.store.CloseChangeProposal(ctx, id, actorID)
 }
 
+func (s *ChangeProposalService) Merge(ctx context.Context, input domain.MergeChangeProposalInput) (domain.MergeChangeProposalResult, error) {
+	if !validProposalID(input.ProposalID) || !validProposalID(input.ExpectedHeadID) {
+		return domain.MergeChangeProposalResult{}, validator.Error{Message: "proposal_id and expected_head_id must be UUIDs"}
+	}
+	input.ExpectedHeadID = strings.ToLower(input.ExpectedHeadID)
+
+	return s.store.MergeChangeProposal(ctx, input)
+}
+
 func (s *ChangeProposalService) History(ctx context.Context, input domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
 	if !validProposalID(input.ProposalID) {
 		return domain.ChangeProposalHistory{}, validator.Error{Message: "proposal_id must be a UUID"}

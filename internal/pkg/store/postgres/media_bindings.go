@@ -123,9 +123,18 @@ func (s *ContentItemStore) retireAttachmentBindings(ctx context.Context, tx pgx.
 
 func (s *ContentItemStore) ClaimMediaBinding(ctx context.Context) (domain.MediaBinding, bool, error) {
 	const query = `
-		WITH due AS (
+		WITH expired AS (
+		    SELECT proposal_id FROM content_proposal_merge_candidates
+		    WHERE expires_at <= statement_timestamp()
+		    ORDER BY expires_at, proposal_id LIMIT 1 FOR UPDATE SKIP LOCKED
+		), removed AS (
+		    DELETE FROM content_proposal_merge_candidates AS c USING expired
+		    WHERE c.proposal_id = expired.proposal_id RETURNING c.revision_id
+		), retired AS (` + retireCandidateBindingSQL + ` RETURNING b.revision_id
+		), due AS (
 		    SELECT revision_id FROM content_media_bindings
 		    WHERE applied_version < desired_version AND next_attempt_at <= statement_timestamp()
+		      AND revision_id NOT IN (SELECT revision_id FROM retired)
 		    ORDER BY next_attempt_at, revision_id LIMIT 1 FOR UPDATE SKIP LOCKED
 		)
 		UPDATE content_media_bindings AS b SET lease_token = $1,
