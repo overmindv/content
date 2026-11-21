@@ -46,6 +46,7 @@ type ContentItemStore struct {
 	outboxTopic       string
 	outboxEnabled     bool
 	manageAttachments bool
+	scheduleReviews   bool
 	activity          activityTopics
 }
 
