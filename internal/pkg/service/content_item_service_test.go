@@ -59,6 +59,10 @@ func (s *storeStub) ListCatalog(context.Context, domain.CatalogFilter, *domain.C
 	return nil, nil
 }
 
+func (s *storeStub) AvailableMaterialVersions(context.Context, []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error) {
+	return nil, nil
+}
+
 func (s *storeStub) Update(context.Context, domain.UpdateContentItemInput) (domain.ContentItem, error) {
 	return s.item, nil
 }

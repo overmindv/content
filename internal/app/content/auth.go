@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 
 	"github.com/google/uuid"
+	"github.com/overmindv/content/internal/config"
 	contentpb "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -27,27 +28,50 @@ func credentialFor(token string) serviceCredential {
 	return serviceCredential{configured: len(token) >= 32, length: len(bearer), digest: sha256.Sum256([]byte(bearer))}
 }
 
-func requireServiceActor(token, moderationToken string) grpc.UnaryServerInterceptor {
-	service, moderation := credentialFor(token), credentialFor(moderationToken)
+func (c serviceCredential) matches(auth string) bool {
+	if !c.configured || len(auth) != c.length {
+		return false
+	}
+	presented := sha256.Sum256([]byte(auth))
+
+	return subtle.ConstantTimeCompare(c.digest[:], presented[:]) == 1
+}
+
+func requireServiceActor(cfg config.GRPCConfig) grpc.UnaryServerInterceptor {
+	service := credentialFor(cfg.ServiceToken)
+	moderation := credentialFor(cfg.ModerationToken)
+	catalog := credentialFor(cfg.CatalogToken)
 
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, next grpc.UnaryHandler) (any, error) {
-		credential := &service
-		if info != nil {
-			switch info.FullMethod {
-			case contentpb.ContentService_GetMaterialModeration_FullMethodName, contentpb.ContentService_SetMaterialModeration_FullMethodName:
-				credential = &moderation
-			}
-		}
 		auth := metadata.ValueFromIncomingContext(ctx, "authorization")
-		if !credential.configured || len(auth) != 1 || len(auth[0]) != credential.length {
+		if len(auth) != 1 {
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
 		}
-		presented := sha256.Sum256([]byte(auth[0]))
-		if subtle.ConstantTimeCompare(credential.digest[:], presented[:]) != 1 {
+		method := ""
+		if info != nil {
+			method = info.FullMethod
+		}
+		switch method {
+		case contentpb.ContentService_SnapshotMaterials_FullMethodName:
+			if catalog.matches(auth[0]) || service.matches(auth[0]) {
+				return next(ctx, req)
+			}
+
+			return nil, status.Error(codes.Unauthenticated, "service authentication required")
+		case contentpb.MaterialCatalogService_CheckMaterialAvailability_FullMethodName:
+			if catalog.matches(auth[0]) {
+				return next(ctx, req)
+			}
+
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
 		}
-		if info != nil && info.FullMethod == contentpb.ContentService_SnapshotMaterials_FullMethodName {
-			return next(ctx, req)
+		credential := service
+		if method == contentpb.ContentService_GetMaterialModeration_FullMethodName ||
+			method == contentpb.ContentService_SetMaterialModeration_FullMethodName {
+			credential = moderation
+		}
+		if !credential.matches(auth[0]) {
+			return nil, status.Error(codes.Unauthenticated, "service authentication required")
 		}
 
 		ids := metadata.ValueFromIncomingContext(ctx, "x-user-id")

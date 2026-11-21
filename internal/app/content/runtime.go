@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net"
+	"strings"
 
 	"github.com/overmindv/content/internal/config"
 	"github.com/overmindv/content/internal/pkg/service"
@@ -24,6 +25,9 @@ import (
 func Build(app *parker.App) error {
 	cfg := config.Load()
 	if err := validateModerationConfig(cfg); err != nil {
+		return err
+	}
+	if err := validateCatalogConfig(cfg); err != nil {
 		return err
 	}
 	activityTopics, activityErr := cfg.Kafka.ActivityTopics()
@@ -137,6 +141,20 @@ func validateModerationConfig(cfg config.Config) error {
 	return nil
 }
 
+func validateCatalogConfig(cfg config.Config) error {
+	token := cfg.GRPC.CatalogToken
+	if token == "" {
+		return nil
+	}
+	if len(token) < 32 || len(token) > 256 || token == cfg.GRPC.ServiceToken ||
+		token == cfg.GRPC.ModerationToken || token == cfg.MediaToken || token == cfg.ReviewCandidates.Token ||
+		strings.ContainsFunc(token, func(r rune) bool { return r <= 32 || r >= 127 }) {
+		return errors.New("CONTENT_GRPC_CATALOG_TOKEN must be a separate printable service token")
+	}
+
+	return nil
+}
+
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
 	tlsConfig, err := loadGRPCTLS(cfg)
 	if err != nil {
@@ -151,7 +169,7 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 		return err
 	}
 
-	grpcServer := newGRPCServer(handler, cfg.ServiceToken, cfg.ModerationToken, options...)
+	grpcServer := newGRPCServer(handler, cfg, options...)
 
 	go func() {
 		<-ctx.Done()
@@ -163,13 +181,14 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(handler *Server, serviceToken, moderationToken string, extra ...grpc.ServerOption) *grpc.Server {
+func newGRPCServer(handler *Server, cfg config.GRPCConfig, extra ...grpc.ServerOption) *grpc.Server {
 	options := append(make([]grpc.ServerOption, 0, 2+len(extra)),
 		grpc.MaxRecvMsgSize(512*1024),
-		grpc.UnaryInterceptor(requireServiceActor(serviceToken, moderationToken)),
+		grpc.UnaryInterceptor(requireServiceActor(cfg)),
 	)
 	server := grpc.NewServer(append(options, extra...)...)
 	contentpb.RegisterContentServiceServer(server, handler)
+	contentpb.RegisterMaterialCatalogServiceServer(server, &materialCatalogServer{items: handler.itemService})
 	reflection.Register(server)
 
 	return server

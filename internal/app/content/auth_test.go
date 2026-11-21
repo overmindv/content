@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/overmindv/content/internal/config"
 	"github.com/overmindv/content/internal/mock"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
@@ -246,7 +247,7 @@ func BenchmarkServiceActor(b *testing.B) {
 		"authorization", "Bearer "+testServiceToken, "x-user-id", testActor,
 	))
 	next := func(context.Context, any) (any, error) { return nil, nil }
-	verify := requireServiceActor(testServiceToken, "")
+	verify := requireServiceActor(config.GRPCConfig{ServiceToken: testServiceToken})
 	b.Run("direct", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
@@ -280,10 +281,23 @@ func newGRPCTestClient(t *testing.T, token string, handler *Server) (context.Con
 
 func newGRPCTestClientWithModeration(t *testing.T, token, moderationToken string, handler *Server) (context.Context, contentpb.ContentServiceClient) {
 	t.Helper()
+
+	return newGRPCTestClientWithConfig(t, config.GRPCConfig{ServiceToken: token, ModerationToken: moderationToken}, handler)
+}
+
+func newGRPCTestClientWithConfig(t *testing.T, cfg config.GRPCConfig, handler *Server) (context.Context, contentpb.ContentServiceClient) {
+	t.Helper()
+	ctx, conn := newGRPCTestConn(t, cfg, handler)
+
+	return ctx, contentpb.NewContentServiceClient(conn)
+}
+
+func newGRPCTestConn(t *testing.T, cfg config.GRPCConfig, handler *Server) (context.Context, *grpc.ClientConn) {
+	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	t.Cleanup(cancel)
 	listener := bufconn.Listen(64 * 1024)
-	server := newGRPCServer(handler, token, moderationToken)
+	server := newGRPCServer(handler, cfg)
 	go func() { _ = server.Serve(listener) }()
 	t.Cleanup(server.Stop)
 
@@ -297,5 +311,5 @@ func newGRPCTestClientWithModeration(t *testing.T, token, moderationToken string
 	}
 	t.Cleanup(func() { _ = conn.Close() })
 
-	return ctx, contentpb.NewContentServiceClient(conn)
+	return ctx, conn
 }

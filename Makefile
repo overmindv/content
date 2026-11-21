@@ -51,7 +51,7 @@ proto: $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_GRPC) ## Regenerate protobuf files
 		--go_opt=module=github.com/overmindv/content \
 		--go-grpc_out=. \
 		--go-grpc_opt=module=github.com/overmindv/content \
-		api/content/content.proto
+		api/content/content.proto api/content/material_catalog.proto
 
 run: ## Run the service locally
 	go run ./cmd/content
