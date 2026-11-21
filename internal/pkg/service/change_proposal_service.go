@@ -48,20 +48,43 @@ func (s *ChangeProposalService) Get(ctx context.Context, id, actorID string) (do
 }
 
 func (s *ChangeProposalService) Append(ctx context.Context, input domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error) {
+	input, err := s.validateEdit(ctx, input)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
+
+	return s.store.AppendChangeProposalRevision(ctx, input)
+}
+
+func (s *ChangeProposalService) Rebase(ctx context.Context, input domain.RebaseChangeProposalInput) (domain.ChangeProposal, error) {
+	if !validProposalID(input.BaseRevisionID) {
+		return domain.ChangeProposal{}, validator.Error{Message: "base_revision_id must be a UUID"}
+	}
+	edit, err := s.validateEdit(ctx, input.AppendChangeProposalRevisionInput)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	input.AppendChangeProposalRevisionInput = edit
+	input.BaseRevisionID = strings.ToLower(input.BaseRevisionID)
+
+	return s.store.RebaseChangeProposal(ctx, input)
+}
+
+func (s *ChangeProposalService) validateEdit(ctx context.Context, input domain.AppendChangeProposalRevisionInput) (domain.AppendChangeProposalRevisionInput, error) {
 	if !validProposalID(input.ProposalID) || !validProposalID(input.ExpectedHeadID) {
-		return domain.ChangeProposal{}, validator.Error{Message: "proposal_id and expected_head_id must be UUIDs"}
+		return domain.AppendChangeProposalRevisionInput{}, validator.Error{Message: "proposal_id and expected_head_id must be UUIDs"}
 	}
 	if err := validateProposalRevision(input.Source, input.Message); err != nil {
-		return domain.ChangeProposal{}, err
+		return domain.AppendChangeProposalRevisionInput{}, err
 	}
 	input.ExpectedHeadID = strings.ToLower(input.ExpectedHeadID)
 	set, err := checkAttachmentSet(ctx, s.media, input.AuthorID, input.Attachments)
 	if err != nil {
-		return domain.ChangeProposal{}, err
+		return domain.AppendChangeProposalRevisionInput{}, err
 	}
 	input.Attachments = set
 
-	return s.store.AppendChangeProposalRevision(ctx, input)
+	return input, nil
 }
 
 func (s *ChangeProposalService) Close(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {

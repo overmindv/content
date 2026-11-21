@@ -14,6 +14,7 @@ import (
 var (
 	ErrNotFound                 = errors.New("content item not found")
 	ErrRevisionConflict         = errors.New("current revision changed")
+	ErrMergeConflict            = errors.New("MERGE_CONFLICT")
 	ErrInvalidState             = errors.New("operation is not allowed in this content state")
 	ErrProposalNotFound         = errors.New("change proposal not found")
 	ErrProposalExists           = errors.New("an open proposal already exists for this material and author")
@@ -55,6 +56,7 @@ type ChangeProposalStore interface {
 	OpenChangeProposal(context.Context, domain.OpenChangeProposalInput) (domain.ChangeProposal, error)
 	GetChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
 	AppendChangeProposalRevision(context.Context, domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error)
+	RebaseChangeProposal(context.Context, domain.RebaseChangeProposalInput) (domain.ChangeProposal, error)
 	CloseChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
 	ListChangeProposalHistory(context.Context, domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error)
 	GetChangeProposalDiffSources(context.Context, domain.ChangeProposalDiffInput) (domain.ChangeProposalDiffSources, error)

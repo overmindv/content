@@ -302,6 +302,19 @@ message AppendChangeProposalRevisionResponse {
   ChangeProposal proposal = 1;
 }
 
+message RebaseChangeProposalRequest {
+  string proposal_id = 1;
+  string expected_head_id = 2;
+  string base_revision_id = 3;
+  string source = 4;
+  string message = 5;
+  AttachmentSet attachments = 6;
+}
+
+message RebaseChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
 message CloseChangeProposalRequest {
   string proposal_id = 1;
 }
@@ -510,6 +523,7 @@ service ContentService {
   rpc OpenChangeProposal(OpenChangeProposalRequest) returns (OpenChangeProposalResponse);
   rpc GetChangeProposal(GetChangeProposalRequest) returns (GetChangeProposalResponse);
   rpc AppendChangeProposalRevision(AppendChangeProposalRevisionRequest) returns (AppendChangeProposalRevisionResponse);
+  rpc RebaseChangeProposal(RebaseChangeProposalRequest) returns (RebaseChangeProposalResponse);
   rpc CloseChangeProposal(CloseChangeProposalRequest) returns (CloseChangeProposalResponse);
   rpc ListChangeProposalHistory(ListChangeProposalHistoryRequest) returns (ListChangeProposalHistoryResponse);
   rpc GetChangeProposalDiff(GetChangeProposalDiffRequest) returns (GetChangeProposalDiffResponse);

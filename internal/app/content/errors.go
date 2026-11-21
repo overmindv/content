@@ -28,7 +28,7 @@ func toStatusError(err error) error {
 		return status.Error(codes.Unavailable, err.Error())
 	case errors.Is(err, service.ErrInactiveTopic), errors.Is(err, service.ErrProposalNoChange):
 		return status.Error(codes.InvalidArgument, err.Error())
-	case errors.Is(err, service.ErrRevisionConflict):
+	case errors.Is(err, service.ErrRevisionConflict), errors.Is(err, service.ErrMergeConflict):
 		return status.Error(codes.Aborted, err.Error())
 	case errors.Is(err, service.ErrInvalidState), errors.Is(err, service.ErrAttachmentNotReady), errors.Is(err, service.ErrAttachmentsPending):
 		return status.Error(codes.FailedPrecondition, err.Error())

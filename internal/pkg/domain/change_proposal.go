@@ -49,6 +49,11 @@ type AppendChangeProposalRevisionInput struct {
 	Message        string
 }
 
+type RebaseChangeProposalInput struct {
+	AppendChangeProposalRevisionInput
+	BaseRevisionID string
+}
+
 type ChangeProposalHistoryInput struct {
 	ProposalID    string
 	ActorID       string
