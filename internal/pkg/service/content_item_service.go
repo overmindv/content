@@ -56,6 +56,15 @@ func (s *ContentItemService) List(ctx context.Context, actorID string) (items []
 	return s.store.List(ctx, actorID)
 }
 
+func (s *ContentItemService) GetPublished(ctx context.Context, id string) (domain.ContentItem, error) {
+	id = strings.ToLower(strings.TrimSpace(id))
+	if !validProposalID(id) {
+		return domain.ContentItem{}, validator.Error{Message: "content_item_id must be a UUID"}
+	}
+	// A published read must never select the owner's working revision.
+	return s.store.Get(ctx, id, "")
+}
+
 func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateContentItemInput) (item domain.ContentItem, err error) {
 	normalized := normalizeUpdateInput(input)
 	if err = validator.ValidateUpdateContentItem(normalized); err != nil {

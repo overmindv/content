@@ -97,6 +97,14 @@ message GetContentItemResponse {
   ContentItem item = 1;
 }
 
+message GetPublishedContentItemRequest {
+  string id = 1;
+}
+
+message GetPublishedContentItemResponse {
+  ContentItem item = 1;
+}
+
 message ListContentItemsRequest {}
 
 message ListContentItemsResponse {
@@ -415,6 +423,7 @@ message GetReviewRevisionStatusResponse {
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
+  rpc GetPublishedContentItem(GetPublishedContentItemRequest) returns (GetPublishedContentItemResponse);
   rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);
   rpc ListContentCatalog(ListContentCatalogRequest) returns (ListContentCatalogResponse);
   rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);

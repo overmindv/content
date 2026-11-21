@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ContentService_CreateContentItem_FullMethodName            = "/overmindv.content.ContentService/CreateContentItem"
 	ContentService_GetContentItem_FullMethodName               = "/overmindv.content.ContentService/GetContentItem"
+	ContentService_GetPublishedContentItem_FullMethodName      = "/overmindv.content.ContentService/GetPublishedContentItem"
 	ContentService_ListContentItems_FullMethodName             = "/overmindv.content.ContentService/ListContentItems"
 	ContentService_ListContentCatalog_FullMethodName           = "/overmindv.content.ContentService/ListContentCatalog"
 	ContentService_UpdateContentItem_FullMethodName            = "/overmindv.content.ContentService/UpdateContentItem"
@@ -51,6 +52,7 @@ const (
 type ContentServiceClient interface {
 	CreateContentItem(ctx context.Context, in *CreateContentItemRequest, opts ...grpc.CallOption) (*CreateContentItemResponse, error)
 	GetContentItem(ctx context.Context, in *GetContentItemRequest, opts ...grpc.CallOption) (*GetContentItemResponse, error)
+	GetPublishedContentItem(ctx context.Context, in *GetPublishedContentItemRequest, opts ...grpc.CallOption) (*GetPublishedContentItemResponse, error)
 	ListContentItems(ctx context.Context, in *ListContentItemsRequest, opts ...grpc.CallOption) (*ListContentItemsResponse, error)
 	ListContentCatalog(ctx context.Context, in *ListContentCatalogRequest, opts ...grpc.CallOption) (*ListContentCatalogResponse, error)
 	UpdateContentItem(ctx context.Context, in *UpdateContentItemRequest, opts ...grpc.CallOption) (*UpdateContentItemResponse, error)
@@ -97,6 +99,16 @@ func (c *contentServiceClient) GetContentItem(ctx context.Context, in *GetConten
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetContentItemResponse)
 	err := c.cc.Invoke(ctx, ContentService_GetContentItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetPublishedContentItem(ctx context.Context, in *GetPublishedContentItemRequest, opts ...grpc.CallOption) (*GetPublishedContentItemResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublishedContentItemResponse)
+	err := c.cc.Invoke(ctx, ContentService_GetPublishedContentItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -329,6 +341,7 @@ func (c *contentServiceClient) GetReviewRevisionStatus(ctx context.Context, in *
 type ContentServiceServer interface {
 	CreateContentItem(context.Context, *CreateContentItemRequest) (*CreateContentItemResponse, error)
 	GetContentItem(context.Context, *GetContentItemRequest) (*GetContentItemResponse, error)
+	GetPublishedContentItem(context.Context, *GetPublishedContentItemRequest) (*GetPublishedContentItemResponse, error)
 	ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error)
 	ListContentCatalog(context.Context, *ListContentCatalogRequest) (*ListContentCatalogResponse, error)
 	UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error)
@@ -366,6 +379,9 @@ func (UnimplementedContentServiceServer) CreateContentItem(context.Context, *Cre
 }
 func (UnimplementedContentServiceServer) GetContentItem(context.Context, *GetContentItemRequest) (*GetContentItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContentItem not implemented")
+}
+func (UnimplementedContentServiceServer) GetPublishedContentItem(context.Context, *GetPublishedContentItemRequest) (*GetPublishedContentItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublishedContentItem not implemented")
 }
 func (UnimplementedContentServiceServer) ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentItems not implemented")
@@ -486,6 +502,24 @@ func _ContentService_GetContentItem_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).GetContentItem(ctx, req.(*GetContentItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetPublishedContentItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublishedContentItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetPublishedContentItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetPublishedContentItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetPublishedContentItem(ctx, req.(*GetPublishedContentItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -900,6 +934,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContentItem",
 			Handler:    _ContentService_GetContentItem_Handler,
+		},
+		{
+			MethodName: "GetPublishedContentItem",
+			Handler:    _ContentService_GetPublishedContentItem_Handler,
 		},
 		{
 			MethodName: "ListContentItems",
