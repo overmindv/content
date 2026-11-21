@@ -38,6 +38,7 @@ const (
 	ContentService_OpenChangeProposal_FullMethodName             = "/overmindv.content.ContentService/OpenChangeProposal"
 	ContentService_GetChangeProposal_FullMethodName              = "/overmindv.content.ContentService/GetChangeProposal"
 	ContentService_AppendChangeProposalRevision_FullMethodName   = "/overmindv.content.ContentService/AppendChangeProposalRevision"
+	ContentService_RebaseChangeProposal_FullMethodName           = "/overmindv.content.ContentService/RebaseChangeProposal"
 	ContentService_CloseChangeProposal_FullMethodName            = "/overmindv.content.ContentService/CloseChangeProposal"
 	ContentService_ListChangeProposalHistory_FullMethodName      = "/overmindv.content.ContentService/ListChangeProposalHistory"
 	ContentService_GetChangeProposalDiff_FullMethodName          = "/overmindv.content.ContentService/GetChangeProposalDiff"
@@ -73,6 +74,7 @@ type ContentServiceClient interface {
 	OpenChangeProposal(ctx context.Context, in *OpenChangeProposalRequest, opts ...grpc.CallOption) (*OpenChangeProposalResponse, error)
 	GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(ctx context.Context, in *AppendChangeProposalRevisionRequest, opts ...grpc.CallOption) (*AppendChangeProposalRevisionResponse, error)
+	RebaseChangeProposal(ctx context.Context, in *RebaseChangeProposalRequest, opts ...grpc.CallOption) (*RebaseChangeProposalResponse, error)
 	CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error)
 	ListChangeProposalHistory(ctx context.Context, in *ListChangeProposalHistoryRequest, opts ...grpc.CallOption) (*ListChangeProposalHistoryResponse, error)
 	GetChangeProposalDiff(ctx context.Context, in *GetChangeProposalDiffRequest, opts ...grpc.CallOption) (*GetChangeProposalDiffResponse, error)
@@ -283,6 +285,16 @@ func (c *contentServiceClient) AppendChangeProposalRevision(ctx context.Context,
 	return out, nil
 }
 
+func (c *contentServiceClient) RebaseChangeProposal(ctx context.Context, in *RebaseChangeProposalRequest, opts ...grpc.CallOption) (*RebaseChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RebaseChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_RebaseChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CloseChangeProposalResponse)
@@ -406,6 +418,7 @@ type ContentServiceServer interface {
 	OpenChangeProposal(context.Context, *OpenChangeProposalRequest) (*OpenChangeProposalResponse, error)
 	GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error)
+	RebaseChangeProposal(context.Context, *RebaseChangeProposalRequest) (*RebaseChangeProposalResponse, error)
 	CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error)
 	ListChangeProposalHistory(context.Context, *ListChangeProposalHistoryRequest) (*ListChangeProposalHistoryResponse, error)
 	GetChangeProposalDiff(context.Context, *GetChangeProposalDiffRequest) (*GetChangeProposalDiffResponse, error)
@@ -482,6 +495,9 @@ func (UnimplementedContentServiceServer) GetChangeProposal(context.Context, *Get
 }
 func (UnimplementedContentServiceServer) AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AppendChangeProposalRevision not implemented")
+}
+func (UnimplementedContentServiceServer) RebaseChangeProposal(context.Context, *RebaseChangeProposalRequest) (*RebaseChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RebaseChangeProposal not implemented")
 }
 func (UnimplementedContentServiceServer) CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseChangeProposal not implemented")
@@ -876,6 +892,24 @@ func _ContentService_AppendChangeProposalRevision_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_RebaseChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RebaseChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).RebaseChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_RebaseChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).RebaseChangeProposal(ctx, req.(*RebaseChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_CloseChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CloseChangeProposalRequest)
 	if err := dec(in); err != nil {
@@ -1138,6 +1172,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AppendChangeProposalRevision",
 			Handler:    _ContentService_AppendChangeProposalRevision_Handler,
+		},
+		{
+			MethodName: "RebaseChangeProposal",
+			Handler:    _ContentService_RebaseChangeProposal_Handler,
 		},
 		{
 			MethodName: "CloseChangeProposal",

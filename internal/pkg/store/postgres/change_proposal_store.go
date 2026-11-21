@@ -53,7 +53,7 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 	if tag.RowsAffected() == 0 {
 		return domain.ChangeProposal{}, service.ErrProposalExists
 	}
-	if err = insertProposalRevision(ctx, tx, proposalID, headID, "", 1, input.Source, input.Message); err != nil {
+	if err = insertProposalRevision(ctx, tx, proposalID, headID, "", nil, 1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	if err = s.saveRevisionAttachments(ctx, tx, input.ContentItemID, input.AuthorID,
@@ -69,24 +69,25 @@ func (s *ContentItemStore) GetChangeProposal(ctx context.Context, id, actorID st
 }
 
 func (s *ContentItemStore) AppendChangeProposalRevision(ctx context.Context, input domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error) {
+	return s.appendProposalRevision(ctx, input, "")
+}
+
+func (s *ContentItemStore) RebaseChangeProposal(ctx context.Context, input domain.RebaseChangeProposalInput) (domain.ChangeProposal, error) {
+	if input.BaseRevisionID == "" {
+		return domain.ChangeProposal{}, service.ErrMergeConflict
+	}
+
+	return s.appendProposalRevision(ctx, input.AppendChangeProposalRevisionInput, input.BaseRevisionID)
+}
+
+func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input domain.AppendChangeProposalRevisionInput, newBaseID string) (domain.ChangeProposal, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	// Lock the material before the proposal, as material deletion cascades to proposals.
-	const lockMaterial = `
-		SELECT i.id FROM content_items AS i
-		JOIN content_change_proposals AS p ON p.content_item_id = i.id
-		WHERE p.id = $1 AND p.author_id = $2
-		FOR KEY SHARE OF i
-	`
-	var itemID string
-	err = tx.QueryRow(ctx, lockMaterial, input.ProposalID, input.AuthorID).Scan(&itemID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.ChangeProposal{}, service.ErrProposalNotFound
-	}
+	itemID, err := lockProposalEditMaterial(ctx, tx, input, newBaseID)
 	if err != nil {
 		return domain.ChangeProposal{}, err
 	}
@@ -113,20 +114,31 @@ func (s *ContentItemStore) AppendChangeProposalRevision(ctx context.Context, inp
 	}
 
 	nextID := uuid.NewString()
-	const getHead = `SELECT ordinal, attachments_snapshot, source = $3 FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
+	const getHead = `
+		SELECT ordinal, attachments_snapshot, source = $3, base_revision_id
+		FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
 	var ordinal int32
 	var hasSnapshot, sameText bool
-	err = tx.QueryRow(ctx, getHead, input.ProposalID, headID, input.Source).Scan(&ordinal, &hasSnapshot, &sameText)
+	var baseOverride *string
+	err = tx.QueryRow(ctx, getHead, input.ProposalID, headID, input.Source).Scan(&ordinal, &hasSnapshot, &sameText, &baseOverride)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ChangeProposal{}, service.ErrInvalidState
 	}
 	if err != nil {
 		return domain.ChangeProposal{}, err
 	}
-	if sameText && input.Attachments == nil {
+	if baseOverride != nil {
+		baseID = *baseOverride
+	}
+	if newBaseID != "" {
+		if newBaseID == baseID {
+			return domain.ChangeProposal{}, service.ErrInvalidState
+		}
+		baseID, baseOverride = newBaseID, &newBaseID
+	} else if sameText && input.Attachments == nil {
 		return domain.ChangeProposal{}, service.ErrProposalNoChange
 	}
-	if err = insertProposalRevision(ctx, tx, input.ProposalID, nextID, headID, ordinal+1, input.Source, input.Message); err != nil {
+	if err = insertProposalRevision(ctx, tx, input.ProposalID, nextID, headID, baseOverride, ordinal+1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
 	}
 	source := attachmentRevision{revisionID: baseID}
@@ -142,6 +154,39 @@ func (s *ContentItemStore) AppendChangeProposalRevision(ctx context.Context, inp
 	}
 
 	return finishProposalWrite(ctx, tx, input.ProposalID, input.AuthorID)
+}
+
+func lockProposalEditMaterial(ctx context.Context, tx pgx.Tx, input domain.AppendChangeProposalRevisionInput, newBaseID string) (string, error) {
+	// Материал блокируем раньше предложения, как при удалении материала.
+	const selectMaterial = `
+		SELECT i.id, i.status, i.published_revision_id
+		FROM content_items AS i
+		JOIN content_change_proposals AS p ON p.content_item_id = i.id
+		WHERE p.id = $1 AND p.author_id = $2`
+	query := selectMaterial + ` FOR KEY SHARE OF i`
+	if newBaseID != "" {
+		query = selectMaterial + ` FOR SHARE OF i`
+	}
+	var itemID string
+	var status domain.ContentStatus
+	var published *string
+	err := tx.QueryRow(ctx, query, input.ProposalID, input.AuthorID).Scan(&itemID, &status, &published)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", service.ErrProposalNotFound
+	}
+	if err != nil {
+		return "", err
+	}
+	if newBaseID != "" {
+		if status != domain.ContentStatusPublished {
+			return "", service.ErrInvalidState
+		}
+		if stringFromPtr(published) != newBaseID {
+			return "", service.ErrMergeConflict
+		}
+	}
+
+	return itemID, nil
 }
 
 func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {
@@ -168,12 +213,12 @@ func (s *ContentItemStore) CloseChangeProposal(ctx context.Context, id, actorID 
 	return finishProposalWrite(ctx, tx, id, actorID)
 }
 
-func insertProposalRevision(ctx context.Context, tx pgx.Tx, proposalID, id, parentID string, ordinal int32, source, message string) error {
+func insertProposalRevision(ctx context.Context, tx pgx.Tx, proposalID, id, parentID string, baseID *string, ordinal int32, source, message string) error {
 	const insertRevision = `
-		INSERT INTO content_change_proposal_revisions (proposal_id, id, parent_revision_id, ordinal, source, message, attachments_snapshot)
-		VALUES ($1, $2, $3, $4, $5, $6, TRUE)
+		INSERT INTO content_change_proposal_revisions (proposal_id, id, parent_revision_id, ordinal, source, message, attachments_snapshot, base_revision_id)
+		VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7)
 	`
-	_, err := tx.Exec(ctx, insertRevision, proposalID, id, nullableString(parentID), ordinal, source, message)
+	_, err := tx.Exec(ctx, insertRevision, proposalID, id, nullableString(parentID), ordinal, source, message, baseID)
 
 	return err
 }
@@ -192,8 +237,8 @@ func finishProposalWrite(ctx context.Context, tx pgx.Tx, id, actorID string) (do
 
 func getProposal(ctx context.Context, q queryer, id, actorID string, authorOnly bool) (domain.ChangeProposal, error) {
 	const selectProposal = `
-		SELECT p.id, p.content_item_id, p.base_revision_id, p.author_id, p.status, p.created_at, p.closed_at,
-		       p.status = 'open' AND (i.status <> 'published' OR i.published_revision_id IS DISTINCT FROM p.base_revision_id),
+		SELECT p.id, p.content_item_id, COALESCE(r.base_revision_id, p.base_revision_id), p.author_id, p.status, p.created_at, p.closed_at,
+		       p.status = 'open' AND (i.status <> 'published' OR i.published_revision_id IS DISTINCT FROM COALESCE(r.base_revision_id, p.base_revision_id)),
 		       r.id, r.parent_revision_id, r.ordinal, r.source, r.message, r.created_at,
 		       (SELECT jsonb_agg(jsonb_build_object(
 		            'ID', a.id, 'ContentItemID', a.content_item_id, 'RevisionID', a.proposal_revision_id,

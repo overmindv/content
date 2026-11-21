@@ -400,6 +400,21 @@ func (mr *MockChangeProposalStoreMockRecorder) OpenChangeProposal(arg0, arg1 any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).OpenChangeProposal), arg0, arg1)
 }
 
+// RebaseChangeProposal mocks base method.
+func (m *MockChangeProposalStore) RebaseChangeProposal(arg0 context.Context, arg1 domain.RebaseChangeProposalInput) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RebaseChangeProposal", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RebaseChangeProposal indicates an expected call of RebaseChangeProposal.
+func (mr *MockChangeProposalStoreMockRecorder) RebaseChangeProposal(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RebaseChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).RebaseChangeProposal), arg0, arg1)
+}
+
 // MockChangeReviewStore is a mock of ChangeReviewStore interface.
 type MockChangeReviewStore struct {
 	ctrl     *gomock.Controller

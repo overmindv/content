@@ -68,6 +68,26 @@ func (s *Server) CloseChangeProposal(ctx context.Context, req *contentpb.CloseCh
 	return &contentpb.CloseChangeProposalResponse{Proposal: mapper.ToProtoChangeProposal(proposal)}, nil
 }
 
+func (s *Server) RebaseChangeProposal(ctx context.Context, req *contentpb.RebaseChangeProposalRequest) (*contentpb.RebaseChangeProposalResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	proposal, err := s.proposals.Rebase(ctx, domain.RebaseChangeProposalInput{
+		AppendChangeProposalRevisionInput: domain.AppendChangeProposalRevisionInput{
+			ProposalID: req.GetProposalId(), ExpectedHeadID: req.GetExpectedHeadId(),
+			AuthorID: actor, Source: req.GetSource(), Message: req.GetMessage(),
+			Attachments: mapper.FromAttachmentSet(req.GetAttachments()),
+		},
+		BaseRevisionID: req.GetBaseRevisionId(),
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &contentpb.RebaseChangeProposalResponse{Proposal: mapper.ToProtoChangeProposal(proposal)}, nil
+}
+
 func (s *Server) ListChangeProposalHistory(ctx context.Context, req *contentpb.ListChangeProposalHistoryRequest) (*contentpb.ListChangeProposalHistoryResponse, error) {
 	actor, err := actorID(ctx)
 	if err != nil {

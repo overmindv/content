@@ -90,3 +90,31 @@ func TestGRPCChangeProposalHistoryAndDiff(t *testing.T) {
 		t.Errorf("diff with missing revision: %v", err)
 	}
 }
+
+func TestGRPCRebaseChangeProposal(t *testing.T) {
+	t.Parallel()
+
+	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
+	req := &contentpb.RebaseChangeProposalRequest{
+		ProposalId: testOtherActor, ExpectedHeadId: testActor, Source: "# Rebased proposal",
+	}
+	if _, err := client.RebaseChangeProposal(ctx, req); status.Code(err) != codes.Unauthenticated {
+		t.Error("rebase allowed an unauthenticated actor", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	if _, err := client.RebaseChangeProposal(ctx, req); status.Code(err) != codes.InvalidArgument {
+		t.Error("rebase accepted a missing base", err)
+	}
+	req.BaseRevisionId = testOtherActor
+	input := domain.RebaseChangeProposalInput{
+		AppendChangeProposalRevisionInput: domain.AppendChangeProposalRevisionInput{
+			ProposalID: testOtherActor, ExpectedHeadID: testActor, AuthorID: testActor, Source: req.Source,
+		},
+		BaseRevisionID: testOtherActor,
+	}
+	store.EXPECT().RebaseChangeProposal(gomock.Any(), input).Return(domain.ChangeProposal{}, service.ErrMergeConflict)
+	if _, err := client.RebaseChangeProposal(ctx, req); status.Code(err) != codes.Aborted || status.Convert(err).Message() != "MERGE_CONFLICT" {
+		t.Error("rebase did not report a moved publication", err)
+	}
+}
