@@ -2423,18 +2423,19 @@ func (x *ArchiveContentItemResponse) GetItem() *ContentItem {
 }
 
 type ChangeProposal struct {
-	state          protoimpl.MessageState  `protogen:"open.v1"`
-	Id             string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ContentItemId  string                  `protobuf:"bytes,2,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
-	BaseRevisionId string                  `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
-	AuthorId       string                  `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
-	Status         string                  `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	Head           *ChangeProposalRevision `protobuf:"bytes,6,opt,name=head,proto3" json:"head,omitempty"`
-	CreatedAt      *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	ClosedAt       *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
-	BaseOutdated   bool                    `protobuf:"varint,9,opt,name=base_outdated,json=baseOutdated,proto3" json:"base_outdated,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState  `protogen:"open.v1"`
+	Id               string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ContentItemId    string                  `protobuf:"bytes,2,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
+	BaseRevisionId   string                  `protobuf:"bytes,3,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
+	AuthorId         string                  `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Status           string                  `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Head             *ChangeProposalRevision `protobuf:"bytes,6,opt,name=head,proto3" json:"head,omitempty"`
+	CreatedAt        *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ClosedAt         *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
+	BaseOutdated     bool                    `protobuf:"varint,9,opt,name=base_outdated,json=baseOutdated,proto3" json:"base_outdated,omitempty"`
+	MergedRevisionId string                  `protobuf:"bytes,10,opt,name=merged_revision_id,json=mergedRevisionId,proto3" json:"merged_revision_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ChangeProposal) Reset() {
@@ -2528,6 +2529,13 @@ func (x *ChangeProposal) GetBaseOutdated() bool {
 		return x.BaseOutdated
 	}
 	return false
+}
+
+func (x *ChangeProposal) GetMergedRevisionId() string {
+	if x != nil {
+		return x.MergedRevisionId
+	}
+	return ""
 }
 
 type ChangeProposalRevision struct {
@@ -4962,6 +4970,110 @@ func (*ConfirmMaterialReadResponse) Descriptor() ([]byte, []int) {
 	return file_api_content_content_proto_rawDescGZIP(), []int{78}
 }
 
+type MergeChangeProposalRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ProposalId     string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	ExpectedHeadId string                 `protobuf:"bytes,2,opt,name=expected_head_id,json=expectedHeadId,proto3" json:"expected_head_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *MergeChangeProposalRequest) Reset() {
+	*x = MergeChangeProposalRequest{}
+	mi := &file_api_content_content_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeChangeProposalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeChangeProposalRequest) ProtoMessage() {}
+
+func (x *MergeChangeProposalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeChangeProposalRequest.ProtoReflect.Descriptor instead.
+func (*MergeChangeProposalRequest) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *MergeChangeProposalRequest) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *MergeChangeProposalRequest) GetExpectedHeadId() string {
+	if x != nil {
+		return x.ExpectedHeadId
+	}
+	return ""
+}
+
+type MergeChangeProposalResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ContentItemId       string                 `protobuf:"bytes,1,opt,name=content_item_id,json=contentItemId,proto3" json:"content_item_id,omitempty"`
+	PublishedRevisionId string                 `protobuf:"bytes,2,opt,name=published_revision_id,json=publishedRevisionId,proto3" json:"published_revision_id,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *MergeChangeProposalResponse) Reset() {
+	*x = MergeChangeProposalResponse{}
+	mi := &file_api_content_content_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MergeChangeProposalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MergeChangeProposalResponse) ProtoMessage() {}
+
+func (x *MergeChangeProposalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_content_content_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MergeChangeProposalResponse.ProtoReflect.Descriptor instead.
+func (*MergeChangeProposalResponse) Descriptor() ([]byte, []int) {
+	return file_api_content_content_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *MergeChangeProposalResponse) GetContentItemId() string {
+	if x != nil {
+		return x.ContentItemId
+	}
+	return ""
+}
+
+func (x *MergeChangeProposalResponse) GetPublishedRevisionId() string {
+	if x != nil {
+		return x.PublishedRevisionId
+	}
+	return ""
+}
+
 var File_api_content_content_proto protoreflect.FileDescriptor
 
 const file_api_content_content_proto_rawDesc = "" +
@@ -5157,7 +5269,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
 	"\x14expected_revision_id\x18\x02 \x01(\tR\x12expectedRevisionId\"P\n" +
 	"\x1aArchiveContentItemResponse\x122\n" +
-	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xff\x02\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xad\x03\n" +
 	"\x0eChangeProposal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0fcontent_item_id\x18\x02 \x01(\tR\rcontentItemId\x12(\n" +
@@ -5168,7 +5280,9 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
 	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12#\n" +
-	"\rbase_outdated\x18\t \x01(\bR\fbaseOutdated\"\x96\x02\n" +
+	"\rbase_outdated\x18\t \x01(\bR\fbaseOutdated\x12,\n" +
+	"\x12merged_revision_id\x18\n" +
+	" \x01(\tR\x10mergedRevisionId\"\x96\x02\n" +
 	"\x16ChangeProposalRevision\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -5370,7 +5484,14 @@ const file_api_content_content_proto_rawDesc = "" +
 	"materialId\x12\x1f\n" +
 	"\vrevision_id\x18\x02 \x01(\tR\n" +
 	"revisionId\"\x1d\n" +
-	"\x1bConfirmMaterialReadResponse2\xad\x1c\n" +
+	"\x1bConfirmMaterialReadResponse\"g\n" +
+	"\x1aMergeChangeProposalRequest\x12\x1f\n" +
+	"\vproposal_id\x18\x01 \x01(\tR\n" +
+	"proposalId\x12(\n" +
+	"\x10expected_head_id\x18\x02 \x01(\tR\x0eexpectedHeadId\"y\n" +
+	"\x1bMergeChangeProposalResponse\x12&\n" +
+	"\x0fcontent_item_id\x18\x01 \x01(\tR\rcontentItemId\x122\n" +
+	"\x15published_revision_id\x18\x02 \x01(\tR\x13publishedRevisionId2\xa3\x1d\n" +
 	"\x0eContentService\x12n\n" +
 	"\x11CreateContentItem\x12+.overmindv.content.CreateContentItemRequest\x1a,.overmindv.content.CreateContentItemResponse\x12e\n" +
 	"\x0eGetContentItem\x12(.overmindv.content.GetContentItemRequest\x1a).overmindv.content.GetContentItemResponse\x12\x80\x01\n" +
@@ -5401,7 +5522,8 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x11ListReviewThreads\x12+.overmindv.content.ListReviewThreadsRequest\x1a,.overmindv.content.ListReviewThreadsResponse\x12n\n" +
 	"\x11ListReviewReplies\x12+.overmindv.content.ListReviewRepliesRequest\x1a,.overmindv.content.ListReviewRepliesResponse\x12w\n" +
 	"\x14SubmitReviewDecision\x12..overmindv.content.SubmitReviewDecisionRequest\x1a/.overmindv.content.SubmitReviewDecisionResponse\x12\x80\x01\n" +
-	"\x17GetReviewRevisionStatus\x121.overmindv.content.GetReviewRevisionStatusRequest\x1a2.overmindv.content.GetReviewRevisionStatusResponseB6Z4github.com/overmindv/content/pkg/api/content;contentb\x06proto3"
+	"\x17GetReviewRevisionStatus\x121.overmindv.content.GetReviewRevisionStatusRequest\x1a2.overmindv.content.GetReviewRevisionStatusResponse\x12t\n" +
+	"\x13MergeChangeProposal\x12-.overmindv.content.MergeChangeProposalRequest\x1a..overmindv.content.MergeChangeProposalResponseB6Z4github.com/overmindv/content/pkg/api/content;contentb\x06proto3"
 
 var (
 	file_api_content_content_proto_rawDescOnce sync.Once
@@ -5415,7 +5537,7 @@ func file_api_content_content_proto_rawDescGZIP() []byte {
 	return file_api_content_content_proto_rawDescData
 }
 
-var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 79)
+var file_api_content_content_proto_msgTypes = make([]protoimpl.MessageInfo, 81)
 var file_api_content_content_proto_goTypes = []any{
 	(*ContentLearningMetadata)(nil),                // 0: overmindv.content.ContentLearningMetadata
 	(*ContentItem)(nil),                            // 1: overmindv.content.ContentItem
@@ -5496,30 +5618,32 @@ var file_api_content_content_proto_goTypes = []any{
 	(*SnapshotMaterialsResponse)(nil),              // 76: overmindv.content.SnapshotMaterialsResponse
 	(*ConfirmMaterialReadRequest)(nil),             // 77: overmindv.content.ConfirmMaterialReadRequest
 	(*ConfirmMaterialReadResponse)(nil),            // 78: overmindv.content.ConfirmMaterialReadResponse
-	(*timestamppb.Timestamp)(nil),                  // 79: google.protobuf.Timestamp
+	(*MergeChangeProposalRequest)(nil),             // 79: overmindv.content.MergeChangeProposalRequest
+	(*MergeChangeProposalResponse)(nil),            // 80: overmindv.content.MergeChangeProposalResponse
+	(*timestamppb.Timestamp)(nil),                  // 81: google.protobuf.Timestamp
 }
 var file_api_content_content_proto_depIdxs = []int32{
-	79, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
-	79, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
-	79, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
-	79, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
+	81, // 0: overmindv.content.ContentItem.created_at:type_name -> google.protobuf.Timestamp
+	81, // 1: overmindv.content.ContentItem.updated_at:type_name -> google.protobuf.Timestamp
+	81, // 2: overmindv.content.ContentItem.published_at:type_name -> google.protobuf.Timestamp
+	81, // 3: overmindv.content.ContentItem.archived_at:type_name -> google.protobuf.Timestamp
 	2,  // 4: overmindv.content.ContentItem.current_revision:type_name -> overmindv.content.ContentRevision
 	3,  // 5: overmindv.content.ContentItem.tags:type_name -> overmindv.content.Tag
 	4,  // 6: overmindv.content.ContentItem.assets:type_name -> overmindv.content.ContentAsset
 	0,  // 7: overmindv.content.ContentItem.learning:type_name -> overmindv.content.ContentLearningMetadata
-	79, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
-	79, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
-	79, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
+	81, // 8: overmindv.content.ContentRevision.created_at:type_name -> google.protobuf.Timestamp
+	81, // 9: overmindv.content.Tag.created_at:type_name -> google.protobuf.Timestamp
+	81, // 10: overmindv.content.ContentAsset.created_at:type_name -> google.protobuf.Timestamp
 	5,  // 11: overmindv.content.AttachmentSet.assets:type_name -> overmindv.content.CreateContentAsset
 	5,  // 12: overmindv.content.CreateContentItemRequest.assets:type_name -> overmindv.content.CreateContentAsset
 	0,  // 13: overmindv.content.CreateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
 	1,  // 14: overmindv.content.CreateContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 15: overmindv.content.GetContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 16: overmindv.content.GetPublishedContentItemResponse.item:type_name -> overmindv.content.ContentItem
-	79, // 17: overmindv.content.GetPublishedAttachmentDownloadResponse.expires_at:type_name -> google.protobuf.Timestamp
+	81, // 17: overmindv.content.GetPublishedAttachmentDownloadResponse.expires_at:type_name -> google.protobuf.Timestamp
 	1,  // 18: overmindv.content.ListContentItemsResponse.items:type_name -> overmindv.content.ContentItem
 	0,  // 19: overmindv.content.UpdateContentItemRequest.learning:type_name -> overmindv.content.ContentLearningMetadata
-	79, // 20: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
+	81, // 20: overmindv.content.ContentCatalogEntry.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 21: overmindv.content.ContentCatalogEntry.learning:type_name -> overmindv.content.ContentLearningMetadata
 	18, // 22: overmindv.content.ListContentCatalogResponse.entries:type_name -> overmindv.content.ContentCatalogEntry
 	1,  // 23: overmindv.content.UpdateContentItemResponse.item:type_name -> overmindv.content.ContentItem
@@ -5530,14 +5654,14 @@ var file_api_content_content_proto_depIdxs = []int32{
 	24, // 28: overmindv.content.SaveContentDraftRequest.draft_metadata:type_name -> overmindv.content.DraftMetadata
 	2,  // 29: overmindv.content.SaveContentDraftResponse.revision:type_name -> overmindv.content.ContentRevision
 	2,  // 30: overmindv.content.ListContentRevisionsResponse.revisions:type_name -> overmindv.content.ContentRevision
-	79, // 31: overmindv.content.ContentRevisionSummary.created_at:type_name -> google.protobuf.Timestamp
+	81, // 31: overmindv.content.ContentRevisionSummary.created_at:type_name -> google.protobuf.Timestamp
 	32, // 32: overmindv.content.ListContentRevisionHistoryResponse.items:type_name -> overmindv.content.ContentRevisionSummary
 	1,  // 33: overmindv.content.PublishContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	1,  // 34: overmindv.content.ArchiveContentItemResponse.item:type_name -> overmindv.content.ContentItem
 	39, // 35: overmindv.content.ChangeProposal.head:type_name -> overmindv.content.ChangeProposalRevision
-	79, // 36: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
-	79, // 37: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
-	79, // 38: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
+	81, // 36: overmindv.content.ChangeProposal.created_at:type_name -> google.protobuf.Timestamp
+	81, // 37: overmindv.content.ChangeProposal.closed_at:type_name -> google.protobuf.Timestamp
+	81, // 38: overmindv.content.ChangeProposalRevision.created_at:type_name -> google.protobuf.Timestamp
 	4,  // 39: overmindv.content.ChangeProposalRevision.assets:type_name -> overmindv.content.ContentAsset
 	6,  // 40: overmindv.content.OpenChangeProposalRequest.attachments:type_name -> overmindv.content.AttachmentSet
 	38, // 41: overmindv.content.OpenChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
@@ -5547,12 +5671,12 @@ var file_api_content_content_proto_depIdxs = []int32{
 	6,  // 45: overmindv.content.RebaseChangeProposalRequest.attachments:type_name -> overmindv.content.AttachmentSet
 	38, // 46: overmindv.content.RebaseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
 	38, // 47: overmindv.content.CloseChangeProposalResponse.proposal:type_name -> overmindv.content.ChangeProposal
-	79, // 48: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	81, // 48: overmindv.content.ChangeProposalHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
 	50, // 49: overmindv.content.ListChangeProposalHistoryResponse.entries:type_name -> overmindv.content.ChangeProposalHistoryEntry
-	79, // 50: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
-	79, // 51: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
-	79, // 52: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
-	79, // 53: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
+	81, // 50: overmindv.content.ReviewThread.created_at:type_name -> google.protobuf.Timestamp
+	81, // 51: overmindv.content.ReviewThread.resolved_at:type_name -> google.protobuf.Timestamp
+	81, // 52: overmindv.content.ReviewReply.created_at:type_name -> google.protobuf.Timestamp
+	81, // 53: overmindv.content.ReviewDecision.created_at:type_name -> google.protobuf.Timestamp
 	55, // 54: overmindv.content.CreateReviewThreadResponse.thread:type_name -> overmindv.content.ReviewThread
 	56, // 55: overmindv.content.ReplyToReviewThreadResponse.reply:type_name -> overmindv.content.ReviewReply
 	55, // 56: overmindv.content.SetReviewThreadResolvedResponse.thread:type_name -> overmindv.content.ReviewThread
@@ -5593,38 +5717,40 @@ var file_api_content_content_proto_depIdxs = []int32{
 	67, // 91: overmindv.content.ContentService.ListReviewReplies:input_type -> overmindv.content.ListReviewRepliesRequest
 	69, // 92: overmindv.content.ContentService.SubmitReviewDecision:input_type -> overmindv.content.SubmitReviewDecisionRequest
 	71, // 93: overmindv.content.ContentService.GetReviewRevisionStatus:input_type -> overmindv.content.GetReviewRevisionStatusRequest
-	8,  // 94: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
-	10, // 95: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
-	12, // 96: overmindv.content.ContentService.GetPublishedContentItem:output_type -> overmindv.content.GetPublishedContentItemResponse
-	14, // 97: overmindv.content.ContentService.GetPublishedAttachmentDownload:output_type -> overmindv.content.GetPublishedAttachmentDownloadResponse
-	76, // 98: overmindv.content.ContentService.SnapshotMaterials:output_type -> overmindv.content.SnapshotMaterialsResponse
-	78, // 99: overmindv.content.ContentService.ConfirmMaterialRead:output_type -> overmindv.content.ConfirmMaterialReadResponse
-	16, // 100: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
-	20, // 101: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
-	21, // 102: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
-	23, // 103: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
-	26, // 104: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
-	28, // 105: overmindv.content.ContentService.SaveContentDraft:output_type -> overmindv.content.SaveContentDraftResponse
-	30, // 106: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
-	33, // 107: overmindv.content.ContentService.ListContentRevisionHistory:output_type -> overmindv.content.ListContentRevisionHistoryResponse
-	35, // 108: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
-	37, // 109: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
-	41, // 110: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
-	43, // 111: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
-	45, // 112: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
-	47, // 113: overmindv.content.ContentService.RebaseChangeProposal:output_type -> overmindv.content.RebaseChangeProposalResponse
-	49, // 114: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
-	52, // 115: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
-	54, // 116: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
-	60, // 117: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
-	62, // 118: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
-	64, // 119: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
-	66, // 120: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
-	68, // 121: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
-	70, // 122: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
-	72, // 123: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
-	94, // [94:124] is the sub-list for method output_type
-	64, // [64:94] is the sub-list for method input_type
+	79, // 94: overmindv.content.ContentService.MergeChangeProposal:input_type -> overmindv.content.MergeChangeProposalRequest
+	8,  // 95: overmindv.content.ContentService.CreateContentItem:output_type -> overmindv.content.CreateContentItemResponse
+	10, // 96: overmindv.content.ContentService.GetContentItem:output_type -> overmindv.content.GetContentItemResponse
+	12, // 97: overmindv.content.ContentService.GetPublishedContentItem:output_type -> overmindv.content.GetPublishedContentItemResponse
+	14, // 98: overmindv.content.ContentService.GetPublishedAttachmentDownload:output_type -> overmindv.content.GetPublishedAttachmentDownloadResponse
+	76, // 99: overmindv.content.ContentService.SnapshotMaterials:output_type -> overmindv.content.SnapshotMaterialsResponse
+	78, // 100: overmindv.content.ContentService.ConfirmMaterialRead:output_type -> overmindv.content.ConfirmMaterialReadResponse
+	16, // 101: overmindv.content.ContentService.ListContentItems:output_type -> overmindv.content.ListContentItemsResponse
+	20, // 102: overmindv.content.ContentService.ListContentCatalog:output_type -> overmindv.content.ListContentCatalogResponse
+	21, // 103: overmindv.content.ContentService.UpdateContentItem:output_type -> overmindv.content.UpdateContentItemResponse
+	23, // 104: overmindv.content.ContentService.DeleteContentItem:output_type -> overmindv.content.DeleteContentItemResponse
+	26, // 105: overmindv.content.ContentService.CreateContentRevision:output_type -> overmindv.content.CreateContentRevisionResponse
+	28, // 106: overmindv.content.ContentService.SaveContentDraft:output_type -> overmindv.content.SaveContentDraftResponse
+	30, // 107: overmindv.content.ContentService.ListContentRevisions:output_type -> overmindv.content.ListContentRevisionsResponse
+	33, // 108: overmindv.content.ContentService.ListContentRevisionHistory:output_type -> overmindv.content.ListContentRevisionHistoryResponse
+	35, // 109: overmindv.content.ContentService.PublishContentItem:output_type -> overmindv.content.PublishContentItemResponse
+	37, // 110: overmindv.content.ContentService.ArchiveContentItem:output_type -> overmindv.content.ArchiveContentItemResponse
+	41, // 111: overmindv.content.ContentService.OpenChangeProposal:output_type -> overmindv.content.OpenChangeProposalResponse
+	43, // 112: overmindv.content.ContentService.GetChangeProposal:output_type -> overmindv.content.GetChangeProposalResponse
+	45, // 113: overmindv.content.ContentService.AppendChangeProposalRevision:output_type -> overmindv.content.AppendChangeProposalRevisionResponse
+	47, // 114: overmindv.content.ContentService.RebaseChangeProposal:output_type -> overmindv.content.RebaseChangeProposalResponse
+	49, // 115: overmindv.content.ContentService.CloseChangeProposal:output_type -> overmindv.content.CloseChangeProposalResponse
+	52, // 116: overmindv.content.ContentService.ListChangeProposalHistory:output_type -> overmindv.content.ListChangeProposalHistoryResponse
+	54, // 117: overmindv.content.ContentService.GetChangeProposalDiff:output_type -> overmindv.content.GetChangeProposalDiffResponse
+	60, // 118: overmindv.content.ContentService.CreateReviewThread:output_type -> overmindv.content.CreateReviewThreadResponse
+	62, // 119: overmindv.content.ContentService.ReplyToReviewThread:output_type -> overmindv.content.ReplyToReviewThreadResponse
+	64, // 120: overmindv.content.ContentService.SetReviewThreadResolved:output_type -> overmindv.content.SetReviewThreadResolvedResponse
+	66, // 121: overmindv.content.ContentService.ListReviewThreads:output_type -> overmindv.content.ListReviewThreadsResponse
+	68, // 122: overmindv.content.ContentService.ListReviewReplies:output_type -> overmindv.content.ListReviewRepliesResponse
+	70, // 123: overmindv.content.ContentService.SubmitReviewDecision:output_type -> overmindv.content.SubmitReviewDecisionResponse
+	72, // 124: overmindv.content.ContentService.GetReviewRevisionStatus:output_type -> overmindv.content.GetReviewRevisionStatusResponse
+	80, // 125: overmindv.content.ContentService.MergeChangeProposal:output_type -> overmindv.content.MergeChangeProposalResponse
+	95, // [95:126] is the sub-list for method output_type
+	64, // [64:95] is the sub-list for method input_type
 	64, // [64:64] is the sub-list for extension type_name
 	64, // [64:64] is the sub-list for extension extendee
 	0,  // [0:64] is the sub-list for field type_name
@@ -5642,7 +5768,7 @@ func file_api_content_content_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_content_content_proto_rawDesc), len(file_api_content_content_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   79,
+			NumMessages:   81,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

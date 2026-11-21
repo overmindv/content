@@ -258,6 +258,7 @@ message ChangeProposal {
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp closed_at = 8;
   bool base_outdated = 9;
+  string merged_revision_id = 10;
 }
 
 message ChangeProposalRevision {
@@ -503,6 +504,16 @@ message ConfirmMaterialReadRequest {
 
 message ConfirmMaterialReadResponse {}
 
+message MergeChangeProposalRequest {
+  string proposal_id = 1;
+  string expected_head_id = 2;
+}
+
+message MergeChangeProposalResponse {
+  string content_item_id = 1;
+  string published_revision_id = 2;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -534,4 +545,5 @@ service ContentService {
   rpc ListReviewReplies(ListReviewRepliesRequest) returns (ListReviewRepliesResponse);
   rpc SubmitReviewDecision(SubmitReviewDecisionRequest) returns (SubmitReviewDecisionResponse);
   rpc GetReviewRevisionStatus(GetReviewRevisionStatusRequest) returns (GetReviewRevisionStatusResponse);
+  rpc MergeChangeProposal(MergeChangeProposalRequest) returns (MergeChangeProposalResponse);
 }

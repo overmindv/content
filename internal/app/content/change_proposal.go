@@ -2,10 +2,14 @@ package content
 
 import (
 	"context"
+	"errors"
 
 	"github.com/overmindv/content/internal/app/content/mapper"
 	"github.com/overmindv/content/internal/pkg/domain"
+	"github.com/overmindv/content/internal/pkg/service"
 	contentpb "github.com/overmindv/content/pkg/api/content"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) OpenChangeProposal(ctx context.Context, req *contentpb.OpenChangeProposalRequest) (*contentpb.OpenChangeProposalResponse, error) {
@@ -101,6 +105,26 @@ func (s *Server) ListChangeProposalHistory(ctx context.Context, req *contentpb.L
 	}
 
 	return mapper.ToProtoChangeProposalHistory(page), nil
+}
+
+func (s *Server) MergeChangeProposal(ctx context.Context, req *contentpb.MergeChangeProposalRequest) (*contentpb.MergeChangeProposalResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.proposals.Merge(ctx, domain.MergeChangeProposalInput{
+		ProposalID: req.GetProposalId(), ExpectedHeadID: req.GetExpectedHeadId(), ActorID: actor,
+	})
+	if errors.Is(err, service.ErrAttachmentsPending) {
+		return nil, status.Error(codes.FailedPrecondition, "ATTACHMENTS_PENDING")
+	}
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &contentpb.MergeChangeProposalResponse{
+		ContentItemId: result.ContentItemID, PublishedRevisionId: result.PublishedRevisionID,
+	}, nil
 }
 
 func (s *Server) GetChangeProposalDiff(ctx context.Context, req *contentpb.GetChangeProposalDiffRequest) (*contentpb.GetChangeProposalDiffResponse, error) {

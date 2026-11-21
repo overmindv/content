@@ -385,6 +385,21 @@ func (mr *MockChangeProposalStoreMockRecorder) ListChangeProposalHistory(arg0, a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListChangeProposalHistory", reflect.TypeOf((*MockChangeProposalStore)(nil).ListChangeProposalHistory), arg0, arg1)
 }
 
+// MergeChangeProposal mocks base method.
+func (m *MockChangeProposalStore) MergeChangeProposal(arg0 context.Context, arg1 domain.MergeChangeProposalInput) (domain.MergeChangeProposalResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MergeChangeProposal", arg0, arg1)
+	ret0, _ := ret[0].(domain.MergeChangeProposalResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MergeChangeProposal indicates an expected call of MergeChangeProposal.
+func (mr *MockChangeProposalStoreMockRecorder) MergeChangeProposal(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MergeChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).MergeChangeProposal), arg0, arg1)
+}
+
 // OpenChangeProposal mocks base method.
 func (m *MockChangeProposalStore) OpenChangeProposal(arg0 context.Context, arg1 domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
 	m.ctrl.T.Helper()
