@@ -47,5 +47,6 @@ func actorID(ctx context.Context) (string, error) {
 	if !ok || id == "" {
 		return "", status.Error(codes.Unauthenticated, "verified actor required")
 	}
+
 	return id, nil
 }

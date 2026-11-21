@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/overmindv/content/internal/pkg/domain"
 )
 
@@ -33,8 +34,8 @@ func ValidateCreateContentItem(input domain.CreateContentItemInput) error {
 	if !isAllowedContentType(input.Type) {
 		return Error{Message: "type must be one of: article, note, summary, theory"}
 	}
-	if !isAllowedContentStatus(input.Status) {
-		return Error{Message: "status must be one of: draft, published, archived"}
+	if input.Status != domain.ContentStatusDraft {
+		return Error{Message: "new content must have draft status"}
 	}
 	if strings.TrimSpace(input.Title) == "" {
 		return Error{Message: "title is required"}
@@ -75,8 +76,8 @@ func ValidateUpdateContentItem(input domain.UpdateContentItemInput) error {
 	if !isAllowedContentType(input.Type) {
 		return Error{Message: "type must be one of: article, note, summary, theory"}
 	}
-	if !isAllowedContentStatus(input.Status) {
-		return Error{Message: "status must be one of: draft, published, archived"}
+	if input.Status != domain.ContentStatusDraft {
+		return Error{Message: "use the publish or archive operation to change status"}
 	}
 	if strings.TrimSpace(input.Title) == "" {
 		return Error{Message: "title is required"}
@@ -92,6 +93,9 @@ func ValidateCreateContentRevision(input domain.CreateContentRevisionInput) erro
 	if err := ValidateID(input.ContentItemID); err != nil {
 		return err
 	}
+	if err := ValidateExpectedRevisionID(input.ExpectedRevisionID); err != nil {
+		return err
+	}
 	if !isAllowedContentFormat(input.Format) {
 		return Error{Message: "format must be one of: markdown, typst"}
 	}
@@ -102,18 +106,18 @@ func ValidateCreateContentRevision(input domain.CreateContentRevisionInput) erro
 	return nil
 }
 
+func ValidateExpectedRevisionID(value string) error {
+	id, err := uuid.Parse(value)
+	if len(value) != 36 || err != nil || id == uuid.Nil {
+		return Error{Message: "expected_revision_id must be a UUID"}
+	}
+
+	return nil
+}
+
 func isAllowedContentType(contentType domain.ContentType) bool {
 	switch contentType {
 	case domain.ContentTypeArticle, domain.ContentTypeNote, domain.ContentTypeSummary, domain.ContentTypeTheory:
-		return true
-	default:
-		return false
-	}
-}
-
-func isAllowedContentStatus(status domain.ContentStatus) bool {
-	switch status {
-	case domain.ContentStatusDraft, domain.ContentStatusPublished, domain.ContentStatusArchived:
 		return true
 	default:
 		return false

@@ -49,11 +49,12 @@ func UpdateContentItemFromProto(req *content.UpdateContentItemRequest, actorID s
 
 func CreateContentRevisionFromProto(req *content.CreateContentRevisionRequest, actorID string) dto.CreateContentRevision {
 	return dto.CreateContentRevision{
-		ContentItemID: req.GetContentItemId(),
-		Format:        req.GetFormat(),
-		Source:        req.GetSource(),
-		Message:       req.GetMessage(),
-		CreatedBy:     actorID,
+		ContentItemID:      req.GetContentItemId(),
+		ExpectedRevisionID: req.GetExpectedRevisionId(),
+		Format:             req.GetFormat(),
+		Source:             req.GetSource(),
+		Message:            req.GetMessage(),
+		CreatedBy:          actorID,
 	}
 }
 
@@ -97,11 +98,12 @@ func ToUpdateInput(payload dto.UpdateContentItem) domain.UpdateContentItemInput 
 
 func ToCreateRevisionInput(payload dto.CreateContentRevision) domain.CreateContentRevisionInput {
 	return domain.CreateContentRevisionInput{
-		ContentItemID: payload.ContentItemID,
-		Format:        domain.ContentFormat(payload.Format),
-		Source:        payload.Source,
-		Message:       payload.Message,
-		CreatedBy:     payload.CreatedBy,
+		ContentItemID:      payload.ContentItemID,
+		ExpectedRevisionID: payload.ExpectedRevisionID,
+		Format:             domain.ContentFormat(payload.Format),
+		Source:             payload.Source,
+		Message:            payload.Message,
+		CreatedBy:          payload.CreatedBy,
 	}
 }
 

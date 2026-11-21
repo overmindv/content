@@ -56,6 +56,27 @@ func (s *ContentItemService) Update(ctx context.Context, input domain.UpdateCont
 	return item, err
 }
 
+func (s *ContentItemService) Publish(ctx context.Context, input domain.ChangeContentItemStateInput) (domain.ContentItem, error) {
+	return s.changeState(ctx, input, domain.ContentStatusPublished)
+}
+
+func (s *ContentItemService) Archive(ctx context.Context, input domain.ChangeContentItemStateInput) (domain.ContentItem, error) {
+	return s.changeState(ctx, input, domain.ContentStatusArchived)
+}
+
+func (s *ContentItemService) changeState(ctx context.Context, input domain.ChangeContentItemStateInput, target domain.ContentStatus) (domain.ContentItem, error) {
+	input.ID = strings.TrimSpace(input.ID)
+	input.ExpectedRevisionID = strings.ToLower(strings.TrimSpace(input.ExpectedRevisionID))
+	if err := validator.ValidateID(input.ID); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err := validator.ValidateExpectedRevisionID(input.ExpectedRevisionID); err != nil {
+		return domain.ContentItem{}, err
+	}
+
+	return s.store.ChangeState(ctx, input, target)
+}
+
 func (s *ContentItemService) Delete(ctx context.Context, id, actorID string) (item domain.ContentItem, err error) {
 	if err = validator.ValidateID(id); err != nil {
 		return domain.ContentItem{}, err
@@ -112,10 +133,15 @@ func normalizeCreateInput(input domain.CreateContentItemInput) domain.CreateCont
 }
 
 func normalizeUpdateInput(input domain.UpdateContentItemInput) domain.UpdateContentItemInput {
+	status := domain.ContentStatus(strings.ToLower(strings.TrimSpace(string(input.Status))))
+	if status == "" {
+		status = domain.ContentStatusDraft
+	}
+
 	return domain.UpdateContentItemInput{
 		ID:          strings.TrimSpace(input.ID),
 		Type:        domain.ContentType(strings.ToLower(strings.TrimSpace(string(input.Type)))),
-		Status:      domain.ContentStatus(strings.ToLower(strings.TrimSpace(string(input.Status)))),
+		Status:      status,
 		Title:       strings.TrimSpace(input.Title),
 		Slug:        strings.ToLower(strings.TrimSpace(input.Slug)),
 		Description: strings.TrimSpace(input.Description),
@@ -130,11 +156,12 @@ func normalizeCreateRevisionInput(input domain.CreateContentRevisionInput) domai
 	}
 
 	return domain.CreateContentRevisionInput{
-		ContentItemID: strings.TrimSpace(input.ContentItemID),
-		Format:        domain.ContentFormat(strings.ToLower(strings.TrimSpace(string(format)))),
-		Source:        strings.TrimSpace(input.Source),
-		Message:       strings.TrimSpace(input.Message),
-		CreatedBy:     strings.TrimSpace(input.CreatedBy),
+		ContentItemID:      strings.TrimSpace(input.ContentItemID),
+		ExpectedRevisionID: strings.ToLower(strings.TrimSpace(input.ExpectedRevisionID)),
+		Format:             domain.ContentFormat(strings.ToLower(strings.TrimSpace(string(format)))),
+		Source:             strings.TrimSpace(input.Source),
+		Message:            strings.TrimSpace(input.Message),
+		CreatedBy:          strings.TrimSpace(input.CreatedBy),
 	}
 }
 

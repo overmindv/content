@@ -3,6 +3,7 @@
 package content
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -17,7 +18,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestGRPCDraftOwnershipWithPostgres(t *testing.T) {
+func startPostgresContentClient(t *testing.T) (context.Context, contentpb.ContentServiceClient) {
+	t.Helper()
 	dsn := os.Getenv("COMPONENT_TEST_DSN")
 	if dsn == "" {
 		t.Fatal("COMPONENT_TEST_DSN is required")
@@ -30,10 +32,14 @@ func TestGRPCDraftOwnershipWithPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal("could not open test database")
 	}
-	defer pool.Close()
+	t.Cleanup(pool.Close)
 
 	store := postgres.NewContentItemStore(pool)
-	ctx, client := startAuthTestClient(t, testServiceToken, service.NewContentItemService(store))
+	return startAuthTestClient(t, testServiceToken, service.NewContentItemService(store))
+}
+
+func TestGRPCDraftOwnershipWithPostgres(t *testing.T) {
+	ctx, client := startPostgresContentClient(t)
 	token := "Bearer " + testServiceToken
 	author := metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", token, "x-user-id", testActor))
 	other := metadata.NewOutgoingContext(ctx, metadata.Pairs(

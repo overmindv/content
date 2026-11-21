@@ -75,5 +75,6 @@ func newGRPCServer(itemService *service.ContentItemService, serviceToken string)
 	server := grpc.NewServer(grpc.UnaryInterceptor(requireServiceActor(serviceToken)))
 	contentpb.RegisterContentServiceServer(server, NewServer(itemService))
 	reflection.Register(server)
+
 	return server
 }

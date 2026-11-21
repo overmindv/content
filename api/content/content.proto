@@ -123,6 +123,7 @@ message CreateContentRevisionRequest {
   string source = 3;
   string message = 4;
   string created_by = 5;
+  string expected_revision_id = 6;
 }
 
 message CreateContentRevisionResponse {
@@ -137,6 +138,24 @@ message ListContentRevisionsResponse {
   repeated ContentRevision revisions = 1;
 }
 
+message PublishContentItemRequest {
+  string id = 1;
+  string expected_revision_id = 2;
+}
+
+message PublishContentItemResponse {
+  ContentItem item = 1;
+}
+
+message ArchiveContentItemRequest {
+  string id = 1;
+  string expected_revision_id = 2;
+}
+
+message ArchiveContentItemResponse {
+  ContentItem item = 1;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -145,4 +164,6 @@ service ContentService {
   rpc DeleteContentItem(DeleteContentItemRequest) returns (DeleteContentItemResponse);
   rpc CreateContentRevision(CreateContentRevisionRequest) returns (CreateContentRevisionResponse);
   rpc ListContentRevisions(ListContentRevisionsRequest) returns (ListContentRevisionsResponse);
+  rpc PublishContentItem(PublishContentItemRequest) returns (PublishContentItemResponse);
+  rpc ArchiveContentItem(ArchiveContentItemRequest) returns (ArchiveContentItemResponse);
 }

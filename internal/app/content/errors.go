@@ -15,6 +15,10 @@ func toStatusError(err error) error {
 		return nil
 	case errors.Is(err, service.ErrNotFound):
 		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, service.ErrRevisionConflict):
+		return status.Error(codes.Aborted, err.Error())
+	case errors.Is(err, service.ErrInvalidState):
+		return status.Error(codes.FailedPrecondition, err.Error())
 	case validator.IsValidationError(err):
 		return status.Error(codes.InvalidArgument, err.Error())
 	default:

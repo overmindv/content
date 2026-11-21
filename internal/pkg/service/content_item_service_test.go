@@ -45,6 +45,10 @@ func (s *storeStub) Update(context.Context, domain.UpdateContentItemInput) (doma
 	return s.item, nil
 }
 
+func (s *storeStub) ChangeState(context.Context, domain.ChangeContentItemStateInput, domain.ContentStatus) (domain.ContentItem, error) {
+	return s.item, nil
+}
+
 func (s *storeStub) Delete(context.Context, string, string) (domain.ContentItem, error) {
 	return s.item, nil
 }

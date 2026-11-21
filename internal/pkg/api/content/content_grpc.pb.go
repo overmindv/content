@@ -26,6 +26,8 @@ const (
 	ContentService_DeleteContentItem_FullMethodName     = "/overmindv.content.ContentService/DeleteContentItem"
 	ContentService_CreateContentRevision_FullMethodName = "/overmindv.content.ContentService/CreateContentRevision"
 	ContentService_ListContentRevisions_FullMethodName  = "/overmindv.content.ContentService/ListContentRevisions"
+	ContentService_PublishContentItem_FullMethodName    = "/overmindv.content.ContentService/PublishContentItem"
+	ContentService_ArchiveContentItem_FullMethodName    = "/overmindv.content.ContentService/ArchiveContentItem"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -39,6 +41,8 @@ type ContentServiceClient interface {
 	DeleteContentItem(ctx context.Context, in *DeleteContentItemRequest, opts ...grpc.CallOption) (*DeleteContentItemResponse, error)
 	CreateContentRevision(ctx context.Context, in *CreateContentRevisionRequest, opts ...grpc.CallOption) (*CreateContentRevisionResponse, error)
 	ListContentRevisions(ctx context.Context, in *ListContentRevisionsRequest, opts ...grpc.CallOption) (*ListContentRevisionsResponse, error)
+	PublishContentItem(ctx context.Context, in *PublishContentItemRequest, opts ...grpc.CallOption) (*PublishContentItemResponse, error)
+	ArchiveContentItem(ctx context.Context, in *ArchiveContentItemRequest, opts ...grpc.CallOption) (*ArchiveContentItemResponse, error)
 }
 
 type contentServiceClient struct {
@@ -119,6 +123,26 @@ func (c *contentServiceClient) ListContentRevisions(ctx context.Context, in *Lis
 	return out, nil
 }
 
+func (c *contentServiceClient) PublishContentItem(ctx context.Context, in *PublishContentItemRequest, opts ...grpc.CallOption) (*PublishContentItemResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishContentItemResponse)
+	err := c.cc.Invoke(ctx, ContentService_PublishContentItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ArchiveContentItem(ctx context.Context, in *ArchiveContentItemRequest, opts ...grpc.CallOption) (*ArchiveContentItemResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ArchiveContentItemResponse)
+	err := c.cc.Invoke(ctx, ContentService_ArchiveContentItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -130,6 +154,8 @@ type ContentServiceServer interface {
 	DeleteContentItem(context.Context, *DeleteContentItemRequest) (*DeleteContentItemResponse, error)
 	CreateContentRevision(context.Context, *CreateContentRevisionRequest) (*CreateContentRevisionResponse, error)
 	ListContentRevisions(context.Context, *ListContentRevisionsRequest) (*ListContentRevisionsResponse, error)
+	PublishContentItem(context.Context, *PublishContentItemRequest) (*PublishContentItemResponse, error)
+	ArchiveContentItem(context.Context, *ArchiveContentItemRequest) (*ArchiveContentItemResponse, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -160,6 +186,12 @@ func (UnimplementedContentServiceServer) CreateContentRevision(context.Context, 
 }
 func (UnimplementedContentServiceServer) ListContentRevisions(context.Context, *ListContentRevisionsRequest) (*ListContentRevisionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentRevisions not implemented")
+}
+func (UnimplementedContentServiceServer) PublishContentItem(context.Context, *PublishContentItemRequest) (*PublishContentItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishContentItem not implemented")
+}
+func (UnimplementedContentServiceServer) ArchiveContentItem(context.Context, *ArchiveContentItemRequest) (*ArchiveContentItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArchiveContentItem not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -308,6 +340,42 @@ func _ContentService_ListContentRevisions_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_PublishContentItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishContentItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).PublishContentItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_PublishContentItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).PublishContentItem(ctx, req.(*PublishContentItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ArchiveContentItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArchiveContentItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ArchiveContentItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ArchiveContentItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ArchiveContentItem(ctx, req.(*ArchiveContentItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -342,6 +410,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListContentRevisions",
 			Handler:    _ContentService_ListContentRevisions_Handler,
+		},
+		{
+			MethodName: "PublishContentItem",
+			Handler:    _ContentService_PublishContentItem_Handler,
+		},
+		{
+			MethodName: "ArchiveContentItem",
+			Handler:    _ContentService_ArchiveContentItem_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

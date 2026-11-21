@@ -64,7 +64,7 @@ func TestContentItemStoreCRUD(t *testing.T) {
 	updated, err := store.Update(ctx, domain.UpdateContentItemInput{
 		ID:          created.ID,
 		Type:        domain.ContentTypeArticle,
-		Status:      domain.ContentStatusPublished,
+		Status:      domain.ContentStatusDraft,
 		Title:       "Builder content item updated",
 		Slug:        "builder-content-item-updated",
 		Description: "updated by component test",
@@ -74,19 +74,23 @@ func TestContentItemStoreCRUD(t *testing.T) {
 		t.Errorf("Update() error = %v", err)
 	}
 
-	if updated.Status != domain.ContentStatusPublished {
-		t.Errorf("expected updated status published, got %q", updated.Status)
+	if updated.Status != domain.ContentStatusDraft || updated.PublishedRevisionID != "" {
+		t.Errorf("metadata update published the draft: %v", updated.Status)
 	}
-	if updated.PublishedRevisionID == "" {
-		t.Error("expected published revision id")
+	published, err := store.ChangeState(ctx, domain.ChangeContentItemStateInput{
+		ID: created.ID, ExpectedRevisionID: created.CurrentRevisionID, ActorID: input.CreatedBy,
+	}, domain.ContentStatusPublished)
+	if err != nil || published.PublishedRevisionID != created.CurrentRevisionID {
+		t.Errorf("publish did not set the published revision: %v", err)
 	}
 
 	revision, err := store.CreateRevision(ctx, domain.CreateContentRevisionInput{
-		ContentItemID: created.ID,
-		Format:        domain.ContentFormatTypst,
-		Source:        "= Builder content item",
-		Message:       "typst revision",
-		CreatedBy:     input.CreatedBy,
+		ContentItemID:      created.ID,
+		ExpectedRevisionID: created.CurrentRevisionID,
+		Format:             domain.ContentFormatTypst,
+		Source:             "= Builder content item",
+		Message:            "typst revision",
+		CreatedBy:          input.CreatedBy,
 	})
 	if err != nil {
 		t.Errorf("CreateRevision() error = %v", err)
@@ -122,9 +126,8 @@ func TestContentItemStoreCRUD(t *testing.T) {
 		t.Errorf("expected deleted id %q, got %q", created.ID, deleted.ID)
 	}
 
-	// Последовательность create/update/delete/revision поставила в outbox 4 события.
-	if n := pendingOutboxRows(t, ctx, pool, created.ID); n < 4 {
-		t.Errorf("expected at least 4 outbox rows for item, got %d", n)
+	if n := pendingOutboxRows(t, ctx, pool, created.ID); n != 5 {
+		t.Errorf("expected 5 outbox rows for item, got %d", n)
 	}
 }
 
@@ -150,11 +153,12 @@ func TestContentItemStoreAccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	update := domain.UpdateContentItemInput{
-		ID: item.ID, Type: item.Type, Status: domain.ContentStatusPublished,
+		ID: item.ID, Type: item.Type, Status: domain.ContentStatusDraft,
 		Title: item.Title, Slug: item.Slug, UpdatedBy: reader,
 	}
 	changed := domain.CreateContentRevisionInput{
-		ContentItemID: item.ID, Format: domain.ContentFormatMarkdown, Source: "# Unpublished", CreatedBy: reader,
+		ContentItemID: item.ID, ExpectedRevisionID: item.CurrentRevisionID,
+		Format: domain.ContentFormatMarkdown, Source: "# Unpublished", CreatedBy: reader,
 	}
 	assertHidden := func(err error) {
 		t.Helper()
@@ -189,9 +193,17 @@ func TestContentItemStoreAccess(t *testing.T) {
 		t.Errorf("owner draft missing or changed: %v", err)
 	}
 
-	update.UpdatedBy = owner
-	published, err := store.Update(ctx, update)
+	state := domain.ChangeContentItemStateInput{ID: item.ID, ExpectedRevisionID: item.CurrentRevisionID, ActorID: reader}
+	_, err = store.ChangeState(ctx, state, domain.ContentStatusPublished)
+	assertHidden(err)
+	_, err = store.ChangeState(ctx, state, domain.ContentStatusArchived)
+	assertHidden(err)
+	state.ActorID = owner
+	published, err := store.ChangeState(ctx, state, domain.ContentStatusPublished)
 	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = store.ChangeState(ctx, state, domain.ContentStatusPublished); err != nil {
 		t.Fatal(err)
 	}
 	changed.CreatedBy = owner
@@ -240,7 +252,111 @@ func TestContentItemStoreAccess(t *testing.T) {
 	assertHidden(err)
 	_, err = store.Delete(ctx, item.ID, reader)
 	assertHidden(err)
+
+	_, err = store.CreateRevision(ctx, changed)
+	if !errors.Is(err, service.ErrRevisionConflict) {
+		t.Errorf("stale revision: %v", err)
+	}
+	for _, target := range []domain.ContentStatus{domain.ContentStatusPublished, domain.ContentStatusArchived} {
+		_, err = store.ChangeState(ctx, state, target)
+		if !errors.Is(err, service.ErrRevisionConflict) {
+			t.Errorf("stale %s: %v", target, err)
+		}
+	}
+	update.UpdatedBy = owner
+	update.Title = "Unpublished title"
+	_, err = store.Update(ctx, update)
+	if !errors.Is(err, service.ErrInvalidState) {
+		t.Errorf("published metadata update: %v", err)
+	}
+	view, err = store.Get(ctx, item.ID, reader)
+	if err != nil || view.Title != published.Title {
+		t.Fatalf("rejected edits changed the public view: %v", err)
+	}
+	assertPublishedView(view)
+
+	state.ExpectedRevisionID = next.ID
+	republished, err := store.ChangeState(ctx, state, domain.ContentStatusPublished)
+	if err != nil || republished.PublishedRevisionID != next.ID {
+		t.Fatalf("publish with current revision: %v", err)
+	}
+	view, err = store.Get(ctx, item.ID, reader)
+	if err != nil || view.CurrentRevision == nil || view.CurrentRevision.Source != changed.Source {
+		t.Errorf("new published revision not visible: %v", err)
+	}
+	archived, err := store.ChangeState(ctx, state, domain.ContentStatusArchived)
+	if err != nil || archived.Status != domain.ContentStatusArchived || archived.ArchivedAt == nil {
+		t.Fatalf("archive with current revision: %v", err)
+	}
+	if _, err = store.ChangeState(ctx, state, domain.ContentStatusArchived); err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.Get(ctx, item.ID, reader)
+	assertHidden(err)
+	_, err = store.ChangeState(ctx, state, domain.ContentStatusPublished)
+	if !errors.Is(err, service.ErrInvalidState) {
+		t.Errorf("publish archived item: %v", err)
+	}
+	changed.ExpectedRevisionID = next.ID
+	_, err = store.CreateRevision(ctx, changed)
+	if !errors.Is(err, service.ErrInvalidState) {
+		t.Errorf("write archived item: %v", err)
+	}
+	if n := pendingOutboxRows(t, ctx, pool, item.ID); n != 5 {
+		t.Errorf("outbox rows after retries and conflicts = %d, want 5", n)
+	}
 	if _, err = store.Delete(ctx, item.ID, owner); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestConcurrentContentRevisionsRequireCurrentBase(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	pool, err := pgxpool.NewWithConfig(ctx, testDatabaseConfig(t))
+	if err != nil {
+		t.Fatal("could not open test database")
+	}
+	defer pool.Close()
+	store := postgres.NewContentItemStore(pool, postgres.WithOutbox(true, "content-test-topic"))
+	input := builders.ContentItem()
+	input.Slug += "-" + uuid.NewString()
+	input.CreatedBy = uuid.NewString()
+	item, err := store.Create(ctx, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	start := make(chan struct{})
+	results := make(chan error, 2)
+	for _, source := range []string{"# First edit", "# Second edit"} {
+		go func() {
+			<-start
+			_, err := store.CreateRevision(ctx, domain.CreateContentRevisionInput{
+				ContentItemID: item.ID, ExpectedRevisionID: item.CurrentRevisionID,
+				Format: domain.ContentFormatMarkdown, Source: source, CreatedBy: input.CreatedBy,
+			})
+			results <- err
+		}()
+	}
+	close(start)
+	var saved, rejected int
+	for range 2 {
+		switch err := <-results; {
+		case err == nil:
+			saved++
+		case errors.Is(err, service.ErrRevisionConflict):
+			rejected++
+		default:
+			t.Errorf("unexpected result: %v", err)
+		}
+	}
+	if saved != 1 || rejected != 1 {
+		t.Errorf("saved = %d, conflicted = %d, want one of each", saved, rejected)
+	}
+	if n := pendingOutboxRows(t, ctx, pool, item.ID); n != 2 {
+		t.Errorf("outbox rows after concurrent edits = %d, want 2", n)
+	}
+	if _, err = store.Delete(ctx, item.ID, input.CreatedBy); err != nil {
 		t.Fatal(err)
 	}
 }
