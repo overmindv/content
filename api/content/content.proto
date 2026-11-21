@@ -246,6 +246,7 @@ message ChangeProposal {
   ChangeProposalRevision head = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp closed_at = 8;
+  bool base_outdated = 9;
 }
 
 message ChangeProposalRevision {
@@ -305,6 +306,7 @@ message ChangeProposalHistoryEntry {
   string author_id = 4;
   string message = 5;
   google.protobuf.Timestamp created_at = 6;
+  string base_revision_id = 7;
 }
 
 message ListChangeProposalHistoryRequest {

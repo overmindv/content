@@ -22,7 +22,7 @@ const proposalReader = `(p.author_id = $2 OR i.created_by = $2 OR (
 
 func (s *ContentItemStore) ListChangeProposalHistory(ctx context.Context, input domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
 	const query = `
-		SELECT p.author_id, r.id, r.parent_revision_id, r.ordinal, r.message, r.created_at
+		SELECT p.author_id, p.base_revision_id, r.id, r.parent_revision_id, r.ordinal, r.message, r.created_at
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
 		LEFT JOIN LATERAL (
@@ -50,7 +50,7 @@ func (s *ContentItemStore) ListChangeProposalHistory(ctx context.Context, input 
 		var id, parentID, message *string
 		var ordinal *int32
 		var createdAt *time.Time
-		if err = rows.Scan(&entry.AuthorID, &id, &parentID, &ordinal, &message, &createdAt); err != nil {
+		if err = rows.Scan(&entry.AuthorID, &entry.BaseRevisionID, &id, &parentID, &ordinal, &message, &createdAt); err != nil {
 			return domain.ChangeProposalHistory{}, err
 		}
 		if id == nil {

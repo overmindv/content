@@ -45,6 +45,11 @@ func TestChangeProposalLifecycle(t *testing.T) {
 	if _, err = store.ChangeState(ctx, state, domain.ContentStatusPublished); err != nil {
 		t.Fatal(err)
 	}
+	unchanged := open
+	unchanged.Source = input.Source
+	if _, err = store.OpenChangeProposal(ctx, unchanged); !errors.Is(err, service.ErrProposalNoChange) {
+		t.Error("opened a proposal without changes", err)
+	}
 	storeDraft, err := store.CreateRevision(ctx, domain.CreateContentRevisionInput{
 		ContentItemID: item.ID, ExpectedRevisionID: item.CurrentRevisionID,
 		Source: "# Unpublished author's draft", Format: domain.ContentFormatMarkdown, CreatedBy: owner,
@@ -61,7 +66,7 @@ func TestChangeProposalLifecycle(t *testing.T) {
 	proposal := raceProposalOperation(t, service.ErrProposalExists, func(_ int) (domain.ChangeProposal, error) {
 		return store.OpenChangeProposal(ctx, open)
 	})
-	if proposal.BaseRevisionID != item.CurrentRevisionID || proposal.Head.Ordinal != 1 || proposal.Head.ParentRevisionID != "" {
+	if proposal.BaseRevisionID != item.CurrentRevisionID || proposal.BaseOutdated || proposal.Head.Ordinal != 1 || proposal.Head.ParentRevisionID != "" {
 		t.Error("first revision is not based on the published material")
 	}
 	if _, err = store.GetChangeProposal(ctx, proposal.ID, reader); !errors.Is(err, service.ErrProposalNotFound) {
@@ -82,6 +87,11 @@ func TestChangeProposalLifecycle(t *testing.T) {
 		t.Errorf("close as material owner: %v", err)
 	}
 	appendRevision.AuthorID = author
+	unchangedHead := appendRevision
+	unchangedHead.Source = open.Source
+	if _, err = store.AppendChangeProposalRevision(ctx, unchangedHead); !errors.Is(err, service.ErrProposalNoChange) {
+		t.Error("created a proposal revision without changes", err)
+	}
 	updated := raceProposalOperation(t, service.ErrRevisionConflict, func(n int) (domain.ChangeProposal, error) {
 		edit := appendRevision
 		if n == 1 {
@@ -107,7 +117,8 @@ func TestChangeProposalLifecycle(t *testing.T) {
 			t.Fatalf("first history page: %+v, %v", first, err)
 		}
 		entry := first.Entries[0]
-		if entry.ID != updated.Head.ID || entry.ParentRevisionID != proposal.Head.ID || entry.AuthorID != author || entry.CreatedAt.IsZero() {
+		if entry.ID != updated.Head.ID || entry.ParentRevisionID != proposal.Head.ID || entry.BaseRevisionID != proposal.BaseRevisionID ||
+			entry.AuthorID != author || entry.CreatedAt.IsZero() {
 			t.Error("history entry is missing revision metadata")
 		}
 		readerInput.BeforeOrdinal = first.NextBeforeOrdinal
@@ -178,6 +189,14 @@ func TestChangeProposalLifecycle(t *testing.T) {
 	}
 	if n := pendingOutboxRows(t, ctx, pool, item.ID); n != 3 {
 		t.Errorf("outbox rows = %d, want only the 3 material events", n)
+	}
+	state.ExpectedRevisionID = storeDraft.ID
+	if _, err = store.ChangeState(ctx, state, domain.ContentStatusPublished); err != nil {
+		t.Fatal(err)
+	}
+	outdated, err := store.GetChangeProposal(ctx, reopened.ID, author)
+	if err != nil || !outdated.BaseOutdated || outdated.BaseRevisionID != item.CurrentRevisionID {
+		t.Error("new publication did not mark the old base without changing it", err)
 	}
 	if _, err = store.Delete(ctx, item.ID, owner); err != nil {
 		t.Fatal(err)

@@ -26,7 +26,7 @@ func toStatusError(err error) error {
 		return status.Error(codes.PermissionDenied, err.Error())
 	case errors.Is(err, service.ErrTopicCatalogUnavailable), errors.Is(err, service.ErrMediaUnavailable):
 		return status.Error(codes.Unavailable, err.Error())
-	case errors.Is(err, service.ErrInactiveTopic):
+	case errors.Is(err, service.ErrInactiveTopic), errors.Is(err, service.ErrProposalNoChange):
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):
 		return status.Error(codes.Aborted, err.Error())

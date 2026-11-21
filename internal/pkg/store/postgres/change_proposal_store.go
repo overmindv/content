@@ -18,15 +18,15 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	const getPublishedRevision = `
-		SELECT published_revision_id,
-		       EXISTS (SELECT 1 FROM content_revisions WHERE content_item_id = $1 AND id = $2)
-		FROM content_items
-		WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL
-		FOR SHARE
+		SELECT i.published_revision_id, r.source = $2
+		FROM content_items AS i
+		JOIN content_revisions AS r ON r.content_item_id = i.id AND r.id = i.published_revision_id
+		WHERE i.id = $1 AND i.status = 'published'
+		FOR SHARE OF i
 	`
 	var publishedRevisionID string
-	var baseExists bool
-	err = tx.QueryRow(ctx, getPublishedRevision, input.ContentItemID, input.BaseRevisionID).Scan(&publishedRevisionID, &baseExists)
+	var sameText bool
+	err = tx.QueryRow(ctx, getPublishedRevision, input.ContentItemID, input.Source).Scan(&publishedRevisionID, &sameText)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ChangeProposal{}, service.ErrNotFound
 	}
@@ -36,8 +36,8 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 	if publishedRevisionID != input.BaseRevisionID {
 		return domain.ChangeProposal{}, service.ErrRevisionConflict
 	}
-	if !baseExists {
-		return domain.ChangeProposal{}, service.ErrNotFound
+	if sameText && input.Attachments == nil {
+		return domain.ChangeProposal{}, service.ErrProposalNoChange
 	}
 
 	proposalID, headID := uuid.NewString(), uuid.NewString()
@@ -113,15 +113,18 @@ func (s *ContentItemStore) AppendChangeProposalRevision(ctx context.Context, inp
 	}
 
 	nextID := uuid.NewString()
-	const getHead = `SELECT ordinal, attachments_snapshot FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
+	const getHead = `SELECT ordinal, attachments_snapshot, source = $3 FROM content_change_proposal_revisions WHERE proposal_id = $1 AND id = $2`
 	var ordinal int32
-	var hasSnapshot bool
-	err = tx.QueryRow(ctx, getHead, input.ProposalID, headID).Scan(&ordinal, &hasSnapshot)
+	var hasSnapshot, sameText bool
+	err = tx.QueryRow(ctx, getHead, input.ProposalID, headID, input.Source).Scan(&ordinal, &hasSnapshot, &sameText)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ChangeProposal{}, service.ErrInvalidState
 	}
 	if err != nil {
 		return domain.ChangeProposal{}, err
+	}
+	if sameText && input.Attachments == nil {
+		return domain.ChangeProposal{}, service.ErrProposalNoChange
 	}
 	if err = insertProposalRevision(ctx, tx, input.ProposalID, nextID, headID, ordinal+1, input.Source, input.Message); err != nil {
 		return domain.ChangeProposal{}, err
@@ -190,6 +193,7 @@ func finishProposalWrite(ctx context.Context, tx pgx.Tx, id, actorID string) (do
 func getProposal(ctx context.Context, q queryer, id, actorID string, authorOnly bool) (domain.ChangeProposal, error) {
 	const selectProposal = `
 		SELECT p.id, p.content_item_id, p.base_revision_id, p.author_id, p.status, p.created_at, p.closed_at,
+		       p.status = 'open' AND (i.status <> 'published' OR i.published_revision_id IS DISTINCT FROM p.base_revision_id),
 		       r.id, r.parent_revision_id, r.ordinal, r.source, r.message, r.created_at,
 		       (SELECT jsonb_agg(jsonb_build_object(
 		            'ID', a.id, 'ContentItemID', a.content_item_id, 'RevisionID', a.proposal_revision_id,
@@ -204,7 +208,7 @@ func getProposal(ctx context.Context, q queryer, id, actorID string, authorOnly 
 	var parentID *string
 	err := q.QueryRow(ctx, selectProposal, id, actorID, authorOnly).Scan(
 		&proposal.ID, &proposal.ContentItemID, &proposal.BaseRevisionID, &proposal.AuthorID, &proposal.Status,
-		&proposal.CreatedAt, &proposal.ClosedAt, &proposal.Head.ID, &parentID,
+		&proposal.CreatedAt, &proposal.ClosedAt, &proposal.BaseOutdated, &proposal.Head.ID, &parentID,
 		&proposal.Head.Ordinal, &proposal.Head.Source, &proposal.Head.Message, &proposal.Head.CreatedAt, &proposal.Head.Assets,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {

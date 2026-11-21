@@ -17,6 +17,7 @@ var (
 	ErrInvalidState             = errors.New("operation is not allowed in this content state")
 	ErrProposalNotFound         = errors.New("change proposal not found")
 	ErrProposalExists           = errors.New("an open proposal already exists for this material and author")
+	ErrProposalNoChange         = errors.New("proposal must change the text or attachments")
 	ErrProposalRevisionNotFound = errors.New("change proposal revision not found")
 	ErrProposalDiffBusy         = errors.New("too many proposal diff requests")
 	ErrReviewThreadNotFound     = errors.New("review thread not found")

@@ -13,6 +13,7 @@ type ChangeProposal struct {
 	ID             string
 	ContentItemID  string
 	BaseRevisionID string
+	BaseOutdated   bool
 	AuthorID       string
 	Status         ChangeProposalStatus
 	Head           ChangeProposalRevision
@@ -58,6 +59,7 @@ type ChangeProposalHistoryInput struct {
 type ChangeProposalHistoryEntry struct {
 	ID               string
 	ParentRevisionID string
+	BaseRevisionID   string
 	Ordinal          int32
 	AuthorID         string
 	Message          string

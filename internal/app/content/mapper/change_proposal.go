@@ -11,6 +11,7 @@ func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProp
 		Id:             proposal.ID,
 		ContentItemId:  proposal.ContentItemID,
 		BaseRevisionId: proposal.BaseRevisionID,
+		BaseOutdated:   proposal.BaseOutdated,
 		AuthorId:       proposal.AuthorID,
 		Status:         string(proposal.Status),
 		CreatedAt:      timestamppb.New(proposal.CreatedAt),
@@ -31,7 +32,7 @@ func ToProtoChangeProposalHistory(page domain.ChangeProposalHistory) *contentpb.
 	entries := make([]*contentpb.ChangeProposalHistoryEntry, 0, len(page.Entries))
 	for _, entry := range page.Entries {
 		entries = append(entries, &contentpb.ChangeProposalHistoryEntry{
-			Id: entry.ID, ParentRevisionId: entry.ParentRevisionID, Ordinal: entry.Ordinal,
+			Id: entry.ID, ParentRevisionId: entry.ParentRevisionID, BaseRevisionId: entry.BaseRevisionID, Ordinal: entry.Ordinal,
 			AuthorId: entry.AuthorID, Message: entry.Message, CreatedAt: timestamppb.New(entry.CreatedAt),
 		})
 	}

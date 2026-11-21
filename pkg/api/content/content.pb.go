@@ -2320,6 +2320,7 @@ type ChangeProposal struct {
 	Head           *ChangeProposalRevision `protobuf:"bytes,6,opt,name=head,proto3" json:"head,omitempty"`
 	CreatedAt      *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	ClosedAt       *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
+	BaseOutdated   bool                    `protobuf:"varint,9,opt,name=base_outdated,json=baseOutdated,proto3" json:"base_outdated,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2408,6 +2409,13 @@ func (x *ChangeProposal) GetClosedAt() *timestamppb.Timestamp {
 		return x.ClosedAt
 	}
 	return nil
+}
+
+func (x *ChangeProposal) GetBaseOutdated() bool {
+	if x != nil {
+		return x.BaseOutdated
+	}
+	return false
 }
 
 type ChangeProposalRevision struct {
@@ -2926,6 +2934,7 @@ type ChangeProposalHistoryEntry struct {
 	AuthorId         string                 `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
 	Message          string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	BaseRevisionId   string                 `protobuf:"bytes,7,opt,name=base_revision_id,json=baseRevisionId,proto3" json:"base_revision_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3000,6 +3009,13 @@ func (x *ChangeProposalHistoryEntry) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *ChangeProposalHistoryEntry) GetBaseRevisionId() string {
+	if x != nil {
+		return x.BaseRevisionId
+	}
+	return ""
 }
 
 type ListChangeProposalHistoryRequest struct {
@@ -4531,7 +4547,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
 	"\x14expected_revision_id\x18\x02 \x01(\tR\x12expectedRevisionId\"P\n" +
 	"\x1aArchiveContentItemResponse\x122\n" +
-	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xda\x02\n" +
+	"\x04item\x18\x01 \x01(\v2\x1e.overmindv.content.ContentItemR\x04item\"\xff\x02\n" +
 	"\x0eChangeProposal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0fcontent_item_id\x18\x02 \x01(\tR\rcontentItemId\x12(\n" +
@@ -4541,7 +4557,8 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\x04head\x18\x06 \x01(\v2).overmindv.content.ChangeProposalRevisionR\x04head\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
-	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\"\x96\x02\n" +
+	"\tclosed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12#\n" +
+	"\rbase_outdated\x18\t \x01(\bR\fbaseOutdated\"\x96\x02\n" +
 	"\x16ChangeProposalRevision\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -4577,7 +4594,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\"\\\n" +
 	"\x1bCloseChangeProposalResponse\x12=\n" +
-	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\xe6\x01\n" +
+	"\bproposal\x18\x01 \x01(\v2!.overmindv.content.ChangeProposalR\bproposal\"\x90\x02\n" +
 	"\x1aChangeProposalHistoryEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x12parent_revision_id\x18\x02 \x01(\tR\x10parentRevisionId\x12\x18\n" +
@@ -4585,7 +4602,8 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\tauthor_id\x18\x04 \x01(\tR\bauthorId\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x87\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12(\n" +
+	"\x10base_revision_id\x18\a \x01(\tR\x0ebaseRevisionId\"\x87\x01\n" +
 	" ListChangeProposalHistoryRequest\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\tR\n" +
 	"proposalId\x12%\n" +
