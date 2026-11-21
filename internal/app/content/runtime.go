@@ -12,6 +12,7 @@ import (
 	contentpb "github.com/overmindv/content/pkg/api/content"
 	"github.com/overmindv/parker"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -63,12 +64,20 @@ func Build(app *parker.App) error {
 }
 
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
+	tlsConfig, err := loadGRPCTLS(cfg)
+	if err != nil {
+		return err
+	}
+	var options []grpc.ServerOption
+	if tlsConfig != nil {
+		options = append(options, grpc.Creds(credentials.NewTLS(tlsConfig)))
+	}
 	listener, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return err
 	}
 
-	grpcServer := newGRPCServer(handler, cfg.ServiceToken)
+	grpcServer := newGRPCServer(handler, cfg.ServiceToken, options...)
 
 	go func() {
 		<-ctx.Done()
@@ -80,11 +89,12 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(handler *Server, serviceToken string) *grpc.Server {
-	server := grpc.NewServer(
+func newGRPCServer(handler *Server, serviceToken string, extra ...grpc.ServerOption) *grpc.Server {
+	options := append(make([]grpc.ServerOption, 0, 2+len(extra)),
 		grpc.MaxRecvMsgSize(512*1024),
 		grpc.UnaryInterceptor(requireServiceActor(serviceToken)),
 	)
+	server := grpc.NewServer(append(options, extra...)...)
 	contentpb.RegisterContentServiceServer(server, handler)
 	reflection.Register(server)
 
