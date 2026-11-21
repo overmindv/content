@@ -19,6 +19,10 @@ func (s *storeStub) PingContext(context.Context) error {
 	return nil
 }
 
+func (s *storeStub) CheckPublishedAttachment(context.Context, domain.PublishedAttachmentRef) error {
+	return ErrNotFound
+}
+
 func (s *storeStub) Create(_ context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
 	s.lastCreate = input
 	s.item = domain.ContentItem{

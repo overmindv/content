@@ -19,32 +19,33 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContentService_CreateContentItem_FullMethodName            = "/overmindv.content.ContentService/CreateContentItem"
-	ContentService_GetContentItem_FullMethodName               = "/overmindv.content.ContentService/GetContentItem"
-	ContentService_GetPublishedContentItem_FullMethodName      = "/overmindv.content.ContentService/GetPublishedContentItem"
-	ContentService_ListContentItems_FullMethodName             = "/overmindv.content.ContentService/ListContentItems"
-	ContentService_ListContentCatalog_FullMethodName           = "/overmindv.content.ContentService/ListContentCatalog"
-	ContentService_UpdateContentItem_FullMethodName            = "/overmindv.content.ContentService/UpdateContentItem"
-	ContentService_DeleteContentItem_FullMethodName            = "/overmindv.content.ContentService/DeleteContentItem"
-	ContentService_CreateContentRevision_FullMethodName        = "/overmindv.content.ContentService/CreateContentRevision"
-	ContentService_SaveContentDraft_FullMethodName             = "/overmindv.content.ContentService/SaveContentDraft"
-	ContentService_ListContentRevisions_FullMethodName         = "/overmindv.content.ContentService/ListContentRevisions"
-	ContentService_ListContentRevisionHistory_FullMethodName   = "/overmindv.content.ContentService/ListContentRevisionHistory"
-	ContentService_PublishContentItem_FullMethodName           = "/overmindv.content.ContentService/PublishContentItem"
-	ContentService_ArchiveContentItem_FullMethodName           = "/overmindv.content.ContentService/ArchiveContentItem"
-	ContentService_OpenChangeProposal_FullMethodName           = "/overmindv.content.ContentService/OpenChangeProposal"
-	ContentService_GetChangeProposal_FullMethodName            = "/overmindv.content.ContentService/GetChangeProposal"
-	ContentService_AppendChangeProposalRevision_FullMethodName = "/overmindv.content.ContentService/AppendChangeProposalRevision"
-	ContentService_CloseChangeProposal_FullMethodName          = "/overmindv.content.ContentService/CloseChangeProposal"
-	ContentService_ListChangeProposalHistory_FullMethodName    = "/overmindv.content.ContentService/ListChangeProposalHistory"
-	ContentService_GetChangeProposalDiff_FullMethodName        = "/overmindv.content.ContentService/GetChangeProposalDiff"
-	ContentService_CreateReviewThread_FullMethodName           = "/overmindv.content.ContentService/CreateReviewThread"
-	ContentService_ReplyToReviewThread_FullMethodName          = "/overmindv.content.ContentService/ReplyToReviewThread"
-	ContentService_SetReviewThreadResolved_FullMethodName      = "/overmindv.content.ContentService/SetReviewThreadResolved"
-	ContentService_ListReviewThreads_FullMethodName            = "/overmindv.content.ContentService/ListReviewThreads"
-	ContentService_ListReviewReplies_FullMethodName            = "/overmindv.content.ContentService/ListReviewReplies"
-	ContentService_SubmitReviewDecision_FullMethodName         = "/overmindv.content.ContentService/SubmitReviewDecision"
-	ContentService_GetReviewRevisionStatus_FullMethodName      = "/overmindv.content.ContentService/GetReviewRevisionStatus"
+	ContentService_CreateContentItem_FullMethodName              = "/overmindv.content.ContentService/CreateContentItem"
+	ContentService_GetContentItem_FullMethodName                 = "/overmindv.content.ContentService/GetContentItem"
+	ContentService_GetPublishedContentItem_FullMethodName        = "/overmindv.content.ContentService/GetPublishedContentItem"
+	ContentService_GetPublishedAttachmentDownload_FullMethodName = "/overmindv.content.ContentService/GetPublishedAttachmentDownload"
+	ContentService_ListContentItems_FullMethodName               = "/overmindv.content.ContentService/ListContentItems"
+	ContentService_ListContentCatalog_FullMethodName             = "/overmindv.content.ContentService/ListContentCatalog"
+	ContentService_UpdateContentItem_FullMethodName              = "/overmindv.content.ContentService/UpdateContentItem"
+	ContentService_DeleteContentItem_FullMethodName              = "/overmindv.content.ContentService/DeleteContentItem"
+	ContentService_CreateContentRevision_FullMethodName          = "/overmindv.content.ContentService/CreateContentRevision"
+	ContentService_SaveContentDraft_FullMethodName               = "/overmindv.content.ContentService/SaveContentDraft"
+	ContentService_ListContentRevisions_FullMethodName           = "/overmindv.content.ContentService/ListContentRevisions"
+	ContentService_ListContentRevisionHistory_FullMethodName     = "/overmindv.content.ContentService/ListContentRevisionHistory"
+	ContentService_PublishContentItem_FullMethodName             = "/overmindv.content.ContentService/PublishContentItem"
+	ContentService_ArchiveContentItem_FullMethodName             = "/overmindv.content.ContentService/ArchiveContentItem"
+	ContentService_OpenChangeProposal_FullMethodName             = "/overmindv.content.ContentService/OpenChangeProposal"
+	ContentService_GetChangeProposal_FullMethodName              = "/overmindv.content.ContentService/GetChangeProposal"
+	ContentService_AppendChangeProposalRevision_FullMethodName   = "/overmindv.content.ContentService/AppendChangeProposalRevision"
+	ContentService_CloseChangeProposal_FullMethodName            = "/overmindv.content.ContentService/CloseChangeProposal"
+	ContentService_ListChangeProposalHistory_FullMethodName      = "/overmindv.content.ContentService/ListChangeProposalHistory"
+	ContentService_GetChangeProposalDiff_FullMethodName          = "/overmindv.content.ContentService/GetChangeProposalDiff"
+	ContentService_CreateReviewThread_FullMethodName             = "/overmindv.content.ContentService/CreateReviewThread"
+	ContentService_ReplyToReviewThread_FullMethodName            = "/overmindv.content.ContentService/ReplyToReviewThread"
+	ContentService_SetReviewThreadResolved_FullMethodName        = "/overmindv.content.ContentService/SetReviewThreadResolved"
+	ContentService_ListReviewThreads_FullMethodName              = "/overmindv.content.ContentService/ListReviewThreads"
+	ContentService_ListReviewReplies_FullMethodName              = "/overmindv.content.ContentService/ListReviewReplies"
+	ContentService_SubmitReviewDecision_FullMethodName           = "/overmindv.content.ContentService/SubmitReviewDecision"
+	ContentService_GetReviewRevisionStatus_FullMethodName        = "/overmindv.content.ContentService/GetReviewRevisionStatus"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -54,6 +55,7 @@ type ContentServiceClient interface {
 	CreateContentItem(ctx context.Context, in *CreateContentItemRequest, opts ...grpc.CallOption) (*CreateContentItemResponse, error)
 	GetContentItem(ctx context.Context, in *GetContentItemRequest, opts ...grpc.CallOption) (*GetContentItemResponse, error)
 	GetPublishedContentItem(ctx context.Context, in *GetPublishedContentItemRequest, opts ...grpc.CallOption) (*GetPublishedContentItemResponse, error)
+	GetPublishedAttachmentDownload(ctx context.Context, in *GetPublishedAttachmentDownloadRequest, opts ...grpc.CallOption) (*GetPublishedAttachmentDownloadResponse, error)
 	ListContentItems(ctx context.Context, in *ListContentItemsRequest, opts ...grpc.CallOption) (*ListContentItemsResponse, error)
 	ListContentCatalog(ctx context.Context, in *ListContentCatalogRequest, opts ...grpc.CallOption) (*ListContentCatalogResponse, error)
 	UpdateContentItem(ctx context.Context, in *UpdateContentItemRequest, opts ...grpc.CallOption) (*UpdateContentItemResponse, error)
@@ -111,6 +113,16 @@ func (c *contentServiceClient) GetPublishedContentItem(ctx context.Context, in *
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPublishedContentItemResponse)
 	err := c.cc.Invoke(ctx, ContentService_GetPublishedContentItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetPublishedAttachmentDownload(ctx context.Context, in *GetPublishedAttachmentDownloadRequest, opts ...grpc.CallOption) (*GetPublishedAttachmentDownloadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublishedAttachmentDownloadResponse)
+	err := c.cc.Invoke(ctx, ContentService_GetPublishedAttachmentDownload_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -354,6 +366,7 @@ type ContentServiceServer interface {
 	CreateContentItem(context.Context, *CreateContentItemRequest) (*CreateContentItemResponse, error)
 	GetContentItem(context.Context, *GetContentItemRequest) (*GetContentItemResponse, error)
 	GetPublishedContentItem(context.Context, *GetPublishedContentItemRequest) (*GetPublishedContentItemResponse, error)
+	GetPublishedAttachmentDownload(context.Context, *GetPublishedAttachmentDownloadRequest) (*GetPublishedAttachmentDownloadResponse, error)
 	ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error)
 	ListContentCatalog(context.Context, *ListContentCatalogRequest) (*ListContentCatalogResponse, error)
 	UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error)
@@ -395,6 +408,9 @@ func (UnimplementedContentServiceServer) GetContentItem(context.Context, *GetCon
 }
 func (UnimplementedContentServiceServer) GetPublishedContentItem(context.Context, *GetPublishedContentItemRequest) (*GetPublishedContentItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPublishedContentItem not implemented")
+}
+func (UnimplementedContentServiceServer) GetPublishedAttachmentDownload(context.Context, *GetPublishedAttachmentDownloadRequest) (*GetPublishedAttachmentDownloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublishedAttachmentDownload not implemented")
 }
 func (UnimplementedContentServiceServer) ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentItems not implemented")
@@ -536,6 +552,24 @@ func _ContentService_GetPublishedContentItem_Handler(srv interface{}, ctx contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).GetPublishedContentItem(ctx, req.(*GetPublishedContentItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetPublishedAttachmentDownload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublishedAttachmentDownloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetPublishedAttachmentDownload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetPublishedAttachmentDownload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetPublishedAttachmentDownload(ctx, req.(*GetPublishedAttachmentDownloadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -972,6 +1006,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPublishedContentItem",
 			Handler:    _ContentService_GetPublishedContentItem_Handler,
+		},
+		{
+			MethodName: "GetPublishedAttachmentDownload",
+			Handler:    _ContentService_GetPublishedAttachmentDownload_Handler,
 		},
 		{
 			MethodName: "ListContentItems",

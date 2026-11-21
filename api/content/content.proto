@@ -109,6 +109,17 @@ message GetPublishedContentItemResponse {
   ContentItem item = 1;
 }
 
+message GetPublishedAttachmentDownloadRequest {
+  string material_id = 1;
+  string revision_id = 2;
+  string file_id = 3;
+}
+
+message GetPublishedAttachmentDownloadResponse {
+  string url = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
 message ListContentItemsRequest {}
 
 message ListContentItemsResponse {
@@ -448,6 +459,7 @@ service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
   rpc GetPublishedContentItem(GetPublishedContentItemRequest) returns (GetPublishedContentItemResponse);
+  rpc GetPublishedAttachmentDownload(GetPublishedAttachmentDownloadRequest) returns (GetPublishedAttachmentDownloadResponse);
   rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);
   rpc ListContentCatalog(ListContentCatalogRequest) returns (ListContentCatalogResponse);
   rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);

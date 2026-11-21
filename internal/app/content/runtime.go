@@ -69,6 +69,7 @@ func Build(app *parker.App) error {
 	items, proposals := service.NewContentItemService(store, topics), service.NewChangeProposalService(store)
 	if media != nil {
 		items.SetAttachmentChecker(media)
+		items.SetPublishedAttachmentSigner(media)
 		proposals.SetAttachmentChecker(media)
 		worker := service.NewMediaBindingWorker(store, media)
 		app.AddRunnable("media-bindings", func(ctx context.Context) error { return worker.Run(ctx, app.Logger()) })

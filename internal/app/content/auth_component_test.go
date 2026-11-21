@@ -20,6 +20,16 @@ import (
 
 func startPostgresContentClient(t *testing.T) (context.Context, contentpb.ContentServiceClient) {
 	t.Helper()
+	store := postgresContentFixture(t)
+	handler := NewServer(
+		service.NewContentItemService(store, nil), service.NewChangeProposalService(store), service.NewChangeReviewService(store),
+	)
+
+	return newGRPCTestClient(t, testServiceToken, handler)
+}
+
+func postgresContentFixture(t *testing.T) *postgres.ContentItemStore {
+	t.Helper()
 	dsn := os.Getenv("COMPONENT_TEST_DSN")
 	if dsn == "" {
 		t.Fatal("COMPONENT_TEST_DSN is required")
@@ -34,12 +44,7 @@ func startPostgresContentClient(t *testing.T) (context.Context, contentpb.Conten
 	}
 	t.Cleanup(pool.Close)
 
-	store := postgres.NewContentItemStore(pool)
-	handler := NewServer(
-		service.NewContentItemService(store, nil), service.NewChangeProposalService(store), service.NewChangeReviewService(store),
-	)
-
-	return newGRPCTestClient(t, testServiceToken, handler)
+	return postgres.NewContentItemStore(pool)
 }
 
 func TestGRPCDraftOwnershipWithPostgres(t *testing.T) {

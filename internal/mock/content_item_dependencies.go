@@ -56,6 +56,20 @@ func (mr *MockContentItemStoreMockRecorder) ChangeState(ctx, input, target any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeState", reflect.TypeOf((*MockContentItemStore)(nil).ChangeState), ctx, input, target)
 }
 
+// CheckPublishedAttachment mocks base method.
+func (m *MockContentItemStore) CheckPublishedAttachment(arg0 context.Context, arg1 domain.PublishedAttachmentRef) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckPublishedAttachment", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckPublishedAttachment indicates an expected call of CheckPublishedAttachment.
+func (mr *MockContentItemStoreMockRecorder) CheckPublishedAttachment(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPublishedAttachment", reflect.TypeOf((*MockContentItemStore)(nil).CheckPublishedAttachment), arg0, arg1)
+}
+
 // Create mocks base method.
 func (m *MockContentItemStore) Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()

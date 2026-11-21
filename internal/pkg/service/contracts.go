@@ -34,6 +34,7 @@ type ContentItemStore interface {
 	PingContext(ctx context.Context) error
 	Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error)
 	Get(ctx context.Context, id, actorID string) (domain.ContentItem, error)
+	CheckPublishedAttachment(context.Context, domain.PublishedAttachmentRef) error
 	List(ctx context.Context, actorID string) ([]domain.ContentItem, error)
 	ListCatalog(context.Context, domain.CatalogFilter, *domain.CatalogCursor) ([]domain.CatalogEntry, error)
 	Update(ctx context.Context, input domain.UpdateContentItemInput) (domain.ContentItem, error)

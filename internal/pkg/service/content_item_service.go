@@ -9,9 +9,10 @@ import (
 )
 
 type ContentItemService struct {
-	store  ContentItemStore
-	topics TopicChecker
-	media  AttachmentChecker
+	store     ContentItemStore
+	topics    TopicChecker
+	media     AttachmentChecker
+	downloads PublishedAttachmentSigner
 }
 
 func NewContentItemService(store ContentItemStore, topics TopicChecker) *ContentItemService {
