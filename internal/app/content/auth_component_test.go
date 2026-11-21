@@ -35,7 +35,9 @@ func startPostgresContentClient(t *testing.T) (context.Context, contentpb.Conten
 	t.Cleanup(pool.Close)
 
 	store := postgres.NewContentItemStore(pool)
-	return startAuthTestClient(t, testServiceToken, service.NewContentItemService(store))
+	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store))
+
+	return newGRPCTestClient(t, testServiceToken, handler)
 }
 
 func TestGRPCDraftOwnershipWithPostgres(t *testing.T) {

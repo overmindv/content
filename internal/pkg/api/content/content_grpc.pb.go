@@ -19,15 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ContentService_CreateContentItem_FullMethodName     = "/overmindv.content.ContentService/CreateContentItem"
-	ContentService_GetContentItem_FullMethodName        = "/overmindv.content.ContentService/GetContentItem"
-	ContentService_ListContentItems_FullMethodName      = "/overmindv.content.ContentService/ListContentItems"
-	ContentService_UpdateContentItem_FullMethodName     = "/overmindv.content.ContentService/UpdateContentItem"
-	ContentService_DeleteContentItem_FullMethodName     = "/overmindv.content.ContentService/DeleteContentItem"
-	ContentService_CreateContentRevision_FullMethodName = "/overmindv.content.ContentService/CreateContentRevision"
-	ContentService_ListContentRevisions_FullMethodName  = "/overmindv.content.ContentService/ListContentRevisions"
-	ContentService_PublishContentItem_FullMethodName    = "/overmindv.content.ContentService/PublishContentItem"
-	ContentService_ArchiveContentItem_FullMethodName    = "/overmindv.content.ContentService/ArchiveContentItem"
+	ContentService_CreateContentItem_FullMethodName            = "/overmindv.content.ContentService/CreateContentItem"
+	ContentService_GetContentItem_FullMethodName               = "/overmindv.content.ContentService/GetContentItem"
+	ContentService_ListContentItems_FullMethodName             = "/overmindv.content.ContentService/ListContentItems"
+	ContentService_UpdateContentItem_FullMethodName            = "/overmindv.content.ContentService/UpdateContentItem"
+	ContentService_DeleteContentItem_FullMethodName            = "/overmindv.content.ContentService/DeleteContentItem"
+	ContentService_CreateContentRevision_FullMethodName        = "/overmindv.content.ContentService/CreateContentRevision"
+	ContentService_ListContentRevisions_FullMethodName         = "/overmindv.content.ContentService/ListContentRevisions"
+	ContentService_PublishContentItem_FullMethodName           = "/overmindv.content.ContentService/PublishContentItem"
+	ContentService_ArchiveContentItem_FullMethodName           = "/overmindv.content.ContentService/ArchiveContentItem"
+	ContentService_OpenChangeProposal_FullMethodName           = "/overmindv.content.ContentService/OpenChangeProposal"
+	ContentService_GetChangeProposal_FullMethodName            = "/overmindv.content.ContentService/GetChangeProposal"
+	ContentService_AppendChangeProposalRevision_FullMethodName = "/overmindv.content.ContentService/AppendChangeProposalRevision"
+	ContentService_CloseChangeProposal_FullMethodName          = "/overmindv.content.ContentService/CloseChangeProposal"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -43,6 +47,10 @@ type ContentServiceClient interface {
 	ListContentRevisions(ctx context.Context, in *ListContentRevisionsRequest, opts ...grpc.CallOption) (*ListContentRevisionsResponse, error)
 	PublishContentItem(ctx context.Context, in *PublishContentItemRequest, opts ...grpc.CallOption) (*PublishContentItemResponse, error)
 	ArchiveContentItem(ctx context.Context, in *ArchiveContentItemRequest, opts ...grpc.CallOption) (*ArchiveContentItemResponse, error)
+	OpenChangeProposal(ctx context.Context, in *OpenChangeProposalRequest, opts ...grpc.CallOption) (*OpenChangeProposalResponse, error)
+	GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error)
+	AppendChangeProposalRevision(ctx context.Context, in *AppendChangeProposalRevisionRequest, opts ...grpc.CallOption) (*AppendChangeProposalRevisionResponse, error)
+	CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error)
 }
 
 type contentServiceClient struct {
@@ -143,6 +151,46 @@ func (c *contentServiceClient) ArchiveContentItem(ctx context.Context, in *Archi
 	return out, nil
 }
 
+func (c *contentServiceClient) OpenChangeProposal(ctx context.Context, in *OpenChangeProposalRequest, opts ...grpc.CallOption) (*OpenChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OpenChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_OpenChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_GetChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) AppendChangeProposalRevision(ctx context.Context, in *AppendChangeProposalRevisionRequest, opts ...grpc.CallOption) (*AppendChangeProposalRevisionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AppendChangeProposalRevisionResponse)
+	err := c.cc.Invoke(ctx, ContentService_AppendChangeProposalRevision_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseChangeProposalResponse)
+	err := c.cc.Invoke(ctx, ContentService_CloseChangeProposal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -156,6 +204,10 @@ type ContentServiceServer interface {
 	ListContentRevisions(context.Context, *ListContentRevisionsRequest) (*ListContentRevisionsResponse, error)
 	PublishContentItem(context.Context, *PublishContentItemRequest) (*PublishContentItemResponse, error)
 	ArchiveContentItem(context.Context, *ArchiveContentItemRequest) (*ArchiveContentItemResponse, error)
+	OpenChangeProposal(context.Context, *OpenChangeProposalRequest) (*OpenChangeProposalResponse, error)
+	GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error)
+	AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error)
+	CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -192,6 +244,18 @@ func (UnimplementedContentServiceServer) PublishContentItem(context.Context, *Pu
 }
 func (UnimplementedContentServiceServer) ArchiveContentItem(context.Context, *ArchiveContentItemRequest) (*ArchiveContentItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArchiveContentItem not implemented")
+}
+func (UnimplementedContentServiceServer) OpenChangeProposal(context.Context, *OpenChangeProposalRequest) (*OpenChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenChangeProposal not implemented")
+}
+func (UnimplementedContentServiceServer) GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChangeProposal not implemented")
+}
+func (UnimplementedContentServiceServer) AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppendChangeProposalRevision not implemented")
+}
+func (UnimplementedContentServiceServer) CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseChangeProposal not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -376,6 +440,78 @@ func _ContentService_ArchiveContentItem_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_OpenChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpenChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).OpenChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_OpenChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).OpenChangeProposal(ctx, req.(*OpenChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetChangeProposal(ctx, req.(*GetChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_AppendChangeProposalRevision_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppendChangeProposalRevisionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).AppendChangeProposalRevision(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_AppendChangeProposalRevision_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).AppendChangeProposalRevision(ctx, req.(*AppendChangeProposalRevisionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_CloseChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseChangeProposalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).CloseChangeProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_CloseChangeProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).CloseChangeProposal(ctx, req.(*CloseChangeProposalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -418,6 +554,22 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ArchiveContentItem",
 			Handler:    _ContentService_ArchiveContentItem_Handler,
+		},
+		{
+			MethodName: "OpenChangeProposal",
+			Handler:    _ContentService_OpenChangeProposal_Handler,
+		},
+		{
+			MethodName: "GetChangeProposal",
+			Handler:    _ContentService_GetChangeProposal_Handler,
+		},
+		{
+			MethodName: "AppendChangeProposalRevision",
+			Handler:    _ContentService_AppendChangeProposalRevision_Handler,
+		},
+		{
+			MethodName: "CloseChangeProposal",
+			Handler:    _ContentService_CloseChangeProposal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

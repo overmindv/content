@@ -156,6 +156,64 @@ message ArchiveContentItemResponse {
   ContentItem item = 1;
 }
 
+message ChangeProposal {
+  string id = 1;
+  string content_item_id = 2;
+  string base_revision_id = 3;
+  string author_id = 4;
+  string status = 5;
+  ChangeProposalRevision head = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp closed_at = 8;
+}
+
+message ChangeProposalRevision {
+  string id = 1;
+  string parent_revision_id = 2;
+  int32 ordinal = 3;
+  string source = 4;
+  string message = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message OpenChangeProposalRequest {
+  string content_item_id = 1;
+  string base_revision_id = 2;
+  string source = 3;
+  string message = 4;
+}
+
+message OpenChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
+message GetChangeProposalRequest {
+  string proposal_id = 1;
+}
+
+message GetChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
+message AppendChangeProposalRevisionRequest {
+  string proposal_id = 1;
+  string expected_head_id = 2;
+  string source = 3;
+  string message = 4;
+}
+
+message AppendChangeProposalRevisionResponse {
+  ChangeProposal proposal = 1;
+}
+
+message CloseChangeProposalRequest {
+  string proposal_id = 1;
+}
+
+message CloseChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
@@ -166,4 +224,8 @@ service ContentService {
   rpc ListContentRevisions(ListContentRevisionsRequest) returns (ListContentRevisionsResponse);
   rpc PublishContentItem(PublishContentItemRequest) returns (PublishContentItemResponse);
   rpc ArchiveContentItem(ArchiveContentItemRequest) returns (ArchiveContentItemResponse);
+  rpc OpenChangeProposal(OpenChangeProposalRequest) returns (OpenChangeProposalResponse);
+  rpc GetChangeProposal(GetChangeProposalRequest) returns (GetChangeProposalResponse);
+  rpc AppendChangeProposalRevision(AppendChangeProposalRevisionRequest) returns (AppendChangeProposalRevisionResponse);
+  rpc CloseChangeProposal(CloseChangeProposalRequest) returns (CloseChangeProposalResponse);
 }

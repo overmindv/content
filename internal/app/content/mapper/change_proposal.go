@@ -1,0 +1,27 @@
+package mapper
+
+import (
+	contentpb "github.com/overmindv/content/internal/pkg/api/content"
+	"github.com/overmindv/content/internal/pkg/domain"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProposal {
+	return &contentpb.ChangeProposal{
+		Id:             proposal.ID,
+		ContentItemId:  proposal.ContentItemID,
+		BaseRevisionId: proposal.BaseRevisionID,
+		AuthorId:       proposal.AuthorID,
+		Status:         string(proposal.Status),
+		CreatedAt:      timestamppb.New(proposal.CreatedAt),
+		ClosedAt:       timestampOrNil(proposal.ClosedAt),
+		Head: &contentpb.ChangeProposalRevision{
+			Id:               proposal.Head.ID,
+			ParentRevisionId: proposal.Head.ParentRevisionID,
+			Ordinal:          proposal.Head.Ordinal,
+			Source:           proposal.Head.Source,
+			Message:          proposal.Head.Message,
+			CreatedAt:        timestamppb.New(proposal.Head.CreatedAt),
+		},
+	}
+}

@@ -174,3 +174,87 @@ func (mr *MockContentItemStoreMockRecorder) Update(ctx, input any) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockContentItemStore)(nil).Update), ctx, input)
 }
+
+// MockChangeProposalStore is a mock of ChangeProposalStore interface.
+type MockChangeProposalStore struct {
+	ctrl     *gomock.Controller
+	recorder *MockChangeProposalStoreMockRecorder
+	isgomock struct{}
+}
+
+// MockChangeProposalStoreMockRecorder is the mock recorder for MockChangeProposalStore.
+type MockChangeProposalStoreMockRecorder struct {
+	mock *MockChangeProposalStore
+}
+
+// NewMockChangeProposalStore creates a new mock instance.
+func NewMockChangeProposalStore(ctrl *gomock.Controller) *MockChangeProposalStore {
+	mock := &MockChangeProposalStore{ctrl: ctrl}
+	mock.recorder = &MockChangeProposalStoreMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChangeProposalStore) EXPECT() *MockChangeProposalStoreMockRecorder {
+	return m.recorder
+}
+
+// AppendChangeProposalRevision mocks base method.
+func (m *MockChangeProposalStore) AppendChangeProposalRevision(arg0 context.Context, arg1 domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendChangeProposalRevision", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendChangeProposalRevision indicates an expected call of AppendChangeProposalRevision.
+func (mr *MockChangeProposalStoreMockRecorder) AppendChangeProposalRevision(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendChangeProposalRevision", reflect.TypeOf((*MockChangeProposalStore)(nil).AppendChangeProposalRevision), arg0, arg1)
+}
+
+// CloseChangeProposal mocks base method.
+func (m *MockChangeProposalStore) CloseChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CloseChangeProposal", ctx, id, actorID)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CloseChangeProposal indicates an expected call of CloseChangeProposal.
+func (mr *MockChangeProposalStoreMockRecorder) CloseChangeProposal(ctx, id, actorID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).CloseChangeProposal), ctx, id, actorID)
+}
+
+// GetChangeProposal mocks base method.
+func (m *MockChangeProposalStore) GetChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChangeProposal", ctx, id, actorID)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChangeProposal indicates an expected call of GetChangeProposal.
+func (mr *MockChangeProposalStoreMockRecorder) GetChangeProposal(ctx, id, actorID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).GetChangeProposal), ctx, id, actorID)
+}
+
+// OpenChangeProposal mocks base method.
+func (m *MockChangeProposalStore) OpenChangeProposal(arg0 context.Context, arg1 domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OpenChangeProposal", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OpenChangeProposal indicates an expected call of OpenChangeProposal.
+func (mr *MockChangeProposalStoreMockRecorder) OpenChangeProposal(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).OpenChangeProposal), arg0, arg1)
+}

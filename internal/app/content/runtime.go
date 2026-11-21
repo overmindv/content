@@ -43,23 +43,23 @@ func Build(app *parker.App) error {
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	itemService := service.NewContentItemService(store)
+	handler := NewServer(service.NewContentItemService(store), service.NewChangeProposalService(store))
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {
-		return runGRPC(ctx, cfg.GRPC, itemService, app.Logger())
+		return runGRPC(ctx, cfg.GRPC, handler, app.Logger())
 	})
 
 	return nil
 }
 
-func runGRPC(ctx context.Context, cfg config.GRPCConfig, itemService *service.ContentItemService, logger *slog.Logger) error {
+func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
 	listener, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return err
 	}
 
-	grpcServer := newGRPCServer(itemService, cfg.ServiceToken)
+	grpcServer := newGRPCServer(handler, cfg.ServiceToken)
 
 	go func() {
 		<-ctx.Done()
@@ -71,12 +71,12 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, itemService *service.Co
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(itemService *service.ContentItemService, serviceToken string) *grpc.Server {
+func newGRPCServer(handler *Server, serviceToken string) *grpc.Server {
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(512*1024),
 		grpc.UnaryInterceptor(requireServiceActor(serviceToken)),
 	)
-	contentpb.RegisterContentServiceServer(server, NewServer(itemService))
+	contentpb.RegisterContentServiceServer(server, handler)
 	reflection.Register(server)
 
 	return server
