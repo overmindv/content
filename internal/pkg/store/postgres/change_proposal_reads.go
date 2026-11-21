@@ -12,13 +12,13 @@ import (
 	"github.com/overmindv/content/internal/pkg/validator"
 )
 
-const proposalReader = `(p.author_id = $2 OR i.created_by = $2 OR (
+const proposalReader = `(i.created_by = $2 OR (NOT i.moderation_hidden AND (p.author_id = $2 OR (
 	p.status = 'open' AND EXISTS (
 		SELECT 1 FROM content_change_review_assignments AS a
 		WHERE a.proposal_id = p.id AND a.revision_id = p.head_revision_id
 		  AND a.reviewer_id = $2 AND a.revoked_at IS NULL
 	)
-))`
+))))`
 
 func (s *ContentItemStore) ListChangeProposalHistory(ctx context.Context, input domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
 	const query = `

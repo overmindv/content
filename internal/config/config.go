@@ -17,10 +17,11 @@ type Config struct {
 }
 
 type GRPCConfig struct {
-	Addr         string
-	ServiceToken string
-	TLSCertFile  string
-	TLSKeyFile   string
+	Addr            string
+	ServiceToken    string
+	ModerationToken string
+	TLSCertFile     string
+	TLSKeyFile      string
 }
 
 type KafkaConfig struct {
@@ -37,10 +38,11 @@ func Load() Config {
 		MediaURL:    os.Getenv("CONTENT_MEDIA_URL"),
 		MediaToken:  os.Getenv("CONTENT_MEDIA_TOKEN"),
 		GRPC: GRPCConfig{
-			Addr:         env("GRPC_ADDR", ":9090"),
-			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),
-			TLSCertFile:  os.Getenv("CONTENT_GRPC_TLS_CERT_FILE"),
-			TLSKeyFile:   os.Getenv("CONTENT_GRPC_TLS_KEY_FILE"),
+			Addr:            env("GRPC_ADDR", ":9090"),
+			ServiceToken:    os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),
+			ModerationToken: os.Getenv("CONTENT_GRPC_MODERATION_TOKEN"),
+			TLSCertFile:     os.Getenv("CONTENT_GRPC_TLS_CERT_FILE"),
+			TLSKeyFile:      os.Getenv("CONTENT_GRPC_TLS_KEY_FILE"),
 		},
 		Kafka: KafkaConfig{
 			Enabled:      envBool("KAFKA_ENABLED", true),

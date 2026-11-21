@@ -23,6 +23,9 @@ import (
 // берёт на себя parker.
 func Build(app *parker.App) error {
 	cfg := config.Load()
+	if err := validateModerationConfig(cfg); err != nil {
+		return err
+	}
 	materialTopic, learningTopic, activityErr := cfg.Kafka.ActivityTopics()
 	if activityErr != nil {
 		return activityErr
@@ -90,6 +93,21 @@ func Build(app *parker.App) error {
 	return nil
 }
 
+func validateModerationConfig(cfg config.Config) error {
+	token := cfg.GRPC.ModerationToken
+	if token == "" {
+		return nil
+	}
+	if len(token) < 32 || token == cfg.GRPC.ServiceToken || token == cfg.MediaToken {
+		return errors.New("CONTENT_GRPC_MODERATION_TOKEN requires a distinct token of at least 32 bytes")
+	}
+	if !cfg.Kafka.Enabled || !cfg.Kafka.Activity.Enabled {
+		return errors.New("material moderation requires Kafka material activity")
+	}
+
+	return nil
+}
+
 func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger *slog.Logger) error {
 	tlsConfig, err := loadGRPCTLS(cfg)
 	if err != nil {
@@ -104,7 +122,7 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 		return err
 	}
 
-	grpcServer := newGRPCServer(handler, cfg.ServiceToken, options...)
+	grpcServer := newGRPCServer(handler, cfg.ServiceToken, cfg.ModerationToken, options...)
 
 	go func() {
 		<-ctx.Done()
@@ -116,10 +134,10 @@ func runGRPC(ctx context.Context, cfg config.GRPCConfig, handler *Server, logger
 	return grpcServer.Serve(listener)
 }
 
-func newGRPCServer(handler *Server, serviceToken string, extra ...grpc.ServerOption) *grpc.Server {
+func newGRPCServer(handler *Server, serviceToken, moderationToken string, extra ...grpc.ServerOption) *grpc.Server {
 	options := append(make([]grpc.ServerOption, 0, 2+len(extra)),
 		grpc.MaxRecvMsgSize(512*1024),
-		grpc.UnaryInterceptor(requireServiceActor(serviceToken)),
+		grpc.UnaryInterceptor(requireServiceActor(serviceToken, moderationToken)),
 	)
 	server := grpc.NewServer(append(options, extra...)...)
 	contentpb.RegisterContentServiceServer(server, handler)

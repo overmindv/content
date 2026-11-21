@@ -267,7 +267,7 @@ const visibleContentItems = `
 		FROM content_items i
 		LEFT JOIN content_revisions r ON r.content_item_id = i.id
 		    AND r.id = CASE WHEN i.created_by = $1 THEN i.current_revision_id ELSE i.published_revision_id END
-		WHERE (i.created_by = $1 OR (i.status = 'published' AND r.id IS NOT NULL))
+		WHERE (i.created_by = $1 OR (i.status = 'published' AND NOT i.moderation_hidden AND r.id IS NOT NULL))
 	`
 
 func (s *ContentItemStore) List(ctx context.Context, actorID string) ([]domain.ContentItem, error) {
@@ -364,7 +364,7 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
-	if current.status == domain.ContentStatusArchived && target != current.status {
+	if current.hidden || (current.status == domain.ContentStatusArchived && target != current.status) {
 		return domain.ContentItem{}, service.ErrInvalidState
 	}
 	if err = current.checkRevision(input.ExpectedRevisionID); err != nil {
@@ -659,6 +659,7 @@ type lockedContentItem struct {
 	status              domain.ContentStatus
 	revisionID          string
 	publishedRevisionID string
+	hidden              bool
 }
 
 func (item lockedContentItem) checkRevision(expected string) error {
@@ -671,14 +672,14 @@ func (item lockedContentItem) checkRevision(expected string) error {
 
 func lockOwnedContentItem(ctx context.Context, tx pgx.Tx, id, actorID string) (lockedContentItem, error) {
 	const query = `
-		SELECT status, current_revision_id, published_revision_id
+		SELECT status, current_revision_id, published_revision_id, moderation_hidden
 		FROM content_items
 		WHERE id = $1 AND created_by = $2
 		FOR UPDATE
 	`
 	var item lockedContentItem
 	var current, published *string
-	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&item.status, &current, &published)
+	err := tx.QueryRow(ctx, query, id, nullableString(actorID)).Scan(&item.status, &current, &published, &item.hidden)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return lockedContentItem{}, service.ErrNotFound
 	}

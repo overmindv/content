@@ -21,7 +21,7 @@ func (s *ContentItemStore) OpenChangeProposal(ctx context.Context, input domain.
 		SELECT i.published_revision_id, r.source = $2
 		FROM content_items AS i
 		JOIN content_revisions AS r ON r.content_item_id = i.id AND r.id = i.published_revision_id
-		WHERE i.id = $1 AND i.status = 'published'
+		WHERE i.id = $1 AND i.status = 'published' AND NOT i.moderation_hidden
 		FOR SHARE OF i
 	`
 	var publishedRevisionID string
@@ -162,7 +162,7 @@ func (s *ContentItemStore) appendProposalRevision(ctx context.Context, input dom
 func lockProposalEditMaterial(ctx context.Context, tx pgx.Tx, input domain.AppendChangeProposalRevisionInput, newBaseID string) (string, error) {
 	// Материал блокируем раньше предложения, как при удалении материала.
 	const selectMaterial = `
-		SELECT i.id, i.status, i.published_revision_id
+		SELECT i.id, i.status, i.published_revision_id, i.moderation_hidden
 		FROM content_items AS i
 		JOIN content_change_proposals AS p ON p.content_item_id = i.id
 		WHERE p.id = $1 AND p.author_id = $2`
@@ -173,12 +173,17 @@ func lockProposalEditMaterial(ctx context.Context, tx pgx.Tx, input domain.Appen
 	var itemID string
 	var status domain.ContentStatus
 	var published *string
-	err := tx.QueryRow(ctx, query, input.ProposalID, input.AuthorID).Scan(&itemID, &status, &published)
+	var hidden bool
+	err := tx.QueryRow(ctx, query, input.ProposalID, input.AuthorID).
+		Scan(&itemID, &status, &published, &hidden)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", service.ErrProposalNotFound
 	}
 	if err != nil {
 		return "", err
+	}
+	if hidden {
+		return "", service.ErrProposalNotFound
 	}
 	if newBaseID != "" {
 		if status != domain.ContentStatusPublished {

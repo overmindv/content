@@ -94,6 +94,14 @@ func (s *storeStub) RestorePublishedRevision(context.Context, domain.RestorePubl
 	return domain.ContentRevision{}, nil
 }
 
+func (s *storeStub) GetMaterialModeration(context.Context, string) (domain.MaterialModeration, error) {
+	return domain.MaterialModeration{}, nil
+}
+
+func (s *storeStub) SetMaterialModeration(context.Context, domain.SetMaterialModerationInput) (domain.MaterialModeration, error) {
+	return domain.MaterialModeration{}, nil
+}
+
 func TestCreateAppliesDefaults(t *testing.T) {
 	t.Parallel()
 

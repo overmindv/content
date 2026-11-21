@@ -144,6 +144,21 @@ func (mr *MockContentItemStoreMockRecorder) Get(ctx, id, actorID any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockContentItemStore)(nil).Get), ctx, id, actorID)
 }
 
+// GetMaterialModeration mocks base method.
+func (m *MockContentItemStore) GetMaterialModeration(arg0 context.Context, arg1 string) (domain.MaterialModeration, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMaterialModeration", arg0, arg1)
+	ret0, _ := ret[0].(domain.MaterialModeration)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMaterialModeration indicates an expected call of GetMaterialModeration.
+func (mr *MockContentItemStoreMockRecorder) GetMaterialModeration(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMaterialModeration", reflect.TypeOf((*MockContentItemStore)(nil).GetMaterialModeration), arg0, arg1)
+}
+
 // List mocks base method.
 func (m *MockContentItemStore) List(ctx context.Context, actorID string) ([]domain.ContentItem, error) {
 	m.ctrl.T.Helper()
@@ -231,6 +246,21 @@ func (m *MockContentItemStore) RestorePublishedRevision(arg0 context.Context, ar
 func (mr *MockContentItemStoreMockRecorder) RestorePublishedRevision(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RestorePublishedRevision", reflect.TypeOf((*MockContentItemStore)(nil).RestorePublishedRevision), arg0, arg1)
+}
+
+// SetMaterialModeration mocks base method.
+func (m *MockContentItemStore) SetMaterialModeration(arg0 context.Context, arg1 domain.SetMaterialModerationInput) (domain.MaterialModeration, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetMaterialModeration", arg0, arg1)
+	ret0, _ := ret[0].(domain.MaterialModeration)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetMaterialModeration indicates an expected call of SetMaterialModeration.
+func (mr *MockContentItemStoreMockRecorder) SetMaterialModeration(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMaterialModeration", reflect.TypeOf((*MockContentItemStore)(nil).SetMaterialModeration), arg0, arg1)
 }
 
 // SnapshotMaterials mocks base method.

@@ -5,13 +5,16 @@
 
 | Переменная | Топик по умолчанию | События |
 | --- | --- | --- |
-| `KAFKA_CONTENT_MATERIAL_TOPIC` | `content.material.v1` | `material.published`, `material.archived` |
+| `KAFKA_CONTENT_MATERIAL_TOPIC` | `content.material.v1` | `material.published`, `material.archived`, `material.withdrawn`, `material.restored`, `material.corrected` |
 | `KAFKA_CONTENT_LEARNING_TOPIC` | `content.learning.v1` | `material.read_confirmed` |
 
 Ключ Kafka - UUID материала. Состояние и событие записываются в одной транзакции.
 Повторная доставка сохраняет `event_id`. Для обновления проекции сравнивай
 `aggregate_version` с версией сохраненного материала. Архив и удаление
-публикации отправляют tombstone без заголовка и текста.
+публикации отправляют tombstone без заголовка и текста. Скрытие тоже
+передает tombstone и ID скрытой ревизии. В `material.corrected`
+поле `invalidated_revision_id` указывает замененную публикацию, а
+`revision_id` указывает новую.
 
 На публичный топик передаем только тип, формат, заголовок, темы и оценку
 времени закрепленной публикации. Черновик, вложения и исходник туда не попадают.
