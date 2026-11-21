@@ -23,6 +23,11 @@ import (
 // берёт на себя parker.
 func Build(app *parker.App) error {
 	cfg := config.Load()
+	materialTopic, learningTopic, activityErr := cfg.Kafka.ActivityTopics()
+	if activityErr != nil {
+		return activityErr
+	}
+
 	var topics service.TopicChecker
 	if cfg.EntitiesURL != "" {
 		client, err := external.NewTopicClient(cfg.EntitiesURL)
@@ -51,7 +56,8 @@ func Build(app *parker.App) error {
 
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
 	store := postgres.NewContentItemStore(pool,
-		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments())
+		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments(),
+		postgres.WithMaterialActivity(materialTopic, learningTopic))
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer

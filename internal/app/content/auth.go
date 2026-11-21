@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 
 	"github.com/google/uuid"
+	contentpb "github.com/overmindv/content/pkg/api/content"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -19,7 +20,7 @@ func requireServiceActor(token string) grpc.UnaryServerInterceptor {
 	bearer := "Bearer " + token
 	digest := sha256.Sum256([]byte(bearer))
 
-	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, next grpc.UnaryHandler) (any, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, next grpc.UnaryHandler) (any, error) {
 		auth := metadata.ValueFromIncomingContext(ctx, "authorization")
 		if !configured || len(auth) != 1 || len(auth[0]) != len(bearer) {
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
@@ -27,6 +28,9 @@ func requireServiceActor(token string) grpc.UnaryServerInterceptor {
 		presented := sha256.Sum256([]byte(auth[0]))
 		if subtle.ConstantTimeCompare(digest[:], presented[:]) != 1 {
 			return nil, status.Error(codes.Unauthenticated, "service authentication required")
+		}
+		if info != nil && info.FullMethod == contentpb.ContentService_SnapshotMaterials_FullMethodName {
+			return next(ctx, req)
 		}
 
 		ids := metadata.ValueFromIncomingContext(ctx, "x-user-id")

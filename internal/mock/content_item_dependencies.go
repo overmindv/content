@@ -70,6 +70,20 @@ func (mr *MockContentItemStoreMockRecorder) CheckPublishedAttachment(arg0, arg1 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPublishedAttachment", reflect.TypeOf((*MockContentItemStore)(nil).CheckPublishedAttachment), arg0, arg1)
 }
 
+// ConfirmMaterialRead mocks base method.
+func (m *MockContentItemStore) ConfirmMaterialRead(arg0 context.Context, arg1 domain.ConfirmMaterialReadInput) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfirmMaterialRead", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ConfirmMaterialRead indicates an expected call of ConfirmMaterialRead.
+func (mr *MockContentItemStoreMockRecorder) ConfirmMaterialRead(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmMaterialRead", reflect.TypeOf((*MockContentItemStore)(nil).ConfirmMaterialRead), arg0, arg1)
+}
+
 // Create mocks base method.
 func (m *MockContentItemStore) Create(ctx context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
 	m.ctrl.T.Helper()
@@ -202,6 +216,21 @@ func (m *MockContentItemStore) PingContext(ctx context.Context) error {
 func (mr *MockContentItemStoreMockRecorder) PingContext(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PingContext", reflect.TypeOf((*MockContentItemStore)(nil).PingContext), ctx)
+}
+
+// SnapshotMaterials mocks base method.
+func (m *MockContentItemStore) SnapshotMaterials(arg0 context.Context, arg1 domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SnapshotMaterials", arg0, arg1)
+	ret0, _ := ret[0].(domain.MaterialSnapshot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SnapshotMaterials indicates an expected call of SnapshotMaterials.
+func (mr *MockContentItemStoreMockRecorder) SnapshotMaterials(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SnapshotMaterials", reflect.TypeOf((*MockContentItemStore)(nil).SnapshotMaterials), arg0, arg1)
 }
 
 // Update mocks base method.

@@ -455,11 +455,48 @@ message GetReviewRevisionStatusResponse {
   string topic_id = 7;
 }
 
+message MaterialSnapshotMetadata {
+  string title = 1;
+  string type = 2;
+  string format = 3;
+  repeated string topic_ids = 4;
+  int32 estimated_minutes = 5;
+}
+
+message MaterialSnapshotEntry {
+  string material_id = 1;
+  string revision_id = 2;
+  int64 version = 3;
+  bool tombstone = 4;
+  MaterialSnapshotMetadata metadata = 5;
+}
+
+message SnapshotMaterialsRequest {
+  optional int64 watermark = 1;
+  string after_id = 2;
+  int32 page_size = 3;
+}
+
+message SnapshotMaterialsResponse {
+  int64 watermark = 1;
+  repeated MaterialSnapshotEntry entries = 2;
+  string next_after_id = 3;
+}
+
+message ConfirmMaterialReadRequest {
+  string material_id = 1;
+  string revision_id = 2;
+}
+
+message ConfirmMaterialReadResponse {}
+
 service ContentService {
   rpc CreateContentItem(CreateContentItemRequest) returns (CreateContentItemResponse);
   rpc GetContentItem(GetContentItemRequest) returns (GetContentItemResponse);
   rpc GetPublishedContentItem(GetPublishedContentItemRequest) returns (GetPublishedContentItemResponse);
   rpc GetPublishedAttachmentDownload(GetPublishedAttachmentDownloadRequest) returns (GetPublishedAttachmentDownloadResponse);
+  rpc SnapshotMaterials(SnapshotMaterialsRequest) returns (SnapshotMaterialsResponse);
+  rpc ConfirmMaterialRead(ConfirmMaterialReadRequest) returns (ConfirmMaterialReadResponse);
   rpc ListContentItems(ListContentItemsRequest) returns (ListContentItemsResponse);
   rpc ListContentCatalog(ListContentCatalogRequest) returns (ListContentCatalogResponse);
   rpc UpdateContentItem(UpdateContentItemRequest) returns (UpdateContentItemResponse);

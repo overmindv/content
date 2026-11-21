@@ -46,6 +46,7 @@ type ContentItemStore struct {
 	outboxTopic       string
 	outboxEnabled     bool
 	manageAttachments bool
+	activity          activityTopics
 }
 
 // StoreOption настраивает хранилище (например, атомарный outbox событий).
@@ -402,6 +403,11 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 	if err = s.enqueueContentItem(ctx, tx, eventContentItemUpdated, item); err != nil {
 		return domain.ContentItem{}, err
 	}
+	if item.PublishedRevisionID != "" {
+		if _, err = s.recordMaterialState(ctx, tx, item, target == domain.ContentStatusArchived); err != nil {
+			return domain.ContentItem{}, err
+		}
+	}
 	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentItem{}, err
 	}
@@ -477,6 +483,11 @@ func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (doma
 	// Событие пишется в outbox атомарно с удалением айтема.
 	if err = s.enqueueContentItem(ctx, tx, eventContentItemDeleted, item); err != nil {
 		return domain.ContentItem{}, err
+	}
+	if item.Status == domain.ContentStatusPublished && item.PublishedRevisionID != "" {
+		if _, err = s.recordMaterialState(ctx, tx, item, true); err != nil {
+			return domain.ContentItem{}, err
+		}
 	}
 	if err = tx.Commit(ctx); err != nil {
 		return domain.ContentItem{}, err

@@ -23,6 +23,8 @@ const (
 	ContentService_GetContentItem_FullMethodName                 = "/overmindv.content.ContentService/GetContentItem"
 	ContentService_GetPublishedContentItem_FullMethodName        = "/overmindv.content.ContentService/GetPublishedContentItem"
 	ContentService_GetPublishedAttachmentDownload_FullMethodName = "/overmindv.content.ContentService/GetPublishedAttachmentDownload"
+	ContentService_SnapshotMaterials_FullMethodName              = "/overmindv.content.ContentService/SnapshotMaterials"
+	ContentService_ConfirmMaterialRead_FullMethodName            = "/overmindv.content.ContentService/ConfirmMaterialRead"
 	ContentService_ListContentItems_FullMethodName               = "/overmindv.content.ContentService/ListContentItems"
 	ContentService_ListContentCatalog_FullMethodName             = "/overmindv.content.ContentService/ListContentCatalog"
 	ContentService_UpdateContentItem_FullMethodName              = "/overmindv.content.ContentService/UpdateContentItem"
@@ -56,6 +58,8 @@ type ContentServiceClient interface {
 	GetContentItem(ctx context.Context, in *GetContentItemRequest, opts ...grpc.CallOption) (*GetContentItemResponse, error)
 	GetPublishedContentItem(ctx context.Context, in *GetPublishedContentItemRequest, opts ...grpc.CallOption) (*GetPublishedContentItemResponse, error)
 	GetPublishedAttachmentDownload(ctx context.Context, in *GetPublishedAttachmentDownloadRequest, opts ...grpc.CallOption) (*GetPublishedAttachmentDownloadResponse, error)
+	SnapshotMaterials(ctx context.Context, in *SnapshotMaterialsRequest, opts ...grpc.CallOption) (*SnapshotMaterialsResponse, error)
+	ConfirmMaterialRead(ctx context.Context, in *ConfirmMaterialReadRequest, opts ...grpc.CallOption) (*ConfirmMaterialReadResponse, error)
 	ListContentItems(ctx context.Context, in *ListContentItemsRequest, opts ...grpc.CallOption) (*ListContentItemsResponse, error)
 	ListContentCatalog(ctx context.Context, in *ListContentCatalogRequest, opts ...grpc.CallOption) (*ListContentCatalogResponse, error)
 	UpdateContentItem(ctx context.Context, in *UpdateContentItemRequest, opts ...grpc.CallOption) (*UpdateContentItemResponse, error)
@@ -123,6 +127,26 @@ func (c *contentServiceClient) GetPublishedAttachmentDownload(ctx context.Contex
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPublishedAttachmentDownloadResponse)
 	err := c.cc.Invoke(ctx, ContentService_GetPublishedAttachmentDownload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) SnapshotMaterials(ctx context.Context, in *SnapshotMaterialsRequest, opts ...grpc.CallOption) (*SnapshotMaterialsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SnapshotMaterialsResponse)
+	err := c.cc.Invoke(ctx, ContentService_SnapshotMaterials_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) ConfirmMaterialRead(ctx context.Context, in *ConfirmMaterialReadRequest, opts ...grpc.CallOption) (*ConfirmMaterialReadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmMaterialReadResponse)
+	err := c.cc.Invoke(ctx, ContentService_ConfirmMaterialRead_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -367,6 +391,8 @@ type ContentServiceServer interface {
 	GetContentItem(context.Context, *GetContentItemRequest) (*GetContentItemResponse, error)
 	GetPublishedContentItem(context.Context, *GetPublishedContentItemRequest) (*GetPublishedContentItemResponse, error)
 	GetPublishedAttachmentDownload(context.Context, *GetPublishedAttachmentDownloadRequest) (*GetPublishedAttachmentDownloadResponse, error)
+	SnapshotMaterials(context.Context, *SnapshotMaterialsRequest) (*SnapshotMaterialsResponse, error)
+	ConfirmMaterialRead(context.Context, *ConfirmMaterialReadRequest) (*ConfirmMaterialReadResponse, error)
 	ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error)
 	ListContentCatalog(context.Context, *ListContentCatalogRequest) (*ListContentCatalogResponse, error)
 	UpdateContentItem(context.Context, *UpdateContentItemRequest) (*UpdateContentItemResponse, error)
@@ -411,6 +437,12 @@ func (UnimplementedContentServiceServer) GetPublishedContentItem(context.Context
 }
 func (UnimplementedContentServiceServer) GetPublishedAttachmentDownload(context.Context, *GetPublishedAttachmentDownloadRequest) (*GetPublishedAttachmentDownloadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPublishedAttachmentDownload not implemented")
+}
+func (UnimplementedContentServiceServer) SnapshotMaterials(context.Context, *SnapshotMaterialsRequest) (*SnapshotMaterialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SnapshotMaterials not implemented")
+}
+func (UnimplementedContentServiceServer) ConfirmMaterialRead(context.Context, *ConfirmMaterialReadRequest) (*ConfirmMaterialReadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmMaterialRead not implemented")
 }
 func (UnimplementedContentServiceServer) ListContentItems(context.Context, *ListContentItemsRequest) (*ListContentItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContentItems not implemented")
@@ -570,6 +602,42 @@ func _ContentService_GetPublishedAttachmentDownload_Handler(srv interface{}, ctx
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ContentServiceServer).GetPublishedAttachmentDownload(ctx, req.(*GetPublishedAttachmentDownloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_SnapshotMaterials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SnapshotMaterialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SnapshotMaterials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SnapshotMaterials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SnapshotMaterials(ctx, req.(*SnapshotMaterialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_ConfirmMaterialRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmMaterialReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ConfirmMaterialRead(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ConfirmMaterialRead_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ConfirmMaterialRead(ctx, req.(*ConfirmMaterialReadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1010,6 +1078,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPublishedAttachmentDownload",
 			Handler:    _ContentService_GetPublishedAttachmentDownload_Handler,
+		},
+		{
+			MethodName: "SnapshotMaterials",
+			Handler:    _ContentService_SnapshotMaterials_Handler,
+		},
+		{
+			MethodName: "ConfirmMaterialRead",
+			Handler:    _ContentService_ConfirmMaterialRead_Handler,
 		},
 		{
 			MethodName: "ListContentItems",

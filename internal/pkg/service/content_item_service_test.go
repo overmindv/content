@@ -23,6 +23,14 @@ func (s *storeStub) CheckPublishedAttachment(context.Context, domain.PublishedAt
 	return ErrNotFound
 }
 
+func (s *storeStub) SnapshotMaterials(context.Context, domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error) {
+	return domain.MaterialSnapshot{}, ErrNotFound
+}
+
+func (s *storeStub) ConfirmMaterialRead(context.Context, domain.ConfirmMaterialReadInput) error {
+	return ErrNotFound
+}
+
 func (s *storeStub) Create(_ context.Context, input domain.CreateContentItemInput) (domain.ContentItem, error) {
 	s.lastCreate = input
 	s.item = domain.ContentItem{

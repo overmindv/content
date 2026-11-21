@@ -28,6 +28,7 @@ type KafkaConfig struct {
 	Topic   string
 	// PollInterval — период опроса transaction outbox диспетчером.
 	PollInterval time.Duration
+	Activity     MaterialActivityConfig
 }
 
 func Load() Config {
@@ -45,6 +46,7 @@ func Load() Config {
 			Enabled:      envBool("KAFKA_ENABLED", true),
 			Topic:        env("KAFKA_TOPIC", "content.content-item-events"),
 			PollInterval: envDuration("KAFKA_OUTBOX_POLL_INTERVAL", 500*time.Millisecond),
+			Activity:     loadMaterialActivity(),
 		},
 	}
 }
