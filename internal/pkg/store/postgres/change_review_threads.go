@@ -58,13 +58,15 @@ func (s *ContentItemStore) ReplyToReviewThread(ctx context.Context, ref domain.R
 }
 
 func (s *ContentItemStore) SetReviewThreadResolved(ctx context.Context, ref domain.ReviewThreadRef, resolved bool) (domain.ReviewThread, error) {
-	return writeReview(ctx, s, ref.ReviewActor, func(tx pgx.Tx, _ reviewScope) (domain.ReviewThread, error) {
+	return writeReview(ctx, s, ref.ReviewActor, func(tx pgx.Tx, scope reviewScope) (domain.ReviewThread, error) {
 		const update = `
 			UPDATE content_change_review_threads
 			SET resolved_at = CASE WHEN $4::boolean THEN COALESCE(resolved_at, NOW()) END,
 			    resolved_by = CASE WHEN $4 THEN COALESCE(resolved_by, $3) END
-			WHERE proposal_id = $1 AND id = $2 RETURNING ` + reviewThreadColumns
-		thread, err := scanReviewThread(tx.QueryRow(ctx, update, ref.ProposalID, ref.ThreadID, ref.ActorID, resolved))
+			WHERE proposal_id = $1 AND id = $2 AND (author_id = $3 OR $5::boolean)
+			RETURNING ` + reviewThreadColumns
+		isAuthor := ref.ActorID == scope.author || ref.ActorID == scope.owner
+		thread, err := scanReviewThread(tx.QueryRow(ctx, update, ref.ProposalID, ref.ThreadID, ref.ActorID, resolved, isAuthor))
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.ReviewThread{}, service.ErrReviewThreadNotFound
 		}
@@ -73,13 +75,19 @@ func (s *ContentItemStore) SetReviewThreadResolved(ctx context.Context, ref doma
 	})
 }
 
+const reviewCanRead = `EXISTS (
+	SELECT 1 FROM content_change_proposals AS p JOIN content_items AS i ON i.id = p.content_item_id
+	WHERE p.id = $1 AND ` + proposalReader + `
+)`
+
 func (s *ContentItemStore) ListReviewThreads(ctx context.Context, input domain.ReviewPageInput) (domain.ReviewPage[domain.ReviewThread], error) {
 	if _, err := loadReviewScope(ctx, s.db, input.ReviewActor, false); err != nil {
 		return domain.ReviewPage[domain.ReviewThread]{}, err
 	}
 	const query = `SELECT ` + reviewThreadColumns + `
-		FROM content_change_review_threads WHERE proposal_id = $1 AND id > $2 ORDER BY id LIMIT $3`
-	rows, err := s.db.Query(ctx, query, input.ProposalID, input.AfterID, input.PageSize+1)
+		FROM content_change_review_threads WHERE proposal_id = $1 AND id > $3 AND ` + reviewCanRead + `
+		ORDER BY id LIMIT $4`
+	rows, err := s.db.Query(ctx, query, input.ProposalID, input.ActorID, input.AfterID, input.PageSize+1)
 	if err != nil {
 		return domain.ReviewPage[domain.ReviewThread]{}, err
 	}
@@ -91,9 +99,10 @@ func (s *ContentItemStore) ListReviewReplies(ctx context.Context, input domain.R
 	if _, err := loadReviewScope(ctx, s.db, input.ReviewActor, false); err != nil {
 		return domain.ReviewPage[domain.ReviewReply]{}, err
 	}
-	const threadQuery = `SELECT id FROM content_change_review_threads WHERE proposal_id = $1 AND id = $2`
+	const threadQuery = `SELECT id FROM content_change_review_threads
+		WHERE proposal_id = $1 AND id = $3 AND ` + reviewCanRead
 	var threadID int64
-	err := s.db.QueryRow(ctx, threadQuery, input.ProposalID, input.ThreadID).Scan(&threadID)
+	err := s.db.QueryRow(ctx, threadQuery, input.ProposalID, input.ActorID, input.ThreadID).Scan(&threadID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.ReviewPage[domain.ReviewReply]{}, service.ErrReviewThreadNotFound
 	}
@@ -101,8 +110,9 @@ func (s *ContentItemStore) ListReviewReplies(ctx context.Context, input domain.R
 		return domain.ReviewPage[domain.ReviewReply]{}, err
 	}
 	const query = `SELECT ` + reviewReplyColumns + `
-		FROM content_change_review_replies WHERE thread_id = $1 AND id > $2 ORDER BY id LIMIT $3`
-	rows, err := s.db.Query(ctx, query, threadID, input.AfterID, input.PageSize+1)
+		FROM content_change_review_replies WHERE thread_id = $3 AND id > $4 AND ` + reviewCanRead + `
+		ORDER BY id LIMIT $5`
+	rows, err := s.db.Query(ctx, query, input.ProposalID, input.ActorID, threadID, input.AfterID, input.PageSize+1)
 	if err != nil {
 		return domain.ReviewPage[domain.ReviewReply]{}, err
 	}

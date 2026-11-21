@@ -21,6 +21,6 @@ func ToProtoReviewReply(reply domain.ReviewReply) *contentpb.ReviewReply {
 func ToProtoReviewDecision(decision domain.ReviewDecision) *contentpb.ReviewDecision {
 	return &contentpb.ReviewDecision{
 		ReviewerId: decision.ReviewerID, Decision: string(decision.Decision), Reason: decision.Reason,
-		CreatedAt: timestamppb.New(decision.CreatedAt),
+		CreatedAt: timestamppb.New(decision.CreatedAt), Legacy: decision.Legacy,
 	}
 }

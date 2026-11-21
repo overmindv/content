@@ -115,8 +115,16 @@ func (s *Server) GetReviewRevisionStatus(ctx context.Context, req *contentpb.Get
 	for _, d := range status.Decisions {
 		decisions = append(decisions, mapper.ToProtoReviewDecision(d))
 	}
+	assignments := make([]*contentpb.ReviewAssignment, 0, len(status.Assignments))
+	for _, a := range status.Assignments {
+		assignments = append(assignments, &contentpb.ReviewAssignment{ReviewerId: a.ReviewerID, Slot: int32(a.Slot)})
+	}
+	outcome, wait := status.Outcome()
 
-	return &contentpb.GetReviewRevisionStatusResponse{RevisionId: status.RevisionID, Current: status.Current, Decisions: decisions}, nil
+	return &contentpb.GetReviewRevisionStatusResponse{
+		RevisionId: status.RevisionID, Current: status.Current, Decisions: decisions, Assignments: assignments,
+		Outcome: string(outcome), WaitReason: string(wait), TopicId: status.TopicID,
+	}, nil
 }
 
 func reviewActor(ctx context.Context, id string) (domain.ReviewActor, error) {

@@ -29,6 +29,8 @@ func TestChangeReviewPermissionsAndHistory(t *testing.T) {
 	input := builders.ContentItem()
 	input.CreatedBy = uuid.NewString()
 	input.Slug += "-" + uuid.NewString()
+	topic := uuid.NewString()
+	input.Learning = &domain.LearningMetadata{TopicIDs: []string{topic}}
 	item, err := store.Create(ctx, input)
 	if err != nil {
 		t.Fatal(err)
@@ -137,6 +139,15 @@ func TestChangeReviewPermissionsAndHistory(t *testing.T) {
 		t.Errorf("outsider decided on proposal: %v", err)
 	}
 	decision.ActorID = owner
+	if _, err = store.SubmitReviewDecision(ctx, decision); !errors.Is(err, service.ErrReviewNotAllowed) {
+		t.Errorf("unassigned owner voted: %v", err)
+	}
+	assign := domain.ReviewAssignmentRequest{
+		ProposalID: proposal.ID, RevisionID: proposal.Head.ID, TopicID: topic, RankedCandidateIDs: []string{owner, outsider},
+	}
+	if err = store.AssignReviewers(ctx, assign); err != nil {
+		t.Fatal(err)
+	}
 	approved, err := store.SubmitReviewDecision(ctx, decision)
 	if err != nil || approved.ReviewerID != owner || approved.Decision != domain.ReviewApprove {
 		t.Fatalf("approve: %+v, %v", approved, err)
@@ -166,6 +177,10 @@ func TestChangeReviewPermissionsAndHistory(t *testing.T) {
 		t.Errorf("historic approval missing or still current: %+v, %v", historic, err)
 	}
 	decision.RevisionID = updated.Head.ID
+	assign.RevisionID = updated.Head.ID
+	if err = store.AssignReviewers(ctx, assign); err != nil {
+		t.Fatal(err)
+	}
 	if _, err = store.SubmitReviewDecision(ctx, decision); err != nil {
 		t.Fatal(err)
 	}
@@ -183,6 +198,10 @@ func TestChangeReviewPermissionsAndHistory(t *testing.T) {
 		open.AuthorID = author
 		racing, err := store.OpenChangeProposal(ctx, open)
 		if err != nil {
+			t.Fatal(err)
+		}
+		assign.ProposalID, assign.RevisionID = racing.ID, racing.Head.ID
+		if err = store.AssignReviewers(ctx, assign); err != nil {
 			t.Fatal(err)
 		}
 		start := make(chan struct{})

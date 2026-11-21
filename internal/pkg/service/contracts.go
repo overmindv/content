@@ -20,7 +20,7 @@ var (
 	ErrProposalRevisionNotFound = errors.New("change proposal revision not found")
 	ErrProposalDiffBusy         = errors.New("too many proposal diff requests")
 	ErrReviewThreadNotFound     = errors.New("review thread not found")
-	ErrReviewNotAllowed         = errors.New("only a reviewer other than the proposal author can submit a decision")
+	ErrReviewNotAllowed         = errors.New("only an assigned reviewer can submit a decision")
 	ErrReviewDecisionExists     = errors.New("a different decision already exists for this revision")
 	ErrInactiveTopic            = errors.New("topic does not exist or is not active")
 	ErrTopicCatalogUnavailable  = errors.New("topic catalog is unavailable")
