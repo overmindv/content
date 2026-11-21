@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
+	"github.com/overmindv/content/internal/pkg/validator"
 )
 
 // Имена событий контента, публикуемых в outbox (совместимы с прежним publisher).
@@ -352,6 +353,11 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 	if err = current.checkRevision(input.ExpectedRevisionID); err != nil {
 		return domain.ContentItem{}, err
 	}
+	if target == domain.ContentStatusPublished {
+		if err = validatePublication(ctx, tx, input.ID, current.revisionID); err != nil {
+			return domain.ContentItem{}, err
+		}
+	}
 	if target == current.status && (target == domain.ContentStatusArchived || current.publishedRevisionID == current.revisionID) {
 		return s.get(ctx, tx, input.ID, input.ActorID)
 	}
@@ -381,6 +387,39 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 	}
 
 	return item, nil
+}
+
+func validatePublication(ctx context.Context, tx pgx.Tx, itemID, revisionID string) error {
+	const query = `
+		SELECT r.format,
+		       CASE WHEN r.format = 'markdown' AND octet_length(r.source) <= $3 THEN r.source END,
+		       EXISTS (
+		           SELECT 1 FROM content_assets
+		           WHERE content_item_id = $1 AND revision_id = $2
+		           OFFSET $4
+		       )
+		FROM content_revisions r
+		WHERE r.content_item_id = $1 AND r.id = $2
+	`
+	var format domain.ContentFormat
+	var source *string
+	var tooManyAssets bool
+	err := tx.QueryRow(ctx, query, itemID, revisionID, validator.MaxSourceBytes, validator.MaxAssets).
+		Scan(&format, &source, &tooManyAssets)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return service.ErrInvalidState
+	}
+	if err != nil {
+		return err
+	}
+	if format == domain.ContentFormatMarkdown && source == nil {
+		return validator.ValidateSourceSize(validator.MaxSourceBytes + 1)
+	}
+	if tooManyAssets {
+		return validator.ValidateAssetCount(validator.MaxAssets + 1)
+	}
+
+	return validator.ValidatePublishableSource(format, stringFromPtr(source))
 }
 
 func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (domain.ContentItem, error) {

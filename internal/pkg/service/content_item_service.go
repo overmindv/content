@@ -23,6 +23,12 @@ func (s *ContentItemService) Store() ContentItemStore {
 }
 
 func (s *ContentItemService) Create(ctx context.Context, input domain.CreateContentItemInput) (item domain.ContentItem, err error) {
+	if err = validator.ValidateSourceSize(len(input.Source)); err != nil {
+		return domain.ContentItem{}, err
+	}
+	if err = validator.ValidateAssetCount(len(input.Assets)); err != nil {
+		return domain.ContentItem{}, err
+	}
 	normalized := normalizeCreateInput(input)
 	if err = validator.ValidateCreateContentItem(normalized); err != nil {
 		return domain.ContentItem{}, err
@@ -88,6 +94,9 @@ func (s *ContentItemService) Delete(ctx context.Context, id, actorID string) (it
 }
 
 func (s *ContentItemService) CreateRevision(ctx context.Context, input domain.CreateContentRevisionInput) (revision domain.ContentRevision, err error) {
+	if err = validator.ValidateSourceSize(len(input.Source)); err != nil {
+		return domain.ContentRevision{}, err
+	}
 	normalized := normalizeCreateRevisionInput(input)
 	if err = validator.ValidateCreateContentRevision(normalized); err != nil {
 		return domain.ContentRevision{}, err
