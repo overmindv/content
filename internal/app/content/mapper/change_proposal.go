@@ -22,6 +22,7 @@ func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProp
 			Source:           proposal.Head.Source,
 			Message:          proposal.Head.Message,
 			CreatedAt:        timestamppb.New(proposal.Head.CreatedAt),
+			Assets:           ToProtoAssets(proposal.Head.Assets),
 		},
 	}
 }

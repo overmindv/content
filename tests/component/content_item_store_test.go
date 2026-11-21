@@ -207,13 +207,15 @@ func TestContentItemStoreAccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	changed.CreatedBy = owner
+	changed.Attachments = &domain.AttachmentSet{}
 	next, err := store.CreateRevision(ctx, changed)
 	if err != nil {
 		t.Fatal(err)
 	}
+	newAssetID := uuid.NewString()
 	if _, err = pool.Exec(ctx, `INSERT INTO content_assets (id, content_item_id, revision_id, asset_id, kind)
 		VALUES ($1, $2, $3, $4, 'attachment'), ($5, $2, NULL, $6, 'attachment')`,
-		uuid.NewString(), item.ID, next.ID, uuid.NewString(), uuid.NewString(), uuid.NewString()); err != nil {
+		uuid.NewString(), item.ID, next.ID, newAssetID, uuid.NewString(), uuid.NewString()); err != nil {
 		t.Fatal(err)
 	}
 	assertPublishedView := func(view domain.ContentItem) {
@@ -245,7 +247,7 @@ func TestContentItemStoreAccess(t *testing.T) {
 		t.Error("published item missing from List")
 	}
 	owned, err = store.Get(ctx, item.ID, owner)
-	if err != nil || owned.CurrentRevisionID != next.ID || len(owned.Assets) != 3 {
+	if err != nil || owned.CurrentRevisionID != next.ID || len(owned.Assets) != 1 || owned.Assets[0].AssetID != newAssetID {
 		t.Errorf("owner did not receive the unpublished revision and assets: %v", err)
 	}
 	_, err = store.ListRevisions(ctx, item.ID, reader)

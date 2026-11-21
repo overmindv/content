@@ -24,13 +24,13 @@ func toStatusError(err error) error {
 		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, service.ErrReviewNotAllowed):
 		return status.Error(codes.PermissionDenied, err.Error())
-	case errors.Is(err, service.ErrTopicCatalogUnavailable):
+	case errors.Is(err, service.ErrTopicCatalogUnavailable), errors.Is(err, service.ErrMediaUnavailable):
 		return status.Error(codes.Unavailable, err.Error())
 	case errors.Is(err, service.ErrInactiveTopic):
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, service.ErrRevisionConflict):
 		return status.Error(codes.Aborted, err.Error())
-	case errors.Is(err, service.ErrInvalidState):
+	case errors.Is(err, service.ErrInvalidState), errors.Is(err, service.ErrAttachmentNotReady), errors.Is(err, service.ErrAttachmentsPending):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	case validator.IsValidationError(err):
 		return status.Error(codes.InvalidArgument, err.Error())

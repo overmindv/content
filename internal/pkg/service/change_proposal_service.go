@@ -13,11 +13,14 @@ import (
 type ChangeProposalService struct {
 	store     ChangeProposalStore
 	diffSlots chan struct{}
+	media     AttachmentChecker
 }
 
 func NewChangeProposalService(store ChangeProposalStore) *ChangeProposalService {
 	return &ChangeProposalService{store: store, diffSlots: make(chan struct{}, 4)}
 }
+
+func (s *ChangeProposalService) SetAttachmentChecker(checker AttachmentChecker) { s.media = checker }
 
 func (s *ChangeProposalService) Open(ctx context.Context, input domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
 	if !validProposalID(input.ContentItemID) || !validProposalID(input.BaseRevisionID) {
@@ -27,6 +30,11 @@ func (s *ChangeProposalService) Open(ctx context.Context, input domain.OpenChang
 		return domain.ChangeProposal{}, err
 	}
 	input.BaseRevisionID = strings.ToLower(input.BaseRevisionID)
+	set, err := checkAttachmentSet(ctx, s.media, input.AuthorID, input.Attachments)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	input.Attachments = set
 
 	return s.store.OpenChangeProposal(ctx, input)
 }
@@ -47,6 +55,11 @@ func (s *ChangeProposalService) Append(ctx context.Context, input domain.AppendC
 		return domain.ChangeProposal{}, err
 	}
 	input.ExpectedHeadID = strings.ToLower(input.ExpectedHeadID)
+	set, err := checkAttachmentSet(ctx, s.media, input.AuthorID, input.Attachments)
+	if err != nil {
+		return domain.ChangeProposal{}, err
+	}
+	input.Attachments = set
 
 	return s.store.AppendChangeProposalRevision(ctx, input)
 }

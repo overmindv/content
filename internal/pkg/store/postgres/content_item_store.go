@@ -42,9 +42,10 @@ type contentRevisionEvent struct {
 }
 
 type ContentItemStore struct {
-	db            *pgxpool.Pool
-	outboxTopic   string
-	outboxEnabled bool
+	db                *pgxpool.Pool
+	outboxTopic       string
+	outboxEnabled     bool
+	manageAttachments bool
 }
 
 // StoreOption настраивает хранилище (например, атомарный outbox событий).
@@ -154,7 +155,8 @@ func (s *ContentItemStore) Create(ctx context.Context, input domain.CreateConten
 	if err = s.attachTags(ctx, tx, itemID, input.Tags); err != nil {
 		return domain.ContentItem{}, err
 	}
-	if err = s.attachAssets(ctx, tx, itemID, revisionID, input.Assets); err != nil {
+	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.CreatedBy,
+		attachmentRevision{revisionID: revisionID}, attachmentRevision{}, &domain.AttachmentSet{Assets: input.Assets}); err != nil {
 		return domain.ContentItem{}, err
 	}
 	if input.Learning != nil {
@@ -287,7 +289,7 @@ func (s *ContentItemStore) List(ctx context.Context, actorID string) ([]domain.C
 	rows.Close()
 
 	for i := range items {
-		if err = s.loadItemRelations(ctx, s.db, &items[i], actorID); err != nil {
+		if err = s.loadItemRelations(ctx, s.db, &items[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -373,6 +375,11 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 	}
 	if target == current.status && (target == domain.ContentStatusArchived || current.publishedRevisionID == current.revisionID) {
 		return s.get(ctx, tx, input.ID, input.ActorID)
+	}
+	if target == domain.ContentStatusPublished {
+		if err = s.requireAttachmentBindings(ctx, tx, input.ID, current.revisionID); err != nil {
+			return domain.ContentItem{}, err
+		}
 	}
 
 	const query = `
@@ -463,6 +470,9 @@ func (s *ContentItemStore) Delete(ctx context.Context, id, actorID string) (doma
 	if tag.RowsAffected() != 1 {
 		return domain.ContentItem{}, service.ErrNotFound
 	}
+	if err = s.retireAttachmentBindings(ctx, tx, id, false); err != nil {
+		return domain.ContentItem{}, err
+	}
 
 	// Событие пишется в outbox атомарно с удалением айтема.
 	if err = s.enqueueContentItem(ctx, tx, eventContentItemDeleted, item); err != nil {
@@ -547,6 +557,10 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 		WHERE id = $1
 	`
 
+	if err = s.saveRevisionAttachments(ctx, tx, itemID, input.CreatedBy,
+		attachmentRevision{revisionID: revision.ID}, attachmentRevision{revisionID: current.revisionID}, input.Attachments); err != nil {
+		return domain.ContentRevision{}, err
+	}
 	if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy)); err != nil {
 		return domain.ContentRevision{}, err
 	}
@@ -656,7 +670,7 @@ func (s *ContentItemStore) get(ctx context.Context, queryer queryer, id, actorID
 	if err != nil {
 		return domain.ContentItem{}, err
 	}
-	if err = s.loadItemRelations(ctx, queryer, &item, actorID); err != nil {
+	if err = s.loadItemRelations(ctx, queryer, &item); err != nil {
 		return domain.ContentItem{}, err
 	}
 
@@ -691,47 +705,12 @@ func (s *ContentItemStore) attachTags(ctx context.Context, tx pgx.Tx, contentIte
 	return nil
 }
 
-func (s *ContentItemStore) attachAssets(ctx context.Context, tx pgx.Tx, contentItemID string, revisionID string, assets []domain.CreateContentAssetInput) error {
-	const insertAsset = `
-		INSERT INTO content_assets (
-			id,
-			content_item_id,
-			revision_id,
-			asset_id,
-			kind,
-			title,
-			position
-		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`
-
-	for _, asset := range assets {
-		_, err := tx.Exec(
-			ctx,
-			insertAsset,
-			uuid.NewString(),
-			contentItemID,
-			nullableString(revisionID),
-			asset.AssetID,
-			asset.Kind,
-			asset.Title,
-			asset.Position,
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *ContentItemStore) loadItemRelations(ctx context.Context, queryer queryer, item *domain.ContentItem, actorID string) error {
+func (s *ContentItemStore) loadItemRelations(ctx context.Context, queryer queryer, item *domain.ContentItem) error {
 	tags, err := s.listTags(ctx, queryer, item.ID)
 	if err != nil {
 		return err
 	}
-	owner := actorID != "" && item.CreatedBy == actorID
-	assets, err := s.listAssets(ctx, queryer, item.ID, item.CurrentRevisionID, owner)
+	assets, err := s.listAssets(ctx, queryer, item.ID, item.CurrentRevisionID)
 	if err != nil {
 		return err
 	}
@@ -770,16 +749,15 @@ func (s *ContentItemStore) listTags(ctx context.Context, queryer queryer, conten
 	return tags, rows.Err()
 }
 
-func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, contentItemID, revisionID string, owner bool) ([]domain.ContentAsset, error) {
+func (s *ContentItemStore) listAssets(ctx context.Context, queryer queryer, contentItemID, revisionID string) ([]domain.ContentAsset, error) {
 	const query = `
 		SELECT id, content_item_id, revision_id, asset_id, kind, title, position, created_at
 		FROM content_assets
-		WHERE content_item_id = $1
-		  AND ($3::boolean OR revision_id = $2)
-		ORDER BY position, id
+		WHERE content_item_id = $1 AND revision_id = $2
+		ORDER BY position, id LIMIT $3
 	`
 
-	rows, err := queryer.Query(ctx, query, contentItemID, nullableString(revisionID), owner)
+	rows, err := queryer.Query(ctx, query, contentItemID, nullableString(revisionID), validator.MaxAssets)
 	if err != nil {
 		return nil, err
 	}

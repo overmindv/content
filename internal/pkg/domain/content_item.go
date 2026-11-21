@@ -129,6 +129,7 @@ type UpdateContentItemInput struct {
 }
 
 type CreateContentRevisionInput struct {
+	Attachments        *AttachmentSet
 	ContentItemID      string
 	ExpectedRevisionID string
 	Format             ContentFormat

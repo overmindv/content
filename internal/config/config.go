@@ -12,6 +12,8 @@ type Config struct {
 	GRPC        GRPCConfig
 	Kafka       KafkaConfig
 	EntitiesURL string
+	MediaURL    string
+	MediaToken  string
 }
 
 type GRPCConfig struct {
@@ -31,6 +33,8 @@ type KafkaConfig struct {
 func Load() Config {
 	return Config{
 		EntitiesURL: os.Getenv("CONTENT_ENTITIES_URL"),
+		MediaURL:    os.Getenv("CONTENT_MEDIA_URL"),
+		MediaToken:  os.Getenv("CONTENT_MEDIA_TOKEN"),
 		GRPC: GRPCConfig{
 			Addr:         env("GRPC_ADDR", ":9090"),
 			ServiceToken: os.Getenv("CONTENT_GRPC_SERVICE_TOKEN"),

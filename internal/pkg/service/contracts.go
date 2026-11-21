@@ -24,6 +24,9 @@ var (
 	ErrReviewDecisionExists     = errors.New("a different decision already exists for this revision")
 	ErrInactiveTopic            = errors.New("topic does not exist or is not active")
 	ErrTopicCatalogUnavailable  = errors.New("topic catalog is unavailable")
+	ErrMediaUnavailable         = errors.New("media is unavailable")
+	ErrAttachmentNotReady       = errors.New("attachment is not available for binding")
+	ErrAttachmentsPending       = errors.New("revision attachments are not bound yet")
 )
 
 type ContentItemStore interface {

@@ -12,6 +12,11 @@ import (
 	"github.com/overmindv/content/internal/pkg/service"
 )
 
+const (
+	schemeHTTP  = "http"
+	schemeHTTPS = "https"
+)
+
 type TopicClient struct {
 	base *url.URL
 	http *http.Client
@@ -19,7 +24,7 @@ type TopicClient struct {
 
 func NewTopicClient(endpoint string) (*TopicClient, error) {
 	base, err := url.Parse(endpoint)
-	if err != nil || (base.Scheme != "http" && base.Scheme != "https") || base.Hostname() == "" || base.User != nil || base.RawQuery != "" || base.Fragment != "" {
+	if err != nil || (base.Scheme != schemeHTTP && base.Scheme != schemeHTTPS) || base.Hostname() == "" || base.User != nil || base.RawQuery != "" || base.Fragment != "" {
 		return nil, errors.New("CONTENT_ENTITIES_URL must be an absolute HTTP(S) URL without credentials, query or fragment")
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()

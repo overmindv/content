@@ -21,6 +21,7 @@ type ChangeProposal struct {
 }
 
 type ChangeProposalRevision struct {
+	Assets           []ContentAsset
 	ID               string
 	ParentRevisionID string
 	Ordinal          int32
@@ -30,6 +31,7 @@ type ChangeProposalRevision struct {
 }
 
 type OpenChangeProposalInput struct {
+	Attachments    *AttachmentSet
 	ContentItemID  string
 	BaseRevisionID string
 	AuthorID       string
@@ -38,6 +40,7 @@ type OpenChangeProposalInput struct {
 }
 
 type AppendChangeProposalRevisionInput struct {
+	Attachments    *AttachmentSet
 	ProposalID     string
 	ExpectedHeadID string
 	AuthorID       string

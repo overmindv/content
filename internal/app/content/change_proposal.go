@@ -16,6 +16,7 @@ func (s *Server) OpenChangeProposal(ctx context.Context, req *contentpb.OpenChan
 	proposal, err := s.proposals.Open(ctx, domain.OpenChangeProposalInput{
 		ContentItemID: req.GetContentItemId(), BaseRevisionID: req.GetBaseRevisionId(),
 		AuthorID: actor, Source: req.GetSource(), Message: req.GetMessage(),
+		Attachments: mapper.FromAttachmentSet(req.GetAttachments()),
 	})
 	if err != nil {
 		return nil, toStatusError(err)
@@ -45,6 +46,7 @@ func (s *Server) AppendChangeProposalRevision(ctx context.Context, req *contentp
 	proposal, err := s.proposals.Append(ctx, domain.AppendChangeProposalRevisionInput{
 		ProposalID: req.GetProposalId(), ExpectedHeadID: req.GetExpectedHeadId(),
 		AuthorID: actor, Source: req.GetSource(), Message: req.GetMessage(),
+		Attachments: mapper.FromAttachmentSet(req.GetAttachments()),
 	})
 	if err != nil {
 		return nil, toStatusError(err)

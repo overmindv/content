@@ -2,6 +2,7 @@ package content
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net"
 
@@ -31,6 +32,18 @@ func Build(app *parker.App) error {
 		topics = client
 	}
 
+	var media *external.MediaClient
+	if cfg.MediaURL != "" || cfg.MediaToken != "" {
+		if cfg.MediaToken != "" && cfg.MediaToken == cfg.GRPC.ServiceToken {
+			return errors.New("media bindings require a separate service token")
+		}
+		client, err := external.NewMediaClient(cfg.MediaURL, cfg.MediaToken)
+		if err != nil {
+			return err
+		}
+		media = client
+	}
+
 	pool, err := app.Postgres() // добавляет health-чек "postgres" в /ready
 	if err != nil {
 		return err
@@ -38,7 +51,7 @@ func Build(app *parker.App) error {
 
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
 	store := postgres.NewContentItemStore(pool,
-		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic))
+		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments())
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer
@@ -53,7 +66,14 @@ func Build(app *parker.App) error {
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
-	handler := NewServer(service.NewContentItemService(store, topics), service.NewChangeProposalService(store), service.NewChangeReviewService(store))
+	items, proposals := service.NewContentItemService(store, topics), service.NewChangeProposalService(store)
+	if media != nil {
+		items.SetAttachmentChecker(media)
+		proposals.SetAttachmentChecker(media)
+		worker := service.NewMediaBindingWorker(store, media)
+		app.AddRunnable("media-bindings", func(ctx context.Context) error { return worker.Run(ctx, app.Logger()) })
+	}
+	handler := NewServer(items, proposals, service.NewChangeReviewService(store))
 
 	// gRPC — бизнес-транспорт content, вне скоупа parker, поэтому как Runnable.
 	app.AddRunnable("grpc", func(ctx context.Context) error {

@@ -11,6 +11,7 @@ import (
 type ContentItemService struct {
 	store  ContentItemStore
 	topics TopicChecker
+	media  AttachmentChecker
 }
 
 func NewContentItemService(store ContentItemStore, topics TopicChecker) *ContentItemService {
@@ -23,6 +24,8 @@ func NewContentItemService(store ContentItemStore, topics TopicChecker) *Content
 func (s *ContentItemService) Store() ContentItemStore {
 	return s.store
 }
+
+func (s *ContentItemService) SetAttachmentChecker(checker AttachmentChecker) { s.media = checker }
 
 func (s *ContentItemService) Create(ctx context.Context, input domain.CreateContentItemInput) (item domain.ContentItem, err error) {
 	if err = validator.ValidateSourceSize(len(input.Source)); err != nil {
@@ -37,6 +40,13 @@ func (s *ContentItemService) Create(ctx context.Context, input domain.CreateCont
 	}
 	if normalized.Learning, err = s.validateLearningMetadata(ctx, input.Learning); err != nil {
 		return domain.ContentItem{}, err
+	}
+	if len(normalized.Assets) != 0 {
+		set, checkErr := checkAttachmentSet(ctx, s.media, normalized.CreatedBy, &domain.AttachmentSet{Assets: normalized.Assets})
+		if checkErr != nil {
+			return domain.ContentItem{}, checkErr
+		}
+		normalized.Assets = set.Assets
 	}
 
 	item, err = s.store.Create(ctx, normalized)
@@ -116,6 +126,10 @@ func (s *ContentItemService) CreateRevision(ctx context.Context, input domain.Cr
 	}
 	normalized := normalizeCreateRevisionInput(input)
 	if err = validator.ValidateCreateContentRevision(normalized); err != nil {
+		return domain.ContentRevision{}, err
+	}
+	normalized.Attachments, err = checkAttachmentSet(ctx, s.media, normalized.CreatedBy, input.Attachments)
+	if err != nil {
 		return domain.ContentRevision{}, err
 	}
 
