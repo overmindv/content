@@ -90,6 +90,10 @@ func (s *storeStub) ListRevisionHistory(context.Context, domain.RevisionHistoryI
 	return nil, nil
 }
 
+func (s *storeStub) RestorePublishedRevision(context.Context, domain.RestorePublishedRevisionInput) (domain.ContentRevision, error) {
+	return domain.ContentRevision{}, nil
+}
+
 func TestCreateAppliesDefaults(t *testing.T) {
 	t.Parallel()
 

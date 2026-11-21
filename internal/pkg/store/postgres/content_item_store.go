@@ -262,7 +262,8 @@ const visibleContentItems = `
 			r.source_hash,
 			r.message,
 			r.created_by,
-			r.created_at
+			r.created_at,
+			r.restored_from_revision_id
 		FROM content_items i
 		LEFT JOIN content_revisions r ON r.content_item_id = i.id
 		    AND r.id = CASE WHEN i.created_by = $1 THEN i.current_revision_id ELSE i.published_revision_id END
@@ -542,7 +543,7 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 			created_by
 		)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id, content_item_id, revision, format, source, source_hash, message, created_by, created_at
+		RETURNING id, content_item_id, revision, format, source, source_hash, message, created_by, created_at, restored_from_revision_id
 	`
 
 	revision, err := scanContentRevision(tx.QueryRow(
@@ -607,7 +608,7 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 
 func (s *ContentItemStore) ListRevisions(ctx context.Context, contentItemID, actorID string) ([]domain.ContentRevision, error) {
 	const query = `
-		SELECT id, content_item_id, revision, format, source, source_hash, message, created_by, created_at
+		SELECT id, content_item_id, revision, format, source, source_hash, message, created_by, created_at, restored_from_revision_id
 		FROM content_revisions
 		WHERE content_item_id = $1
 		  AND EXISTS (SELECT 1 FROM content_items WHERE id = $1 AND created_by = $2)
@@ -830,6 +831,7 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 	var revisionMessage *string
 	var revisionCreatedBy *string
 	var revisionCreatedAt *time.Time
+	var restoredFrom *string
 	var learning domain.LearningMetadata
 
 	err := row.Scan(
@@ -859,6 +861,7 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 		&revisionMessage,
 		&revisionCreatedBy,
 		&revisionCreatedAt,
+		&restoredFrom,
 	)
 	if err != nil {
 		return domain.ContentItem{}, err
@@ -887,6 +890,7 @@ func scanContentItem(row scanner) (domain.ContentItem, error) {
 		revision.SourceHash = stringFromPtr(revisionSourceHash)
 		revision.Message = stringFromPtr(revisionMessage)
 		revision.CreatedBy = stringFromPtr(revisionCreatedBy)
+		revision.RestoredFromRevisionID = stringFromPtr(restoredFrom)
 		if revisionCreatedAt != nil {
 			revision.CreatedAt = *revisionCreatedAt
 		}
@@ -900,6 +904,7 @@ func scanContentRevision(row scanner) (domain.ContentRevision, error) {
 	var revision domain.ContentRevision
 	var format string
 	var createdBy *string
+	var restoredFrom *string
 
 	err := row.Scan(
 		&revision.ID,
@@ -911,6 +916,7 @@ func scanContentRevision(row scanner) (domain.ContentRevision, error) {
 		&revision.Message,
 		&createdBy,
 		&revision.CreatedAt,
+		&restoredFrom,
 	)
 	if err != nil {
 		return domain.ContentRevision{}, err
@@ -918,6 +924,7 @@ func scanContentRevision(row scanner) (domain.ContentRevision, error) {
 
 	revision.Format = domain.ContentFormat(format)
 	revision.CreatedBy = stringFromPtr(createdBy)
+	revision.RestoredFromRevisionID = stringFromPtr(restoredFrom)
 
 	return revision, nil
 }
