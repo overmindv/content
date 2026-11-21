@@ -57,15 +57,16 @@ type ContentItem struct {
 }
 
 type ContentRevision struct {
-	ID            string
-	ContentItemID string
-	Revision      int
-	Format        ContentFormat
-	Source        string
-	SourceHash    string
-	Message       string
-	CreatedBy     string
-	CreatedAt     time.Time
+	ID                     string
+	ContentItemID          string
+	Revision               int
+	Format                 ContentFormat
+	Source                 string
+	SourceHash             string
+	Message                string
+	CreatedBy              string
+	CreatedAt              time.Time
+	RestoredFromRevisionID string `json:",omitempty"`
 }
 
 type RevisionHistoryInput struct {
@@ -76,12 +77,13 @@ type RevisionHistoryInput struct {
 }
 
 type RevisionSummary struct {
-	ID        string
-	Revision  int32
-	Format    ContentFormat
-	Message   string
-	CreatedBy string
-	CreatedAt time.Time
+	ID                     string
+	Revision               int32
+	Format                 ContentFormat
+	Message                string
+	CreatedBy              string
+	CreatedAt              time.Time
+	RestoredFromRevisionID string
 }
 
 type Tag struct {
@@ -148,6 +150,13 @@ type ChangeContentItemStateInput struct {
 type DraftMetadata struct {
 	Title    string
 	TopicIDs []string
+}
+
+type RestorePublishedRevisionInput struct {
+	ContentItemID       string
+	ExpectedPublishedID string
+	SourceRevisionID    string
+	ActorID             string
 }
 
 type CreateContentAssetInput struct {

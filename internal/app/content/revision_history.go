@@ -24,6 +24,7 @@ func (s *Server) ListContentRevisionHistory(ctx context.Context, req *contentpb.
 		items = append(items, &contentpb.ContentRevisionSummary{
 			Id: revision.ID, Revision: revision.Revision, Format: string(revision.Format), Message: revision.Message,
 			CreatedBy: revision.CreatedBy, CreatedAt: timestamppb.New(revision.CreatedAt),
+			RestoredFromRevisionId: revision.RestoredFromRevisionID,
 		})
 	}
 

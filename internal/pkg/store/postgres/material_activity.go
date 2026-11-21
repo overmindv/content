@@ -28,9 +28,19 @@ func WithMaterialActivity(material, learning string) StoreOption {
 }
 
 func (s *ContentItemStore) recordMaterialState(ctx context.Context, tx pgx.Tx, item domain.ContentItem, tombstone bool) (int64, error) {
-	state := activity.MaterialState{Tombstone: tombstone}
+	kind := activity.MaterialPublished
+	if tombstone {
+		kind = activity.MaterialArchived
+	}
+
+	return s.recordMaterialEvent(ctx, tx, item, kind, activity.MaterialState{Tombstone: tombstone})
+}
+
+func (s *ContentItemStore) recordMaterialEvent(
+	ctx context.Context, tx pgx.Tx, item domain.ContentItem, kind string, state activity.MaterialState,
+) (int64, error) {
 	var metadata []byte
-	if !tombstone {
+	if !state.Tombstone {
 		state.Metadata = &activity.ResourceMetadata{Title: resourceTitle(item.Title), Type: string(item.Type), TopicIDs: []string{}}
 		if item.CurrentRevision != nil {
 			state.Metadata.Format = string(item.CurrentRevision.Format)
@@ -57,17 +67,13 @@ func (s *ContentItemStore) recordMaterialState(ctx context.Context, tx pgx.Tx, i
 		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata)
 		SELECT $1, watermark, $2, $3, $4::jsonb FROM next RETURNING version`
 	var version int64
-	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, tombstone, metadata).Scan(&version); err != nil {
+	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, state.Tombstone, metadata).Scan(&version); err != nil {
 		return 0, fmt.Errorf("record material state: %w", err)
 	}
 	if s.activity.material == "" {
 		return version, nil
 	}
 
-	kind := activity.MaterialPublished
-	if tombstone {
-		kind = activity.MaterialArchived
-	}
 	event := newActivity(kind, item.ID, item.PublishedRevisionID, version, state)
 
 	return version, s.enqueueActivity(ctx, tx, s.activity.material, event.EventID, event.AggregateID, event)

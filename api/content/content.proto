@@ -43,6 +43,7 @@ message ContentRevision {
   string message = 7;
   string created_by = 8;
   google.protobuf.Timestamp created_at = 9;
+  string restored_from_revision_id = 10;
 }
 
 message Tag {
@@ -246,6 +247,16 @@ message ArchiveContentItemRequest {
 
 message ArchiveContentItemResponse {
   ContentItem item = 1;
+}
+
+message RestorePublishedRevisionRequest {
+  string content_item_id = 1;
+  string expected_published_revision_id = 2;
+  string source_revision_id = 3;
+}
+
+message RestorePublishedRevisionResponse {
+  ContentRevision revision = 1;
 }
 
 message ChangeProposal {
@@ -531,6 +542,7 @@ service ContentService {
   rpc ListContentRevisionHistory(ListContentRevisionHistoryRequest) returns (ListContentRevisionHistoryResponse);
   rpc PublishContentItem(PublishContentItemRequest) returns (PublishContentItemResponse);
   rpc ArchiveContentItem(ArchiveContentItemRequest) returns (ArchiveContentItemResponse);
+  rpc RestorePublishedRevision(RestorePublishedRevisionRequest) returns (RestorePublishedRevisionResponse);
   rpc OpenChangeProposal(OpenChangeProposalRequest) returns (OpenChangeProposalResponse);
   rpc GetChangeProposal(GetChangeProposalRequest) returns (GetChangeProposalResponse);
   rpc AppendChangeProposalRevision(AppendChangeProposalRevisionRequest) returns (AppendChangeProposalRevisionResponse);

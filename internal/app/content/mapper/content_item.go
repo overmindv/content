@@ -191,15 +191,16 @@ func ToProtoRevision(revision domain.ContentRevision) *content.ContentRevision {
 	revisionNumber := int32(revision.Revision) //nolint:gosec // значение получено из INTEGER
 
 	return &content.ContentRevision{
-		Id:            revision.ID,
-		ContentItemId: revision.ContentItemID,
-		Revision:      revisionNumber,
-		Format:        string(revision.Format),
-		Source:        revision.Source,
-		SourceHash:    revision.SourceHash,
-		Message:       revision.Message,
-		CreatedBy:     revision.CreatedBy,
-		CreatedAt:     timestamppb.New(revision.CreatedAt),
+		Id:                     revision.ID,
+		ContentItemId:          revision.ContentItemID,
+		Revision:               revisionNumber,
+		Format:                 string(revision.Format),
+		Source:                 revision.Source,
+		SourceHash:             revision.SourceHash,
+		Message:                revision.Message,
+		CreatedBy:              revision.CreatedBy,
+		CreatedAt:              timestamppb.New(revision.CreatedAt),
+		RestoredFromRevisionId: revision.RestoredFromRevisionID,
 	}
 }
 
