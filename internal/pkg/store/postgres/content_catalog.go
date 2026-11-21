@@ -57,7 +57,7 @@ func catalogQuery(filter domain.CatalogFilter, cursor *domain.CatalogCursor) (st
 		       i.estimated_minutes, i.learning_outcomes, ` + catalogTopicIDs + `
 		FROM content_items AS i
 		WHERE ((i.status <> 'published' AND i.created_by = $1)
-		    OR (i.status = 'published' AND EXISTS (
+		    OR (i.status = 'published' AND NOT i.moderation_hidden AND EXISTS (
 		        SELECT 1 FROM content_revisions AS r WHERE r.id = i.published_revision_id AND r.content_item_id = i.id
 		    )))`
 	args := []any{nullableString(filter.ActorID)}

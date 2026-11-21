@@ -246,7 +246,7 @@ func BenchmarkServiceActor(b *testing.B) {
 		"authorization", "Bearer "+testServiceToken, "x-user-id", testActor,
 	))
 	next := func(context.Context, any) (any, error) { return nil, nil }
-	verify := requireServiceActor(testServiceToken)
+	verify := requireServiceActor(testServiceToken, "")
 	b.Run("direct", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
@@ -274,10 +274,16 @@ func newAuthTestClient(t *testing.T, token string) (context.Context, contentpb.C
 
 func newGRPCTestClient(t *testing.T, token string, handler *Server) (context.Context, contentpb.ContentServiceClient) {
 	t.Helper()
+
+	return newGRPCTestClientWithModeration(t, token, "", handler)
+}
+
+func newGRPCTestClientWithModeration(t *testing.T, token, moderationToken string, handler *Server) (context.Context, contentpb.ContentServiceClient) {
+	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	t.Cleanup(cancel)
 	listener := bufconn.Listen(64 * 1024)
-	server := newGRPCServer(handler, token)
+	server := newGRPCServer(handler, token, moderationToken)
 	go func() { _ = server.Serve(listener) }()
 	t.Cleanup(server.Stop)
 

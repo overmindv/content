@@ -167,7 +167,7 @@ func (s *ContentItemStore) ConfirmMaterialRead(ctx context.Context, input domain
 	return pgx.BeginFunc(ctx, s.db, func(tx pgx.Tx) error {
 		const lock = `
 			SELECT published_revision_id FROM content_items
-			WHERE id = $1 AND status = 'published' AND published_revision_id IS NOT NULL FOR SHARE`
+			WHERE id = $1 AND status = 'published' AND NOT moderation_hidden AND published_revision_id IS NOT NULL FOR SHARE`
 		var revision string
 		err := tx.QueryRow(ctx, lock, input.MaterialID).Scan(&revision)
 		if errors.Is(err, pgx.ErrNoRows) {

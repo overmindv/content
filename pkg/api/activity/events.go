@@ -7,6 +7,8 @@ const (
 
 	MaterialPublished     = "material.published"
 	MaterialArchived      = "material.archived"
+	MaterialWithdrawn     = "material.withdrawn"
+	MaterialRestored      = "material.restored"
 	MaterialCorrected     = "material.corrected"
 	MaterialReadConfirmed = "material.read_confirmed"
 	SelfReported          = "self_reported"

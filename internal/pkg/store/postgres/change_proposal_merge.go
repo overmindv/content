@@ -41,7 +41,7 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 
 			return nil
 		}
-		if proposal.status != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished {
+		if proposal.status != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished || material.hidden {
 			return service.ErrInvalidState
 		}
 		if proposal.baseID != material.publishedRevisionID {

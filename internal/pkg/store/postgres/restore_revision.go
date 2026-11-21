@@ -17,7 +17,7 @@ func (s *ContentItemStore) RestorePublishedRevision(ctx context.Context, input d
 		if err != nil {
 			return err
 		}
-		if item.status != domain.ContentStatusPublished {
+		if item.status != domain.ContentStatusPublished || item.hidden {
 			return service.ErrInvalidState
 		}
 		if item.publishedRevisionID != input.ExpectedPublishedID {
