@@ -41,6 +41,7 @@ type ContentItemStore interface {
 	Get(ctx context.Context, id, actorID string) (domain.ContentItem, error)
 	CheckPublishedAttachment(context.Context, domain.PublishedAttachmentRef) error
 	SnapshotMaterials(context.Context, domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error)
+	AvailableMaterialVersions(context.Context, []domain.MaterialVersionKey) ([]domain.MaterialVersionKey, error)
 	ConfirmMaterialRead(context.Context, domain.ConfirmMaterialReadInput) error
 	List(ctx context.Context, actorID string) ([]domain.ContentItem, error)
 	ListCatalog(context.Context, domain.CatalogFilter, *domain.CatalogCursor) ([]domain.CatalogEntry, error)

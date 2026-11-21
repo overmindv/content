@@ -39,7 +39,7 @@ func TestGRPCServerTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	server := newGRPCServer(NewServer(nil, nil, nil), testServiceToken, "", grpc.Creds(credentials.NewTLS(tlsConfig)))
+	server := newGRPCServer(NewServer(nil, nil, nil), config.GRPCConfig{ServiceToken: testServiceToken}, grpc.Creds(credentials.NewTLS(tlsConfig)))
 	go func() { _ = server.Serve(listener) }()
 	t.Cleanup(server.Stop)
 

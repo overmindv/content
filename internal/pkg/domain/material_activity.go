@@ -2,6 +2,13 @@ package domain
 
 import "github.com/overmindv/content/pkg/api/activity"
 
+const MaxMaterialAvailabilityBatch = 100
+
+type MaterialVersionKey struct {
+	MaterialID string
+	RevisionID string
+}
+
 type MaterialSnapshotInput struct {
 	Watermark *int64
 	AfterID   string

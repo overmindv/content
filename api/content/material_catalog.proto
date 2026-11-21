@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package overmindv.content;
+
+option go_package = "github.com/overmindv/content/pkg/api/content;content";
+
+message MaterialVersionKey {
+  string material_id = 1;
+  string revision_id = 2;
+}
+
+message CheckMaterialAvailabilityRequest {
+  repeated MaterialVersionKey resources = 1;
+}
+
+message CheckMaterialAvailabilityResponse {
+  repeated MaterialVersionKey resources = 1;
+}
+
+service MaterialCatalogService {
+  rpc CheckMaterialAvailability(CheckMaterialAvailabilityRequest) returns (CheckMaterialAvailabilityResponse);
+}
