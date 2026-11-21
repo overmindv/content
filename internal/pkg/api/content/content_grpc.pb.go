@@ -32,6 +32,8 @@ const (
 	ContentService_GetChangeProposal_FullMethodName            = "/overmindv.content.ContentService/GetChangeProposal"
 	ContentService_AppendChangeProposalRevision_FullMethodName = "/overmindv.content.ContentService/AppendChangeProposalRevision"
 	ContentService_CloseChangeProposal_FullMethodName          = "/overmindv.content.ContentService/CloseChangeProposal"
+	ContentService_ListChangeProposalHistory_FullMethodName    = "/overmindv.content.ContentService/ListChangeProposalHistory"
+	ContentService_GetChangeProposalDiff_FullMethodName        = "/overmindv.content.ContentService/GetChangeProposalDiff"
 )
 
 // ContentServiceClient is the client API for ContentService service.
@@ -51,6 +53,8 @@ type ContentServiceClient interface {
 	GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(ctx context.Context, in *AppendChangeProposalRevisionRequest, opts ...grpc.CallOption) (*AppendChangeProposalRevisionResponse, error)
 	CloseChangeProposal(ctx context.Context, in *CloseChangeProposalRequest, opts ...grpc.CallOption) (*CloseChangeProposalResponse, error)
+	ListChangeProposalHistory(ctx context.Context, in *ListChangeProposalHistoryRequest, opts ...grpc.CallOption) (*ListChangeProposalHistoryResponse, error)
+	GetChangeProposalDiff(ctx context.Context, in *GetChangeProposalDiffRequest, opts ...grpc.CallOption) (*GetChangeProposalDiffResponse, error)
 }
 
 type contentServiceClient struct {
@@ -191,6 +195,26 @@ func (c *contentServiceClient) CloseChangeProposal(ctx context.Context, in *Clos
 	return out, nil
 }
 
+func (c *contentServiceClient) ListChangeProposalHistory(ctx context.Context, in *ListChangeProposalHistoryRequest, opts ...grpc.CallOption) (*ListChangeProposalHistoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListChangeProposalHistoryResponse)
+	err := c.cc.Invoke(ctx, ContentService_ListChangeProposalHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentServiceClient) GetChangeProposalDiff(ctx context.Context, in *GetChangeProposalDiffRequest, opts ...grpc.CallOption) (*GetChangeProposalDiffResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetChangeProposalDiffResponse)
+	err := c.cc.Invoke(ctx, ContentService_GetChangeProposalDiff_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContentServiceServer is the server API for ContentService service.
 // All implementations must embed UnimplementedContentServiceServer
 // for forward compatibility.
@@ -208,6 +232,8 @@ type ContentServiceServer interface {
 	GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error)
 	CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error)
+	ListChangeProposalHistory(context.Context, *ListChangeProposalHistoryRequest) (*ListChangeProposalHistoryResponse, error)
+	GetChangeProposalDiff(context.Context, *GetChangeProposalDiffRequest) (*GetChangeProposalDiffResponse, error)
 	mustEmbedUnimplementedContentServiceServer()
 }
 
@@ -256,6 +282,12 @@ func (UnimplementedContentServiceServer) AppendChangeProposalRevision(context.Co
 }
 func (UnimplementedContentServiceServer) CloseChangeProposal(context.Context, *CloseChangeProposalRequest) (*CloseChangeProposalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseChangeProposal not implemented")
+}
+func (UnimplementedContentServiceServer) ListChangeProposalHistory(context.Context, *ListChangeProposalHistoryRequest) (*ListChangeProposalHistoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListChangeProposalHistory not implemented")
+}
+func (UnimplementedContentServiceServer) GetChangeProposalDiff(context.Context, *GetChangeProposalDiffRequest) (*GetChangeProposalDiffResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChangeProposalDiff not implemented")
 }
 func (UnimplementedContentServiceServer) mustEmbedUnimplementedContentServiceServer() {}
 func (UnimplementedContentServiceServer) testEmbeddedByValue()                        {}
@@ -512,6 +544,42 @@ func _ContentService_CloseChangeProposal_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_ListChangeProposalHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListChangeProposalHistoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).ListChangeProposalHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_ListChangeProposalHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).ListChangeProposalHistory(ctx, req.(*ListChangeProposalHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ContentService_GetChangeProposalDiff_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChangeProposalDiffRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).GetChangeProposalDiff(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_GetChangeProposalDiff_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).GetChangeProposalDiff(ctx, req.(*GetChangeProposalDiffRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ContentService_ServiceDesc is the grpc.ServiceDesc for ContentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -570,6 +638,14 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CloseChangeProposal",
 			Handler:    _ContentService_CloseChangeProposal_Handler,
+		},
+		{
+			MethodName: "ListChangeProposalHistory",
+			Handler:    _ContentService_ListChangeProposalHistory_Handler,
+		},
+		{
+			MethodName: "GetChangeProposalDiff",
+			Handler:    _ContentService_GetChangeProposalDiff_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

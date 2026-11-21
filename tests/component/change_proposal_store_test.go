@@ -5,6 +5,7 @@ package component
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/overmindv/content/internal/pkg/domain"
 	"github.com/overmindv/content/internal/pkg/service"
 	"github.com/overmindv/content/internal/pkg/store/postgres"
+	"github.com/overmindv/content/internal/pkg/validator"
 	"github.com/overmindv/content/tests/builders"
 )
 
@@ -98,6 +100,58 @@ func TestChangeProposalLifecycle(t *testing.T) {
 	if err = pool.QueryRow(ctx, `SELECT count(*) FROM content_change_proposal_revisions WHERE proposal_id = $1`, proposal.ID).Scan(&count); err != nil || count != 2 {
 		t.Errorf("proposal revision count = %d, want 2: %v", count, err)
 	}
+	t.Run("history and diff", func(t *testing.T) {
+		readerInput := domain.ChangeProposalHistoryInput{ProposalID: proposal.ID, ActorID: owner, PageSize: 1}
+		first, err := store.ListChangeProposalHistory(ctx, readerInput)
+		if err != nil || len(first.Entries) != 1 || first.NextBeforeOrdinal != 2 {
+			t.Fatalf("first history page: %+v, %v", first, err)
+		}
+		entry := first.Entries[0]
+		if entry.ID != updated.Head.ID || entry.ParentRevisionID != proposal.Head.ID || entry.AuthorID != author || entry.CreatedAt.IsZero() {
+			t.Error("history entry is missing revision metadata")
+		}
+		readerInput.BeforeOrdinal = first.NextBeforeOrdinal
+		second, err := store.ListChangeProposalHistory(ctx, readerInput)
+		if err != nil || second.NextBeforeOrdinal != 0 || len(second.Entries) != 1 || second.Entries[0].ID != proposal.Head.ID {
+			t.Fatalf("second history page: %+v, %v", second, err)
+		}
+		readerInput.BeforeOrdinal = 1
+		last, err := store.ListChangeProposalHistory(ctx, readerInput)
+		if err != nil || len(last.Entries) != 0 || last.NextBeforeOrdinal != 0 {
+			t.Errorf("history past last entry: %+v, %v", last, err)
+		}
+		readerInput.ActorID = reader
+		if _, err = store.ListChangeProposalHistory(ctx, readerInput); !errors.Is(err, service.ErrProposalNotFound) {
+			t.Errorf("history as unrelated reader: %v", err)
+		}
+
+		diffInput := domain.ChangeProposalDiffInput{ProposalID: proposal.ID, ActorID: author}
+		sources, err := store.GetChangeProposalDiffSources(ctx, diffInput)
+		if err != nil || sources.RevisionID != updated.Head.ID || sources.BaseSource != input.Source || sources.Source != updated.Head.Source {
+			t.Errorf("diff against current head used the wrong sources: %v", err)
+		}
+		diffInput.RevisionID = proposal.Head.ID
+		sources, err = store.GetChangeProposalDiffSources(ctx, diffInput)
+		if err != nil || sources.Source != open.Source || sources.RevisionID != proposal.Head.ID {
+			t.Errorf("diff against the first revision used the wrong source: %v", err)
+		}
+		diffInput.RevisionID = storeDraft.ID
+		if _, err = store.GetChangeProposalDiffSources(ctx, diffInput); !errors.Is(err, service.ErrProposalRevisionNotFound) {
+			t.Errorf("diff against a revision outside the proposal: %v", err)
+		}
+		diffInput.ActorID, diffInput.RevisionID = reader, proposal.Head.ID
+		if _, err = store.GetChangeProposalDiffSources(ctx, diffInput); !errors.Is(err, service.ErrProposalNotFound) {
+			t.Errorf("diff as unrelated reader: %v", err)
+		}
+		if _, err = pool.Exec(ctx, `UPDATE content_revisions SET source = $2 WHERE id = $1`, item.CurrentRevisionID, strings.Repeat("x", validator.MaxSourceBytes+1)); err != nil {
+			t.Fatal(err)
+		}
+		diffInput.ActorID = author
+		sources, err = store.GetChangeProposalDiffSources(ctx, diffInput)
+		if err != nil || !sources.Oversized || sources.BaseSource != "" {
+			t.Errorf("oversized base source was not withheld: %v", err)
+		}
+	})
 	closed, err := store.CloseChangeProposal(ctx, proposal.ID, author)
 	if err != nil || closed.Status != domain.ChangeProposalClosed || closed.ClosedAt == nil {
 		t.Fatalf("close proposal: %v", err)

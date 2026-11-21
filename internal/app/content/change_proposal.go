@@ -65,3 +65,35 @@ func (s *Server) CloseChangeProposal(ctx context.Context, req *contentpb.CloseCh
 
 	return &contentpb.CloseChangeProposalResponse{Proposal: mapper.ToProtoChangeProposal(proposal)}, nil
 }
+
+func (s *Server) ListChangeProposalHistory(ctx context.Context, req *contentpb.ListChangeProposalHistoryRequest) (*contentpb.ListChangeProposalHistoryResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	page, err := s.proposals.History(ctx, domain.ChangeProposalHistoryInput{
+		ProposalID: req.GetProposalId(), ActorID: actor, BeforeOrdinal: req.GetBeforeOrdinal(), PageSize: req.GetPageSize(),
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return mapper.ToProtoChangeProposalHistory(page), nil
+}
+
+func (s *Server) GetChangeProposalDiff(ctx context.Context, req *contentpb.GetChangeProposalDiffRequest) (*contentpb.GetChangeProposalDiffResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	diff, err := s.proposals.Diff(ctx, domain.ChangeProposalDiffInput{
+		ProposalID: req.GetProposalId(), RevisionID: req.GetRevisionId(), ActorID: actor,
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &contentpb.GetChangeProposalDiffResponse{
+		BaseRevisionId: diff.BaseRevisionID, RevisionId: diff.RevisionID, UnifiedDiff: diff.UnifiedDiff, Truncated: diff.Truncated,
+	}, nil
+}

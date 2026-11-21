@@ -160,8 +160,7 @@ func getProposal(ctx context.Context, q queryer, id, actorID string, authorOnly 
 		FROM content_change_proposals AS p
 		JOIN content_items AS i ON i.id = p.content_item_id
 		JOIN content_change_proposal_revisions AS r ON r.proposal_id = p.id AND r.id = p.head_revision_id
-		WHERE p.id = $1 AND (p.author_id = $2 OR (NOT $3::boolean AND i.created_by = $2))
-	`
+		WHERE p.id = $1 AND (NOT $3::boolean OR p.author_id = $2) AND ` + proposalReader
 	var proposal domain.ChangeProposal
 	var parentID *string
 	err := q.QueryRow(ctx, selectProposal, id, actorID, authorOnly).Scan(

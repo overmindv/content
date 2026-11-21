@@ -244,6 +244,36 @@ func (mr *MockChangeProposalStoreMockRecorder) GetChangeProposal(ctx, id, actorI
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).GetChangeProposal), ctx, id, actorID)
 }
 
+// GetChangeProposalDiffSources mocks base method.
+func (m *MockChangeProposalStore) GetChangeProposalDiffSources(arg0 context.Context, arg1 domain.ChangeProposalDiffInput) (domain.ChangeProposalDiffSources, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChangeProposalDiffSources", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposalDiffSources)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChangeProposalDiffSources indicates an expected call of GetChangeProposalDiffSources.
+func (mr *MockChangeProposalStoreMockRecorder) GetChangeProposalDiffSources(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChangeProposalDiffSources", reflect.TypeOf((*MockChangeProposalStore)(nil).GetChangeProposalDiffSources), arg0, arg1)
+}
+
+// ListChangeProposalHistory mocks base method.
+func (m *MockChangeProposalStore) ListChangeProposalHistory(arg0 context.Context, arg1 domain.ChangeProposalHistoryInput) (domain.ChangeProposalHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListChangeProposalHistory", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposalHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListChangeProposalHistory indicates an expected call of ListChangeProposalHistory.
+func (mr *MockChangeProposalStoreMockRecorder) ListChangeProposalHistory(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListChangeProposalHistory", reflect.TypeOf((*MockChangeProposalStore)(nil).ListChangeProposalHistory), arg0, arg1)
+}
+
 // OpenChangeProposal mocks base method.
 func (m *MockChangeProposalStore) OpenChangeProposal(arg0 context.Context, arg1 domain.OpenChangeProposalInput) (domain.ChangeProposal, error) {
 	m.ctrl.T.Helper()
