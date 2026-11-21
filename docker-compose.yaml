@@ -20,8 +20,10 @@ services:
       KAFKA_ENABLED: "true"
       KAFKA_TOPIC: content.content-item-events
       CONTENT_ACTIVITY_ENABLED: ${CONTENT_ACTIVITY_ENABLED:-false}
+      CONTENT_CONTRIBUTION_ENABLED: ${CONTENT_CONTRIBUTION_ENABLED:-false}
       KAFKA_CONTENT_MATERIAL_TOPIC: ${KAFKA_CONTENT_MATERIAL_TOPIC:-content.material.v1}
       KAFKA_CONTENT_LEARNING_TOPIC: ${KAFKA_CONTENT_LEARNING_TOPIC:-content.learning.v1}
+      KAFKA_CONTENT_CONTRIBUTION_TOPIC: ${KAFKA_CONTENT_CONTRIBUTION_TOPIC:-content.contribution.v1}
     depends_on:
       postgres:
         condition: service_healthy

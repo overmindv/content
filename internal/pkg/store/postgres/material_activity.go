@@ -17,13 +17,20 @@ import (
 )
 
 type activityTopics struct {
-	material string
-	learning string
+	material     string
+	learning     string
+	contribution string
 }
 
 func WithMaterialActivity(material, learning string) StoreOption {
 	return func(s *ContentItemStore) {
-		s.activity = activityTopics{material: material, learning: learning}
+		s.activity.material, s.activity.learning = material, learning
+	}
+}
+
+func WithEditorialActivity(topic string) StoreOption {
+	return func(s *ContentItemStore) {
+		s.activity.contribution = topic
 	}
 }
 

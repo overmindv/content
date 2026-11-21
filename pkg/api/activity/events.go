@@ -10,11 +10,14 @@ const (
 	MaterialWithdrawn     = "material.withdrawn"
 	MaterialRestored      = "material.restored"
 	MaterialCorrected     = "material.corrected"
+	ContributionMerged    = "contribution.merged"
+	ReviewAccepted        = "review.accepted"
 	MaterialReadConfirmed = "material.read_confirmed"
 	SelfReported          = "self_reported"
 
-	DefaultMaterialTopic = "content.material.v1"
-	DefaultLearningTopic = "content.learning.v1"
+	DefaultMaterialTopic     = "content.material.v1"
+	DefaultLearningTopic     = "content.learning.v1"
+	DefaultContributionTopic = "content.contribution.v1"
 )
 
 type Event[T any] struct {
@@ -45,4 +48,13 @@ type MaterialState struct {
 type ReadConfirmation struct {
 	UserID   string `json:"user_id"`
 	Evidence string `json:"evidence"`
+}
+
+type EditorialContribution struct {
+	ProposalID         string `json:"proposal_id"`
+	ProposalRevisionID string `json:"proposal_revision_id"`
+	AuthorID           string `json:"author_id"`
+	TopicID            string `json:"topic_id"`
+	ReviewerID         string `json:"reviewer_id,omitempty"`
+	Decision           string `json:"decision,omitempty"`
 }

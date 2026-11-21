@@ -21,14 +21,14 @@ import (
 const mergeMaterialTopic = "fixture.material.merge"
 
 type mergeFixture struct {
-	t            *testing.T
+	t            testing.TB
 	pool         *pgxpool.Pool
 	store        *postgres.ContentItemStore
 	item         domain.ContentItem
 	owner, topic string
 }
 
-func newMergeFixture(t *testing.T, options ...postgres.StoreOption) mergeFixture {
+func newMergeFixture(t testing.TB, options ...postgres.StoreOption) mergeFixture {
 	t.Helper()
 	cfg := testDatabaseConfig(t)
 	pool, err := pgxpool.NewWithConfig(t.Context(), cfg)

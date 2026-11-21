@@ -26,7 +26,7 @@ func Build(app *parker.App) error {
 	if err := validateModerationConfig(cfg); err != nil {
 		return err
 	}
-	materialTopic, learningTopic, activityErr := cfg.Kafka.ActivityTopics()
+	activityTopics, activityErr := cfg.Kafka.ActivityTopics()
 	if activityErr != nil {
 		return activityErr
 	}
@@ -60,7 +60,8 @@ func Build(app *parker.App) error {
 	// События контента пишутся хранилищем в outbox атомарно с бизнес-изменением.
 	store := postgres.NewContentItemStore(pool,
 		postgres.WithOutbox(cfg.Kafka.Enabled, cfg.Kafka.Topic), postgres.WithManagedAttachments(),
-		postgres.WithMaterialActivity(materialTopic, learningTopic))
+		postgres.WithMaterialActivity(activityTopics.Material, activityTopics.Learning),
+		postgres.WithEditorialActivity(activityTopics.Contribution))
 
 	// Включённый Kafka-producer регистрируется как зависимость /ready.
 	var producer *parker.Producer
