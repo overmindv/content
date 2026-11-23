@@ -71,17 +71,23 @@ func (s *ContentItemStore) recordMaterialEvent(
 		    INSERT INTO content_catalog_materials (material_id, first_version)
 		    SELECT $1, watermark FROM next ON CONFLICT DO NOTHING
 		)
-		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata)
-		SELECT $1, watermark, $2, $3, $4::jsonb FROM next RETURNING version`
+		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata, activity_occurred_at)
+		SELECT $1, watermark, $2, $3, $4::jsonb, CASE WHEN $5::boolean THEN clock_timestamp() END
+		FROM next RETURNING version, activity_occurred_at`
 	var version int64
-	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, state.Tombstone, metadata).Scan(&version); err != nil {
+	var occurredAt *time.Time
+	emit := s.activity.material != ""
+	if err := tx.QueryRow(ctx, record, item.ID, item.PublishedRevisionID, state.Tombstone, metadata, emit).Scan(&version, &occurredAt); err != nil {
 		return 0, fmt.Errorf("record material state: %w", err)
 	}
-	if s.activity.material == "" {
+	if occurredAt == nil {
 		return version, nil
 	}
 
-	event := newActivity(kind, item.ID, item.PublishedRevisionID, version, state)
+	event := activity.Event[activity.MaterialState]{
+		EventID: uuid.NewString(), EventType: kind, SchemaVersion: activity.SchemaVersion, OccurredAt: occurredAt.UTC(),
+		AggregateID: item.ID, AggregateVersion: version, RevisionID: item.PublishedRevisionID, Payload: state,
+	}
 
 	return version, s.enqueueActivity(ctx, tx, s.activity.material, event.EventID, event.AggregateID, event)
 }
@@ -139,9 +145,9 @@ func (s *ContentItemStore) SnapshotMaterials(ctx context.Context, input domain.M
 		    SELECT material_id FROM content_catalog_materials
 		    WHERE material_id > $1 AND first_version <= $2 ORDER BY material_id LIMIT $3
 		)
-		SELECT p.material_id, v.revision_id, v.version, v.tombstone, v.metadata
+		SELECT p.material_id, v.revision_id, v.version, v.tombstone, v.metadata, v.activity_occurred_at
 		FROM page AS p JOIN LATERAL (
-		    SELECT revision_id, version, tombstone, metadata FROM content_catalog_versions
+		    SELECT revision_id, version, tombstone, metadata, activity_occurred_at FROM content_catalog_versions
 		    WHERE material_id = p.material_id AND version <= $2 ORDER BY version DESC LIMIT 1
 		) AS v ON true ORDER BY p.material_id`
 	after := input.AfterID
@@ -152,9 +158,14 @@ func (s *ContentItemStore) SnapshotMaterials(ctx context.Context, input domain.M
 	if err != nil {
 		return domain.MaterialSnapshot{}, err
 	}
-	entries, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.MaterialVersion, error) {
+	var entries []domain.MaterialVersion
+	if input.PageSize > 0 && input.PageSize <= domain.MaxMaterialSnapshotPage {
+		entries = make([]domain.MaterialVersion, 0, input.PageSize+1)
+	}
+	entries, err = pgx.AppendRows(entries, rows, func(row pgx.CollectableRow) (domain.MaterialVersion, error) {
 		var entry domain.MaterialVersion
-		scanErr := row.Scan(&entry.MaterialID, &entry.RevisionID, &entry.Version, &entry.State.Tombstone, &entry.State.Metadata)
+		scanErr := row.Scan(&entry.MaterialID, &entry.RevisionID, &entry.Version, &entry.State.Tombstone, &entry.State.Metadata,
+			&entry.ActivityOccurredAt)
 
 		return entry, scanErr
 	})

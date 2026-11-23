@@ -29,9 +29,10 @@ func BenchmarkMaterialSnapshotPage(b *testing.B) {
 			INSERT INTO content_catalog_materials (material_id, first_version)
 			SELECT gen_random_uuid(), $1 - 19 FROM generate_series(1, 500) RETURNING material_id
 		)
-		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata)
+		INSERT INTO content_catalog_versions (material_id, version, revision_id, tombstone, metadata, activity_occurred_at)
 		SELECT material_id, $1 - n, gen_random_uuid(), false,
-		       '{"title":"Graph algorithms","type":"note","format":"markdown","topic_ids":[],"estimated_minutes":20}'::jsonb
+		       '{"title":"Graph algorithms","type":"note","format":"markdown","topic_ids":[],"estimated_minutes":20}'::jsonb,
+		       statement_timestamp()
 		FROM seeded CROSS JOIN generate_series(0, 19) AS n
 	`, watermark); err != nil {
 		b.Fatal(err)

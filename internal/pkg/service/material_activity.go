@@ -9,7 +9,7 @@ import (
 )
 
 func (s *ContentItemService) SnapshotMaterials(ctx context.Context, input domain.MaterialSnapshotInput) (domain.MaterialSnapshot, error) {
-	if input.PageSize < 0 || input.PageSize > 100 {
+	if input.PageSize < 0 || input.PageSize > domain.MaxMaterialSnapshotPage {
 		return domain.MaterialSnapshot{}, validator.Error{Message: "page_size must not exceed 100"}
 	}
 	if input.Watermark != nil && *input.Watermark < 0 {
