@@ -126,7 +126,7 @@ func TestMaterialModeration(t *testing.T) {
 		t.Fatal("hide did not produce a single withdrawal without metadata")
 	}
 	hiddenWatermark := before[1].AggregateVersion
-	if snapshot := findModeratedSnapshot(t, f, item.ID, &hiddenWatermark); !snapshot.Tombstone || snapshot.Metadata != nil {
+	if snapshot := findMaterialVersion(t, f, item.ID, &hiddenWatermark); !snapshot.State.Tombstone || snapshot.State.Metadata != nil {
 		t.Error("hidden material remains visible in the snapshot")
 	}
 	restore := input
@@ -144,10 +144,10 @@ func TestMaterialModeration(t *testing.T) {
 	if err := f.store.CheckPublishedAttachment(f.ctx, attachment); err != nil {
 		t.Error("restored attachment unavailable", err)
 	}
-	if snapshot := findModeratedSnapshot(t, f, item.ID, nil); snapshot.Tombstone || snapshot.Metadata == nil {
+	if snapshot := findMaterialVersion(t, f, item.ID, nil); snapshot.State.Tombstone || snapshot.State.Metadata == nil {
 		t.Error("restored material missing from snapshot")
 	}
-	if snapshot := findModeratedSnapshot(t, f, item.ID, &hiddenWatermark); !snapshot.Tombstone {
+	if snapshot := findMaterialVersion(t, f, item.ID, &hiddenWatermark); !snapshot.State.Tombstone {
 		t.Error("restore changed a pinned catalog snapshot")
 	}
 
@@ -155,6 +155,12 @@ func TestMaterialModeration(t *testing.T) {
 	if len(events) != 3 || events[2].EventType != activity.MaterialRestored || events[2].Payload.Metadata == nil ||
 		events[0].AggregateVersion >= events[1].AggregateVersion || events[1].AggregateVersion >= events[2].AggregateVersion {
 		t.Fatal("moderation events do not form an ordered state history")
+	}
+	for _, event := range events {
+		entry := findMaterialVersion(t, f, item.ID, &event.AggregateVersion)
+		if entry.Version != event.AggregateVersion || entry.ActivityOccurredAt == nil || !entry.ActivityOccurredAt.Equal(event.OccurredAt) {
+			t.Error("snapshot event time differs from outbox for", event.EventType)
+		}
 	}
 	var latest activity.Event[activity.MaterialState]
 	apply := func(event activity.Event[activity.MaterialState]) {
@@ -189,7 +195,7 @@ func TestMaterialModeration(t *testing.T) {
 	}
 }
 
-func findModeratedSnapshot(t *testing.T, f activityFixture, id string, watermark *int64) activity.MaterialState {
+func findMaterialVersion(t *testing.T, f activityFixture, id string, watermark *int64) domain.MaterialVersion {
 	t.Helper()
 	input := domain.MaterialSnapshotInput{PageSize: 20, Watermark: watermark}
 	for {
@@ -199,7 +205,7 @@ func findModeratedSnapshot(t *testing.T, f activityFixture, id string, watermark
 		}
 		for _, entry := range page.Entries {
 			if entry.MaterialID == id {
-				return entry.State
+				return entry
 			}
 		}
 		if page.NextAfterID == "" {

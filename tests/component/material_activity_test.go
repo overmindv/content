@@ -101,6 +101,16 @@ func readActivity[P any](t *testing.T, f activityFixture, topic string) []activi
 	return events
 }
 
+func TestMaterialSnapshotWithoutActivityEvent(t *testing.T) {
+	f := newActivityFixture(t)
+	f.store = postgres.NewContentItemStore(f.pool)
+	item := f.state(t, f.create(t), domain.ContentStatusPublished)
+	entry := findMaterialVersion(t, f, item.ID, nil)
+	if entry.ActivityOccurredAt != nil || entry.RevisionID != item.PublishedRevisionID || entry.State.Tombstone {
+		t.Error("publication without a Kafka event must have no event time")
+	}
+}
+
 func TestMaterialSnapshotAndReplay(t *testing.T) {
 	f := newActivityFixture(t)
 	first := f.state(t, f.create(t), domain.ContentStatusPublished)

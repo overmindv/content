@@ -1,8 +1,15 @@
 package domain
 
-import "github.com/overmindv/content/pkg/api/activity"
+import (
+	"time"
 
-const MaxMaterialAvailabilityBatch = 100
+	"github.com/overmindv/content/pkg/api/activity"
+)
+
+const (
+	MaxMaterialAvailabilityBatch = 100
+	MaxMaterialSnapshotPage      = 100
+)
 
 type MaterialVersionKey struct {
 	MaterialID string
@@ -16,10 +23,11 @@ type MaterialSnapshotInput struct {
 }
 
 type MaterialVersion struct {
-	MaterialID string
-	RevisionID string
-	Version    int64
-	State      activity.MaterialState
+	MaterialID         string
+	RevisionID         string
+	Version            int64
+	State              activity.MaterialState
+	ActivityOccurredAt *time.Time
 }
 
 type MaterialSnapshot struct {

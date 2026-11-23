@@ -5,6 +5,7 @@ import (
 
 	"github.com/overmindv/content/internal/pkg/domain"
 	contentpb "github.com/overmindv/content/pkg/api/content"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *Server) SnapshotMaterials(ctx context.Context, req *contentpb.SnapshotMaterialsRequest) (*contentpb.SnapshotMaterialsResponse, error) {
@@ -22,6 +23,9 @@ func (s *Server) SnapshotMaterials(ctx context.Context, req *contentpb.SnapshotM
 	response.Entries = make([]*contentpb.MaterialSnapshotEntry, 0, len(page.Entries))
 	for _, e := range page.Entries {
 		row := &contentpb.MaterialSnapshotEntry{MaterialId: e.MaterialID, RevisionId: e.RevisionID, Version: e.Version, Tombstone: e.State.Tombstone}
+		if e.ActivityOccurredAt != nil {
+			row.ActivityOccurredAt = timestamppb.New(*e.ActivityOccurredAt)
+		}
 		if m := e.State.Metadata; m != nil {
 			row.Metadata = &contentpb.MaterialSnapshotMetadata{
 				Title: m.Title, Type: m.Type, Format: m.Format, TopicIds: m.TopicIDs, EstimatedMinutes: m.EstimatedMinutes,

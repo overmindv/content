@@ -506,6 +506,7 @@ message MaterialSnapshotEntry {
   int64 version = 3;
   bool tombstone = 4;
   MaterialSnapshotMetadata metadata = 5;
+  google.protobuf.Timestamp activity_occurred_at = 6;
 }
 
 message SnapshotMaterialsRequest {
