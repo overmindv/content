@@ -5,7 +5,7 @@ go 1.26.11
 require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
-	github.com/overmindv/parker v0.1.0
+	github.com/overmindv/parker v0.2.0
 	github.com/sergi/go-diff v1.4.5
 	github.com/yuin/goldmark v1.8.7
 	go.uber.org/mock v0.6.0

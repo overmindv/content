@@ -91,7 +91,8 @@ func Build(app *parker.App) error {
 		}
 		app.AddHealthCheck("kafka", parker.HealthCheckFunc(producer.Ping))
 		// Outbox-диспетчер доставляет события контента в Kafka at-least-once.
-		dispatcher := parker.NewOutboxDispatcher(parker.NewPgOutbox(pool), producer, cfg.Kafka.PollInterval, app.Logger())
+		outbox := publishingOutbox{parker.NewPgOutbox(pool)}
+		dispatcher := parker.NewOutboxDispatcher(outbox, producer, cfg.Kafka.PollInterval, app.Logger())
 		app.AddRunnable("kafka-outbox", dispatcher.Run)
 	}
 
@@ -112,6 +113,15 @@ func Build(app *parker.App) error {
 
 	return nil
 }
+
+type claimedOutbox interface {
+	parker.Outbox
+	MarkClaimSent(context.Context, parker.OutboxRecord) error
+	MarkClaimFailed(context.Context, parker.OutboxRecord) error
+}
+
+// Ограничиваем воркер публикацией, чтобы обновление Parker не включало очистку outbox.
+type publishingOutbox struct{ claimedOutbox }
 
 func reviewCandidateSource(cfg config.Config) (*external.ReviewCandidateClient, error) {
 	source := cfg.ReviewCandidates
