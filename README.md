@@ -75,8 +75,8 @@ docker compose up --build
 Проверка:
 
 ```bash
-curl http://localhost:8080/healthz
-curl http://localhost:8080/readyz
+curl http://localhost:8080/health
+curl http://localhost:8080/ready
 ```
 
 Миграции нужны для CRUD-методов `ContentItem`, но не для health/readiness.
@@ -102,8 +102,8 @@ make run
 ## HTTP endpoints
 
 - `GET /`
-- `GET /healthz`
-- `GET /readyz`
+- `GET /health`
+- `GET /ready`
 - `GET /metrics`
 
 Подробные примеры лежат в [docs/endpoints.md](github.com/overmindv/content/docs/endpoints.md).
