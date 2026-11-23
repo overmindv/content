@@ -11,16 +11,17 @@ const (
 )
 
 type ChangeProposal struct {
-	ID               string
-	ContentItemID    string
-	BaseRevisionID   string
-	MergedRevisionID string
-	BaseOutdated     bool
-	AuthorID         string
-	Status           ChangeProposalStatus
-	Head             ChangeProposalRevision
-	CreatedAt        time.Time
-	ClosedAt         *time.Time
+	ID                 string
+	ContentItemID      string
+	BaseRevisionID     string
+	MergedRevisionID   string
+	BaseOutdated       bool
+	InitialPublication bool
+	AuthorID           string
+	Status             ChangeProposalStatus
+	Head               ChangeProposalRevision
+	CreatedAt          time.Time
+	ClosedAt           *time.Time
 }
 
 type ChangeProposalRevision struct {
@@ -40,6 +41,12 @@ type OpenChangeProposalInput struct {
 	AuthorID       string
 	Source         string
 	Message        string
+}
+
+type SubmitInitialPublicationInput struct {
+	ContentItemID      string
+	ExpectedRevisionID string
+	AuthorID           string
 }
 
 type AppendChangeProposalRevisionInput struct {

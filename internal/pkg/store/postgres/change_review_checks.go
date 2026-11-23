@@ -56,11 +56,14 @@ func (s *ContentItemStore) ClaimReviewCheck(ctx context.Context) (domain.ReviewC
 		), claimed AS (
 		    UPDATE content_change_proposal_revisions AS r
 		    SET review_due_at = CASE WHEN p.head_revision_id = r.id AND p.status = 'open'
+		        AND (NOT p.initial_publication OR (` + currentInitialDraft + `))
 		            THEN statement_timestamp() + ($2::integer * INTERVAL '1 second') END,
 		        review_check_token = $1
 		    FROM due JOIN content_change_proposals AS p ON p.id = due.proposal_id
+		    JOIN content_items AS i ON i.id = p.content_item_id
 		    WHERE r.proposal_id = due.proposal_id AND r.id = due.id
-		    RETURNING r.proposal_id, r.id, r.review_check_token, r.review_topic_id, r.review_due_at, p.author_id, p.content_item_id
+		    RETURNING r.proposal_id, r.id, r.review_check_token, r.review_topic_id, r.review_due_at,
+		              p.author_id, p.content_item_id, (` + activeReviewTarget + `) AS reviewable
 		)
 		SELECT c.proposal_id, c.id, c.review_check_token,
 		    COALESCE(c.review_topic_id, (
@@ -69,7 +72,7 @@ func (s *ContentItemStore) ClaimReviewCheck(ctx context.Context) (domain.ReviewC
 		    ARRAY(SELECT a.reviewer_id FROM content_change_review_assignments AS a
 		          WHERE a.proposal_id = c.proposal_id AND a.revision_id = c.id AND a.revoked_at IS NULL ORDER BY a.slot)
 		FROM claimed AS c JOIN content_items AS i ON i.id = c.content_item_id
-		WHERE c.review_due_at IS NOT NULL AND i.status = 'published' AND NOT i.moderation_hidden
+		WHERE c.review_due_at IS NOT NULL AND c.reviewable
 	`
 	var check domain.ReviewCheck
 	var topic, owner *string

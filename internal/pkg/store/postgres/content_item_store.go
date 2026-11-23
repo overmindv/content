@@ -338,6 +338,9 @@ func (s *ContentItemStore) Update(ctx context.Context, input domain.UpdateConten
 
 		return domain.ContentItem{}, service.ErrInvalidState
 	}
+	if err = s.invalidateInitialPublication(ctx, tx, input.ID, input.UpdatedBy); err != nil {
+		return domain.ContentItem{}, err
+	}
 	if input.Learning != nil {
 		if err = writeLearningMetadata(ctx, tx, input.ID, input.Learning); err != nil {
 			return domain.ContentItem{}, err
@@ -380,6 +383,18 @@ func (s *ContentItemStore) ChangeState(ctx context.Context, input domain.ChangeC
 		return domain.ContentItem{}, err
 	}
 	if target == domain.ContentStatusPublished {
+		if current.status == domain.ContentStatusDraft {
+			var reviewing bool
+			if err = tx.QueryRow(ctx, `
+				SELECT EXISTS (SELECT 1 FROM content_change_proposals
+				               WHERE content_item_id = $1 AND author_id = $2 AND status = 'open' AND initial_publication)`,
+				input.ID, input.ActorID).Scan(&reviewing); err != nil {
+				return domain.ContentItem{}, err
+			}
+			if reviewing {
+				return domain.ContentItem{}, service.ErrReviewRequired
+			}
+		}
 		if err = validatePublication(ctx, tx, input.ID, current.revisionID); err != nil {
 			return domain.ContentItem{}, err
 		}
@@ -604,7 +619,18 @@ func (s *ContentItemStore) CreateRevision(ctx context.Context, input domain.Crea
 			return domain.ContentRevision{}, err
 		}
 	}
-	if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy), title); err != nil {
+	if current.status == domain.ContentStatusDraft {
+		const saveAndClose = `WITH saved AS (` + updateItem + ` RETURNING id)
+			UPDATE content_change_proposals
+			SET status = 'closed', closed_at = statement_timestamp()
+			WHERE content_item_id = $1 AND author_id = $3 AND status = 'open' AND initial_publication
+			  AND EXISTS (SELECT 1 FROM saved)
+			RETURNING id, head_revision_id`
+		row := tx.QueryRow(ctx, saveAndClose, itemID, revision.ID, nullableString(input.CreatedBy), title)
+		if err = s.retireInvalidatedProposal(ctx, tx, row); err != nil {
+			return domain.ContentRevision{}, err
+		}
+	} else if _, err = tx.Exec(ctx, updateItem, itemID, revision.ID, nullableString(input.CreatedBy), title); err != nil {
 		return domain.ContentRevision{}, err
 	}
 

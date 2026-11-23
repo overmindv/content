@@ -39,6 +39,16 @@ func (s *ChangeProposalService) Open(ctx context.Context, input domain.OpenChang
 	return s.store.OpenChangeProposal(ctx, input)
 }
 
+func (s *ChangeProposalService) SubmitInitialPublication(ctx context.Context, input domain.SubmitInitialPublicationInput) (domain.ChangeProposal, error) {
+	if !validProposalID(input.ContentItemID) || !validProposalID(input.ExpectedRevisionID) {
+		return domain.ChangeProposal{}, validator.Error{Message: "content_item_id and expected_revision_id must be UUIDs"}
+	}
+	input.ContentItemID = strings.ToLower(input.ContentItemID)
+	input.ExpectedRevisionID = strings.ToLower(input.ExpectedRevisionID)
+
+	return s.store.SubmitInitialPublication(ctx, input)
+}
+
 func (s *ChangeProposalService) Get(ctx context.Context, id, actorID string) (domain.ChangeProposal, error) {
 	if !validProposalID(id) {
 		return domain.ChangeProposal{}, validator.Error{Message: "proposal_id must be a UUID"}

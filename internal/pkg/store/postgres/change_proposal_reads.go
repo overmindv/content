@@ -13,7 +13,7 @@ import (
 )
 
 const proposalReader = `(i.created_by = $2 OR (NOT i.moderation_hidden AND (p.author_id = $2 OR (
-	p.status = 'open' AND EXISTS (
+	p.status = 'open' AND (NOT p.initial_publication OR (` + currentInitialDraft + `)) AND EXISTS (
 		SELECT 1 FROM content_change_review_assignments AS a
 		JOIN content_change_proposal_revisions AS v ON v.proposal_id = a.proposal_id AND v.id = a.revision_id
 		WHERE a.proposal_id = p.id AND a.revision_id = p.head_revision_id

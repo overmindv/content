@@ -8,15 +8,16 @@ import (
 
 func ToProtoChangeProposal(proposal domain.ChangeProposal) *contentpb.ChangeProposal {
 	return &contentpb.ChangeProposal{
-		Id:               proposal.ID,
-		ContentItemId:    proposal.ContentItemID,
-		BaseRevisionId:   proposal.BaseRevisionID,
-		MergedRevisionId: proposal.MergedRevisionID,
-		BaseOutdated:     proposal.BaseOutdated,
-		AuthorId:         proposal.AuthorID,
-		Status:           string(proposal.Status),
-		CreatedAt:        timestamppb.New(proposal.CreatedAt),
-		ClosedAt:         timestampOrNil(proposal.ClosedAt),
+		Id:                 proposal.ID,
+		ContentItemId:      proposal.ContentItemID,
+		BaseRevisionId:     proposal.BaseRevisionID,
+		MergedRevisionId:   proposal.MergedRevisionID,
+		BaseOutdated:       proposal.BaseOutdated,
+		InitialPublication: proposal.InitialPublication,
+		AuthorId:           proposal.AuthorID,
+		Status:             string(proposal.Status),
+		CreatedAt:          timestamppb.New(proposal.CreatedAt),
+		ClosedAt:           timestampOrNil(proposal.ClosedAt),
 		Head: &contentpb.ChangeProposalRevision{
 			Id:               proposal.Head.ID,
 			ParentRevisionId: proposal.Head.ParentRevisionID,

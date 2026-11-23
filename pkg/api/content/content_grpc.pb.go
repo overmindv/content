@@ -39,6 +39,7 @@ const (
 	ContentService_GetMaterialModeration_FullMethodName          = "/overmindv.content.ContentService/GetMaterialModeration"
 	ContentService_SetMaterialModeration_FullMethodName          = "/overmindv.content.ContentService/SetMaterialModeration"
 	ContentService_OpenChangeProposal_FullMethodName             = "/overmindv.content.ContentService/OpenChangeProposal"
+	ContentService_SubmitInitialPublication_FullMethodName       = "/overmindv.content.ContentService/SubmitInitialPublication"
 	ContentService_GetChangeProposal_FullMethodName              = "/overmindv.content.ContentService/GetChangeProposal"
 	ContentService_AppendChangeProposalRevision_FullMethodName   = "/overmindv.content.ContentService/AppendChangeProposalRevision"
 	ContentService_RebaseChangeProposal_FullMethodName           = "/overmindv.content.ContentService/RebaseChangeProposal"
@@ -79,6 +80,7 @@ type ContentServiceClient interface {
 	GetMaterialModeration(ctx context.Context, in *GetMaterialModerationRequest, opts ...grpc.CallOption) (*GetMaterialModerationResponse, error)
 	SetMaterialModeration(ctx context.Context, in *SetMaterialModerationRequest, opts ...grpc.CallOption) (*SetMaterialModerationResponse, error)
 	OpenChangeProposal(ctx context.Context, in *OpenChangeProposalRequest, opts ...grpc.CallOption) (*OpenChangeProposalResponse, error)
+	SubmitInitialPublication(ctx context.Context, in *SubmitInitialPublicationRequest, opts ...grpc.CallOption) (*SubmitInitialPublicationResponse, error)
 	GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(ctx context.Context, in *AppendChangeProposalRevisionRequest, opts ...grpc.CallOption) (*AppendChangeProposalRevisionResponse, error)
 	RebaseChangeProposal(ctx context.Context, in *RebaseChangeProposalRequest, opts ...grpc.CallOption) (*RebaseChangeProposalResponse, error)
@@ -303,6 +305,16 @@ func (c *contentServiceClient) OpenChangeProposal(ctx context.Context, in *OpenC
 	return out, nil
 }
 
+func (c *contentServiceClient) SubmitInitialPublication(ctx context.Context, in *SubmitInitialPublicationRequest, opts ...grpc.CallOption) (*SubmitInitialPublicationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitInitialPublicationResponse)
+	err := c.cc.Invoke(ctx, ContentService_SubmitInitialPublication_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *contentServiceClient) GetChangeProposal(ctx context.Context, in *GetChangeProposalRequest, opts ...grpc.CallOption) (*GetChangeProposalResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetChangeProposalResponse)
@@ -467,6 +479,7 @@ type ContentServiceServer interface {
 	GetMaterialModeration(context.Context, *GetMaterialModerationRequest) (*GetMaterialModerationResponse, error)
 	SetMaterialModeration(context.Context, *SetMaterialModerationRequest) (*SetMaterialModerationResponse, error)
 	OpenChangeProposal(context.Context, *OpenChangeProposalRequest) (*OpenChangeProposalResponse, error)
+	SubmitInitialPublication(context.Context, *SubmitInitialPublicationRequest) (*SubmitInitialPublicationResponse, error)
 	GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error)
 	AppendChangeProposalRevision(context.Context, *AppendChangeProposalRevisionRequest) (*AppendChangeProposalRevisionResponse, error)
 	RebaseChangeProposal(context.Context, *RebaseChangeProposalRequest) (*RebaseChangeProposalResponse, error)
@@ -550,6 +563,9 @@ func (UnimplementedContentServiceServer) SetMaterialModeration(context.Context, 
 }
 func (UnimplementedContentServiceServer) OpenChangeProposal(context.Context, *OpenChangeProposalRequest) (*OpenChangeProposalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OpenChangeProposal not implemented")
+}
+func (UnimplementedContentServiceServer) SubmitInitialPublication(context.Context, *SubmitInitialPublicationRequest) (*SubmitInitialPublicationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitInitialPublication not implemented")
 }
 func (UnimplementedContentServiceServer) GetChangeProposal(context.Context, *GetChangeProposalRequest) (*GetChangeProposalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChangeProposal not implemented")
@@ -974,6 +990,24 @@ func _ContentService_OpenChangeProposal_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ContentService_SubmitInitialPublication_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitInitialPublicationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServiceServer).SubmitInitialPublication(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ContentService_SubmitInitialPublication_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServiceServer).SubmitInitialPublication(ctx, req.(*SubmitInitialPublicationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ContentService_GetChangeProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetChangeProposalRequest)
 	if err := dec(in); err != nil {
@@ -1312,6 +1346,10 @@ var ContentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OpenChangeProposal",
 			Handler:    _ContentService_OpenChangeProposal_Handler,
+		},
+		{
+			MethodName: "SubmitInitialPublication",
+			Handler:    _ContentService_SubmitInitialPublication_Handler,
 		},
 		{
 			MethodName: "GetChangeProposal",

@@ -149,7 +149,7 @@ func revokeAssignments(ctx context.Context, tx pgx.Tx, proposalID, revisionID st
 }
 
 func lockReviewTarget(ctx context.Context, q queryer, proposalID, revisionID string) (reviewScope, error) {
-	scope, err := scanReviewScope(q.QueryRow(ctx, reviewScopeSQL+` AND i.status = 'published' AND NOT i.moderation_hidden FOR UPDATE OF p`, proposalID))
+	scope, err := scanReviewScope(q.QueryRow(ctx, reviewScopeSQL+` AND (`+activeReviewTarget+`) FOR UPDATE OF p`, proposalID))
 	if err != nil {
 		return reviewScope{}, err
 	}

@@ -272,6 +272,7 @@ message ChangeProposal {
   google.protobuf.Timestamp closed_at = 8;
   bool base_outdated = 9;
   string merged_revision_id = 10;
+  bool initial_publication = 11;
 }
 
 message ChangeProposalRevision {
@@ -293,6 +294,15 @@ message OpenChangeProposalRequest {
 }
 
 message OpenChangeProposalResponse {
+  ChangeProposal proposal = 1;
+}
+
+message SubmitInitialPublicationRequest {
+  string content_item_id = 1;
+  string expected_revision_id = 2;
+}
+
+message SubmitInitialPublicationResponse {
   ChangeProposal proposal = 1;
 }
 
@@ -581,6 +591,7 @@ service ContentService {
   rpc GetMaterialModeration(GetMaterialModerationRequest) returns (GetMaterialModerationResponse);
   rpc SetMaterialModeration(SetMaterialModerationRequest) returns (SetMaterialModerationResponse);
   rpc OpenChangeProposal(OpenChangeProposalRequest) returns (OpenChangeProposalResponse);
+  rpc SubmitInitialPublication(SubmitInitialPublicationRequest) returns (SubmitInitialPublicationResponse);
   rpc GetChangeProposal(GetChangeProposalRequest) returns (GetChangeProposalResponse);
   rpc AppendChangeProposalRevision(AppendChangeProposalRevisionRequest) returns (AppendChangeProposalRevisionResponse);
   rpc RebaseChangeProposal(RebaseChangeProposalRequest) returns (RebaseChangeProposalResponse);
