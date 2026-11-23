@@ -62,6 +62,7 @@ type TopicChecker interface {
 
 type ChangeProposalStore interface {
 	OpenChangeProposal(context.Context, domain.OpenChangeProposalInput) (domain.ChangeProposal, error)
+	SubmitInitialPublication(context.Context, domain.SubmitInitialPublicationInput) (domain.ChangeProposal, error)
 	GetChangeProposal(ctx context.Context, id, actorID string) (domain.ChangeProposal, error)
 	AppendChangeProposalRevision(context.Context, domain.AppendChangeProposalRevisionInput) (domain.ChangeProposal, error)
 	RebaseChangeProposal(context.Context, domain.RebaseChangeProposalInput) (domain.ChangeProposal, error)

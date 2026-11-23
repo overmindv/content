@@ -127,6 +127,23 @@ func TestReviewCheckWorker(t *testing.T) {
 		}
 	}
 
+	const setHidden = `UPDATE content_items SET moderation_hidden = $2 WHERE id = $1`
+	if _, err = pool.Exec(ctx, setHidden, item.ID, true); err != nil {
+		t.Fatal(err)
+	}
+	if _, claimed, claimErr := store.ClaimReviewCheck(ctx); claimed || claimErr != nil {
+		t.Fatal("hidden material was sent to the candidate source:", claimed, claimErr)
+	}
+	var scheduled bool
+	if err = pool.QueryRow(ctx, `
+		SELECT review_due_at IS NOT NULL FROM content_change_proposal_revisions
+		WHERE proposal_id = $1 AND id = $2`, proposal.ID, proposal.Head.ID).Scan(&scheduled); err != nil || !scheduled {
+		t.Fatal("temporarily hidden material lost its next review check:", err)
+	}
+	if _, err = pool.Exec(ctx, setHidden, item.ID, false); err != nil {
+		t.Fatal(err)
+	}
+	makeDue(false)
 	check()
 	stateOf(domain.ReviewPending, "", 2)
 	if err = vote(owner, domain.ReviewApprove); err != nil {

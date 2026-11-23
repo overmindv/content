@@ -59,6 +59,31 @@ func TestGRPCChangeProposal(t *testing.T) {
 	}
 }
 
+func TestGRPCSubmitInitialPublication(t *testing.T) {
+	t.Parallel()
+
+	store := mock.NewMockChangeProposalStore(gomock.NewController(t))
+	ctx, client := newGRPCTestClient(t, testServiceToken, NewServer(nil, service.NewChangeProposalService(store), nil))
+	req := &contentpb.SubmitInitialPublicationRequest{ContentItemId: testOtherActor, ExpectedRevisionId: testActor}
+	if _, err := client.SubmitInitialPublication(ctx, req); status.Code(err) != codes.Unauthenticated {
+		t.Fatal("unauthorized first publication:", err)
+	}
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+testServiceToken, "x-user-id", testActor))
+	if _, err := client.SubmitInitialPublication(ctx, &contentpb.SubmitInitialPublicationRequest{
+		ContentItemId: testOtherActor, ExpectedRevisionId: "not-a-revision",
+	}); status.Code(err) != codes.InvalidArgument {
+		t.Fatal("bad revision reached the store:", err)
+	}
+	store.EXPECT().SubmitInitialPublication(gomock.Any(), domain.SubmitInitialPublicationInput{
+		ContentItemID: testOtherActor, ExpectedRevisionID: testActor, AuthorID: testActor,
+	}).Return(domain.ChangeProposal{ID: testOtherActor, AuthorID: testActor, InitialPublication: true,
+		Status: domain.ChangeProposalOpen}, nil)
+	response, err := client.SubmitInitialPublication(ctx, req)
+	if err != nil || !response.GetProposal().GetInitialPublication() || response.GetProposal().GetAuthorId() != testActor {
+		t.Fatal("unexpected first publication response:", response, err)
+	}
+}
+
 func TestGRPCChangeProposalHistoryAndDiff(t *testing.T) {
 	t.Parallel()
 

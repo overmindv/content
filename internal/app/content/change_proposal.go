@@ -29,6 +29,21 @@ func (s *Server) OpenChangeProposal(ctx context.Context, req *contentpb.OpenChan
 	return &contentpb.OpenChangeProposalResponse{Proposal: mapper.ToProtoChangeProposal(proposal)}, nil
 }
 
+func (s *Server) SubmitInitialPublication(ctx context.Context, req *contentpb.SubmitInitialPublicationRequest) (*contentpb.SubmitInitialPublicationResponse, error) {
+	actor, err := actorID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	proposal, err := s.proposals.SubmitInitialPublication(ctx, domain.SubmitInitialPublicationInput{
+		ContentItemID: req.GetContentItemId(), ExpectedRevisionID: req.GetExpectedRevisionId(), AuthorID: actor,
+	})
+	if err != nil {
+		return nil, toStatusError(err)
+	}
+
+	return &contentpb.SubmitInitialPublicationResponse{Proposal: mapper.ToProtoChangeProposal(proposal)}, nil
+}
+
 func (s *Server) GetChangeProposal(ctx context.Context, req *contentpb.GetChangeProposalRequest) (*contentpb.GetChangeProposalResponse, error) {
 	actor, err := actorID(ctx)
 	if err != nil {

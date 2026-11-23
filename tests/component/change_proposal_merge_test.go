@@ -30,6 +30,19 @@ type mergeFixture struct {
 
 func newMergeFixture(t testing.TB, options ...postgres.StoreOption) mergeFixture {
 	t.Helper()
+	f := newDraftReviewFixture(t, options...)
+	state := domain.ChangeContentItemStateInput{ID: f.item.ID, ExpectedRevisionID: f.item.CurrentRevisionID, ActorID: f.owner}
+	published, err := f.store.ChangeState(t.Context(), state, domain.ContentStatusPublished)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.item = published
+
+	return f
+}
+
+func newDraftReviewFixture(t testing.TB, options ...postgres.StoreOption) mergeFixture {
+	t.Helper()
 	cfg := testDatabaseConfig(t)
 	pool, err := pgxpool.NewWithConfig(t.Context(), cfg)
 	if err != nil {
@@ -59,12 +72,6 @@ func newMergeFixture(t testing.TB, options ...postgres.StoreOption) mergeFixture
 			t.Error(cleanupErr)
 		}
 	})
-	state := domain.ChangeContentItemStateInput{ID: f.item.ID, ExpectedRevisionID: f.item.CurrentRevisionID, ActorID: f.owner}
-	f.item, err = f.store.ChangeState(t.Context(), state, domain.ContentStatusPublished)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	return f
 }
 

@@ -16,6 +16,7 @@ type proposalMerge struct {
 	headID   string
 	baseID   string
 	authorID string
+	initial  bool
 	mergedID *string
 }
 
@@ -42,24 +43,35 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 
 			return nil
 		}
-		if proposal.status != domain.ChangeProposalOpen || material.status != domain.ContentStatusPublished || material.hidden {
+		if proposal.status != domain.ChangeProposalOpen || material.hidden {
 			return service.ErrInvalidState
 		}
-		if proposal.baseID != material.publishedRevisionID {
-			return service.ErrMergeConflict
+		if err = checkMergeBase(proposal, material); err != nil {
+			return err
 		}
 		source, err := loadMergeSource(ctx, tx, input.ProposalID, proposal)
 		if err != nil {
 			return err
 		}
-		revisionID, ready, err := s.prepareMergeRevision(ctx, tx, input, proposal, source.attachments)
-		if err != nil {
-			return err
-		}
-		if !ready {
-			pending = true
+		revisionID := proposal.baseID
+		if proposal.initial {
+			if err = s.requireInitialDraftBindings(ctx, tx, proposal.itemID, revisionID); err != nil {
+				return err
+			}
+		} else {
+			var ready bool
+			revisionID, ready, err = s.prepareMergeRevision(ctx, tx, input, proposal, source.attachments)
+			if err != nil {
+				return err
+			}
+			if !ready {
+				pending = true
 
-			return nil
+				return nil
+			}
+			if err = createMergedRevision(ctx, tx, input, proposal, source, revisionID); err != nil {
+				return err
+			}
 		}
 		if err = s.publishMergedRevision(ctx, tx, input, proposal, source, revisionID); err != nil {
 			return err
@@ -76,6 +88,27 @@ func (s *ContentItemStore) MergeChangeProposal(ctx context.Context, input domain
 	}
 
 	return result, nil
+}
+
+func checkMergeBase(p proposalMerge, item lockedContentItem) error {
+	if p.initial {
+		if item.status != domain.ContentStatusDraft || item.publishedRevisionID != "" {
+			return service.ErrInvalidState
+		}
+		if p.baseID != item.revisionID {
+			return service.ErrMergeConflict
+		}
+
+		return nil
+	}
+	if item.status != domain.ContentStatusPublished {
+		return service.ErrInvalidState
+	}
+	if p.baseID != item.publishedRevisionID {
+		return service.ErrMergeConflict
+	}
+
+	return nil
 }
 
 func lockProposalMerge(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput) (proposalMerge, lockedContentItem, error) {
@@ -97,11 +130,11 @@ func lockProposalMerge(ctx context.Context, tx pgx.Tx, input domain.MergeChangeP
 		return p, lockedContentItem{}, err
 	}
 	const query = `
-		SELECT p.status, p.head_revision_id, COALESCE(r.base_revision_id, p.base_revision_id), p.author_id, p.merged_revision_id
+		SELECT p.status, p.head_revision_id, COALESCE(r.base_revision_id, p.base_revision_id), p.author_id, p.merged_revision_id, p.initial_publication
 		FROM content_change_proposals p
 		JOIN content_change_proposal_revisions r ON r.proposal_id = p.id AND r.id = p.head_revision_id
 		WHERE p.id = $1 AND p.content_item_id = $2 FOR UPDATE OF p`
-	err = tx.QueryRow(ctx, query, input.ProposalID, p.itemID).Scan(&p.status, &p.headID, &p.baseID, &p.authorID, &p.mergedID)
+	err = tx.QueryRow(ctx, query, input.ProposalID, p.itemID).Scan(&p.status, &p.headID, &p.baseID, &p.authorID, &p.mergedID, &p.initial)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = service.ErrProposalNotFound
 	}
@@ -160,7 +193,7 @@ func loadMergeSource(ctx context.Context, tx pgx.Tx, proposalID string, proposal
 const mergeAttachmentSource = ` FROM content_assets WHERE content_item_id = $1
 	AND (($3::uuid IS NULL AND revision_id = $2) OR (proposal_id = $3 AND proposal_revision_id = $2))`
 
-func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput,
+func createMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput,
 	p proposalMerge, source mergeSource, revisionID string) error {
 	const insertRevision = `
 		INSERT INTO content_revisions (id, content_item_id, revision, format, source, source_hash, message, created_by)
@@ -177,9 +210,12 @@ func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx,
 		revisionID, validator.MaxAssets); err != nil {
 		return err
 	}
-	if err := promoteMergeBinding(ctx, tx, input.ProposalID, revisionID); err != nil {
-		return err
-	}
+
+	return promoteMergeBinding(ctx, tx, input.ProposalID, revisionID)
+}
+
+func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx, input domain.MergeChangeProposalInput,
+	p proposalMerge, source mergeSource, revisionID string) error {
 	if err := s.retireAttachmentBindings(ctx, tx, input.ProposalID, true); err != nil {
 		return err
 	}
@@ -200,7 +236,7 @@ func (s *ContentItemStore) publishMergedRevision(ctx context.Context, tx pgx.Tx,
 		return err
 	}
 	const publish = `
-		UPDATE content_items SET published_revision_id = $2,
+		UPDATE content_items SET status = 'published', published_revision_id = $2,
 		    current_revision_id = CASE WHEN current_revision_id = published_revision_id THEN $2 ELSE current_revision_id END,
 		    published_at = statement_timestamp(), updated_at = statement_timestamp(), updated_by = $3
 		WHERE id = $1`

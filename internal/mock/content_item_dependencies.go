@@ -490,6 +490,21 @@ func (mr *MockChangeProposalStoreMockRecorder) RebaseChangeProposal(arg0, arg1 a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RebaseChangeProposal", reflect.TypeOf((*MockChangeProposalStore)(nil).RebaseChangeProposal), arg0, arg1)
 }
 
+// SubmitInitialPublication mocks base method.
+func (m *MockChangeProposalStore) SubmitInitialPublication(arg0 context.Context, arg1 domain.SubmitInitialPublicationInput) (domain.ChangeProposal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubmitInitialPublication", arg0, arg1)
+	ret0, _ := ret[0].(domain.ChangeProposal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SubmitInitialPublication indicates an expected call of SubmitInitialPublication.
+func (mr *MockChangeProposalStoreMockRecorder) SubmitInitialPublication(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitInitialPublication", reflect.TypeOf((*MockChangeProposalStore)(nil).SubmitInitialPublication), arg0, arg1)
+}
+
 // MockChangeReviewStore is a mock of ChangeReviewStore interface.
 type MockChangeReviewStore struct {
 	ctrl     *gomock.Controller
