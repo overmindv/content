@@ -8,6 +8,8 @@ import (
 )
 
 func TestCatalogQueryFiltersTitleCaseInsensitively(t *testing.T) {
+	t.Parallel()
+
 	query, args := catalogQuery(domain.CatalogFilter{ActorID: "actor", Search: "Линейная", PageSize: 5}, nil)
 
 	if !strings.Contains(query, "i.title ILIKE") {
