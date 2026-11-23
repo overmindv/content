@@ -1361,6 +1361,7 @@ type ContentCatalogEntry struct {
 	CreatedAt     *timestamppb.Timestamp   `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	RevisionId    string                   `protobuf:"bytes,7,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
 	Learning      *ContentLearningMetadata `protobuf:"bytes,8,opt,name=learning,proto3" json:"learning,omitempty"`
+	Type          string                   `protobuf:"bytes,9,opt,name=type,proto3" json:"type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1451,6 +1452,13 @@ func (x *ContentCatalogEntry) GetLearning() *ContentLearningMetadata {
 	return nil
 }
 
+func (x *ContentCatalogEntry) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
 type ListContentCatalogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TopicId       string                 `protobuf:"bytes,1,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
@@ -1458,6 +1466,7 @@ type ListContentCatalogRequest struct {
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	Cursor        string                 `protobuf:"bytes,5,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	Search        string                 `protobuf:"bytes,6,opt,name=search,proto3" json:"search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1523,6 +1532,13 @@ func (x *ListContentCatalogRequest) GetPageSize() int32 {
 func (x *ListContentCatalogRequest) GetCursor() string {
 	if x != nil {
 		return x.Cursor
+	}
+	return ""
+}
+
+func (x *ListContentCatalogRequest) GetSearch() string {
+	if x != nil {
+		return x.Search
 	}
 	return ""
 }
@@ -5631,7 +5647,7 @@ const file_api_content_content_proto_rawDesc = "" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
 	"updated_by\x18\a \x01(\tR\tupdatedBy\x12F\n" +
-	"\blearning\x18\b \x01(\v2*.overmindv.content.ContentLearningMetadataR\blearning\"\xa8\x02\n" +
+	"\blearning\x18\b \x01(\v2*.overmindv.content.ContentLearningMetadataR\blearning\"\xbc\x02\n" +
 	"\x13ContentCatalogEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
@@ -5642,13 +5658,15 @@ const file_api_content_content_proto_rawDesc = "" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1f\n" +
 	"\vrevision_id\x18\a \x01(\tR\n" +
 	"revisionId\x12F\n" +
-	"\blearning\x18\b \x01(\v2*.overmindv.content.ContentLearningMetadataR\blearning\"\xa0\x01\n" +
+	"\blearning\x18\b \x01(\v2*.overmindv.content.ContentLearningMetadataR\blearning\x12\x12\n" +
+	"\x04type\x18\t \x01(\tR\x04type\"\xb8\x01\n" +
 	"\x19ListContentCatalogRequest\x12\x19\n" +
 	"\btopic_id\x18\x01 \x01(\tR\atopicId\x12\x1b\n" +
 	"\tauthor_id\x18\x02 \x01(\tR\bauthorId\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x16\n" +
-	"\x06cursor\x18\x05 \x01(\tR\x06cursor\"\x7f\n" +
+	"\x06cursor\x18\x05 \x01(\tR\x06cursor\x12\x16\n" +
+	"\x06search\x18\x06 \x01(\tR\x06search\"\x7f\n" +
 	"\x1aListContentCatalogResponse\x12@\n" +
 	"\aentries\x18\x01 \x03(\v2&.overmindv.content.ContentCatalogEntryR\aentries\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +

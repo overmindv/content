@@ -42,7 +42,7 @@ func (s *ContentItemStore) ListCatalog(ctx context.Context, filter domain.Catalo
 	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.CatalogEntry, error) {
 		var entry domain.CatalogEntry
 		var author, revision *string
-		err := row.Scan(&entry.ID, &entry.Title, &entry.Slug, &entry.Status, &author, &entry.CreatedAt, &revision,
+		err := row.Scan(&entry.ID, &entry.Type, &entry.Title, &entry.Slug, &entry.Status, &author, &entry.CreatedAt, &revision,
 			&entry.Learning.EstimatedMinutes, &entry.Learning.LearningOutcomes, &entry.Learning.TopicIDs)
 		entry.AuthorID, entry.RevisionID = stringFromPtr(author), stringFromPtr(revision)
 
@@ -52,7 +52,7 @@ func (s *ContentItemStore) ListCatalog(ctx context.Context, filter domain.Catalo
 
 func catalogQuery(filter domain.CatalogFilter, cursor *domain.CatalogCursor) (string, []any) {
 	query := `
-		SELECT i.id, i.title, i.slug, i.status, i.created_by, i.created_at,
+		SELECT i.id, i.type, i.title, i.slug, i.status, i.created_by, i.created_at,
 		       CASE WHEN i.status = 'published' THEN i.published_revision_id ELSE i.current_revision_id END,
 		       i.estimated_minutes, i.learning_outcomes, ` + catalogTopicIDs + `
 		FROM content_items AS i
@@ -72,6 +72,10 @@ func catalogQuery(filter domain.CatalogFilter, cursor *domain.CatalogCursor) (st
 	if filter.Status != "" {
 		args = append(args, filter.Status)
 		query += fmt.Sprintf(` AND i.status = $%d`, len(args))
+	}
+	if filter.Search != "" {
+		args = append(args, "%"+filter.Search+"%")
+		query += fmt.Sprintf(` AND i.title ILIKE $%d`, len(args))
 	}
 	if cursor != nil {
 		args = append(args, cursor.CreatedAt, cursor.ID)

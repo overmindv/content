@@ -28,10 +28,10 @@ func TestGRPCContentCatalogAndTopicBinding(t *testing.T) {
 	if _, err := client.ListContentCatalog(ctx, &contentpb.ListContentCatalogRequest{Cursor: "wrong"}); status.Code(err) != codes.InvalidArgument {
 		t.Errorf("catalog with invalid cursor: %v", err)
 	}
-	store.EXPECT().ListCatalog(gomock.Any(), domain.CatalogFilter{ActorID: testActor, TopicID: testOtherActor, PageSize: 20}, nil).
-		Return([]domain.CatalogEntry{{ID: testActor, Learning: domain.LearningMetadata{TopicIDs: []string{testOtherActor}}}}, nil)
-	response, err := client.ListContentCatalog(ctx, &contentpb.ListContentCatalogRequest{TopicId: testOtherActor})
-	if err != nil || len(response.GetEntries()) != 1 || len(response.GetEntries()[0].GetLearning().GetTopicIds()) != 1 {
+	store.EXPECT().ListCatalog(gomock.Any(), domain.CatalogFilter{ActorID: testActor, TopicID: testOtherActor, Search: "линейная алгебра", PageSize: 20}, nil).
+		Return([]domain.CatalogEntry{{ID: testActor, Type: domain.ContentTypeNote, Learning: domain.LearningMetadata{TopicIDs: []string{testOtherActor}}}}, nil)
+	response, err := client.ListContentCatalog(ctx, &contentpb.ListContentCatalogRequest{TopicId: testOtherActor, Search: "линейная алгебра"})
+	if err != nil || len(response.GetEntries()) != 1 || response.GetEntries()[0].GetType() != "note" || len(response.GetEntries()[0].GetLearning().GetTopicIds()) != 1 {
 		t.Errorf("catalog with topic filter: %v", err)
 	}
 	topics.EXPECT().CheckActiveTopic(gomock.Any(), testOtherActor).Return(service.ErrInactiveTopic)

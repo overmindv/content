@@ -10,6 +10,7 @@ type LearningMetadata struct {
 
 type CatalogEntry struct {
 	ID         string
+	Type       ContentType
 	Title      string
 	Slug       string
 	Status     ContentStatus
@@ -23,6 +24,7 @@ type CatalogFilter struct {
 	ActorID  string
 	TopicID  string
 	AuthorID string
+	Search   string
 	Status   ContentStatus
 	PageSize int32
 }

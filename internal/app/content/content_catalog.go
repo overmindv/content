@@ -16,7 +16,7 @@ func (s *Server) ListContentCatalog(ctx context.Context, req *contentpb.ListCont
 	}
 	items, next, err := s.itemService.Catalog(ctx, domain.CatalogFilter{
 		ActorID: actor, TopicID: req.GetTopicId(), AuthorID: req.GetAuthorId(),
-		Status: domain.ContentStatus(req.GetStatus()), PageSize: req.GetPageSize(),
+		Status: domain.ContentStatus(req.GetStatus()), Search: req.GetSearch(), PageSize: req.GetPageSize(),
 	}, req.GetCursor())
 	if err != nil {
 		return nil, toStatusError(err)
@@ -24,7 +24,7 @@ func (s *Server) ListContentCatalog(ctx context.Context, req *contentpb.ListCont
 	entries := make([]*contentpb.ContentCatalogEntry, 0, len(items))
 	for _, item := range items {
 		entries = append(entries, &contentpb.ContentCatalogEntry{
-			Id: item.ID, Title: item.Title, Slug: item.Slug, Status: string(item.Status),
+			Id: item.ID, Type: string(item.Type), Title: item.Title, Slug: item.Slug, Status: string(item.Status),
 			AuthorId: item.AuthorID, CreatedAt: timestamppb.New(item.CreatedAt), RevisionId: item.RevisionID,
 			Learning: mapper.ToProtoLearning(&item.Learning),
 		})

@@ -147,6 +147,7 @@ message ContentCatalogEntry {
   google.protobuf.Timestamp created_at = 6;
   string revision_id = 7;
   ContentLearningMetadata learning = 8;
+  string type = 9;
 }
 
 message ListContentCatalogRequest {
@@ -155,6 +156,7 @@ message ListContentCatalogRequest {
   string status = 3;
   int32 page_size = 4;
   string cursor = 5;
+  string search = 6;
 }
 
 message ListContentCatalogResponse {
